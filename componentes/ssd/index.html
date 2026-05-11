@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
 
-    <title>Disco / SSD - Feria FP Hardware en Realidad Aumentada</title>
+    <title>Almacenamiento SSD - Feria FP Hardware en Realidad Aumentada</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-    <!-- Librerías AR -->
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/studio-backend/master/src/modules/marker/tools/gesture-detector.js"></script>
 
-    <!-- Configuración del modelo -->
     <script src="config.js"></script>
 
     <style>
@@ -117,6 +115,7 @@
 
         .nav-btn.activo {
             background: #7f1d1d !important;
+            color: white !important;
             border: 3px solid #ffffff;
             outline: 3px solid #ef4444;
             transform: translateY(-3px);
@@ -249,9 +248,6 @@
         #botonera button.boton-pulsado {
             transform: scale(0.92);
             filter: brightness(1.35);
-            box-shadow:
-                0 0 0 4px rgba(255,255,255,0.45),
-                0 6px 18px rgba(0,0,0,0.55);
         }
 
         #btn-info { background: #2563eb; }
@@ -388,10 +384,6 @@
             font-weight: bold;
         }
 
-        #panel-reto {
-            background: rgba(255, 255, 255, 0.95);
-        }
-
         #modal-alias {
             position: fixed;
             inset: 0;
@@ -453,12 +445,10 @@
             :root {
                 --menu-h: 142px;
                 --estado-h: 42px;
-                --botonera-h: 108px;
+                --botonera-h: 128px;
             }
 
-            #menu-superior {
-                padding: 7px;
-            }
+            #menu-superior { padding: 7px; }
 
             #menu-botones {
                 grid-template-columns: repeat(4, 1fr);
@@ -475,13 +465,9 @@
                 border-radius: 11px;
             }
 
-            .logo-btn {
-                padding: 4px;
-            }
+            .logo-btn { padding: 4px; }
 
-            #logo-centro {
-                max-height: 28px;
-            }
+            #logo-centro { max-height: 28px; }
 
             #marcador-puntos {
                 font-size: 13px;
@@ -497,7 +483,7 @@
 
             #botonera {
                 display: grid;
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(5, 1fr);
                 gap: 7px;
                 padding: 0 8px;
                 align-items: stretch;
@@ -508,8 +494,8 @@
             #botonera button {
                 width: 100%;
                 min-width: 0;
-                font-size: 13px;
-                padding: 10px 6px;
+                font-size: 12px;
+                padding: 9px 5px;
                 border-radius: 12px;
                 text-align: center;
             }
@@ -524,13 +510,11 @@
         @media (max-width: 480px) {
             :root {
                 --menu-h: 138px;
-                --estado-h: 44px;
-                --botonera-h: 118px;
+                --estado-h: 48px;
+                --botonera-h: 132px;
             }
 
-            #menu-superior {
-                padding: 6px;
-            }
+            #menu-superior { padding: 6px; }
 
             #menu-botones {
                 grid-template-columns: repeat(4, 1fr);
@@ -544,20 +528,16 @@
                 border-radius: 10px;
             }
 
-            .logo-btn {
-                padding: 4px;
-            }
+            .logo-btn { padding: 4px; }
 
-            #logo-centro {
-                max-height: 24px;
-            }
+            #logo-centro { max-height: 24px; }
 
             #barra-estado {
                 padding: 4px 6px;
             }
 
             #marcador-puntos {
-                font-size: 12px;
+                font-size: 11px;
                 gap: 8px;
                 flex-wrap: wrap;
                 line-height: 1.2;
@@ -576,14 +556,14 @@
             }
 
             #botonera {
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(5, 1fr);
                 gap: 6px;
                 padding: 0 6px;
             }
 
             #botonera button {
-                font-size: 12px;
-                padding: 9px 5px;
+                font-size: 11px;
+                padding: 8px 4px;
                 border-radius: 10px;
             }
 
@@ -602,38 +582,204 @@
             }
         }
 
-        @media (max-width: 360px) {
+        @media (max-height: 520px) and (orientation: landscape) {
             :root {
-                --menu-h: 174px;
-                --botonera-h: 126px;
+                --menu-h: 0px;
+                --estado-h: 34px;
+                --botonera-h: 0px;
+                --lateral-menu: 108px;
+                --lateral-controles: 104px;
+            }
+
+            #menu-superior {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: auto;
+                bottom: 0;
+                width: var(--lateral-menu);
+                height: 100dvh;
+                min-height: 100dvh;
+                padding: 6px;
+                z-index: 1000000;
+                background: rgba(15, 23, 42, 0.98);
             }
 
             #menu-botones {
-                grid-template-columns: repeat(3, 1fr);
-                grid-template-rows: repeat(4, 1fr);
+                width: 100%;
+                height: 100%;
+                display: grid;
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(12, minmax(0, 1fr));
                 gap: 5px;
             }
 
             .nav-btn {
+                width: 100%;
+                height: 100%;
+                min-height: 0;
                 font-size: 10.5px;
                 padding: 4px 3px;
+                border-radius: 9px;
+                line-height: 1.05;
             }
 
-            #logo-centro {
-                max-height: 23px;
-            }
+            .logo-btn { padding: 3px; }
 
-            #botonera button {
-                font-size: 11px;
-                padding: 8px 4px;
+            #logo-centro { max-height: 22px; }
+
+            #barra-estado {
+                position: fixed;
+                top: 0;
+                left: calc(var(--lateral-menu) + 6px);
+                right: calc(var(--lateral-controles) + 6px);
+                height: var(--estado-h);
+                min-height: var(--estado-h);
+                padding: 3px 6px;
+                z-index: 1000000;
+                border-radius: 0 0 12px 12px;
             }
 
             #marcador-puntos {
-                font-size: 11px;
+                font-size: 10.5px;
+                gap: 8px;
+                flex-wrap: nowrap;
             }
 
+            #visor-ar {
+                position: fixed;
+                top: calc(var(--estado-h) + 6px);
+                left: calc(var(--lateral-menu) + 8px);
+                right: calc(var(--lateral-controles) + 8px);
+                bottom: 8px;
+                border-radius: 14px;
+                border-width: 2px;
+            }
+
+            #aviso {
+                top: 8px;
+                width: min(86%, 360px);
+                font-size: 11px;
+                padding: 7px;
+                border-radius: 10px;
+            }
+
+            #botonera {
+                position: fixed;
+                top: 0;
+                right: 0;
+                left: auto;
+                bottom: 0;
+                width: var(--lateral-controles);
+                height: 100dvh;
+                min-height: 100dvh;
+                display: grid;
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(10, minmax(0, 1fr));
+                gap: 5px;
+                padding: 6px;
+                overflow: visible;
+                z-index: 1000000;
+                background: rgba(15, 23, 42, 0.92);
+                box-shadow: -4px 0 16px rgba(0,0,0,0.45);
+            }
+
+            #botonera button {
+                width: 100%;
+                height: 100%;
+                min-width: 0;
+                padding: 4px 3px;
+                font-size: 10px;
+                border-radius: 9px;
+                white-space: normal;
+                line-height: 1.05;
+            }
+
+            #btn-info { grid-row: 1; }
+            #btn-reto { grid-row: 2; }
+            #btn-puntos { grid-row: 3; }
+            #btn-girar { grid-row: 4; }
+            #btn-arriba { grid-row: 5; }
+            #btn-abajo { grid-row: 6; }
+            #btn-mas { grid-row: 7; }
+            #btn-menos { grid-row: 8; }
+            #btn-reset { grid-row: 9; }
+            #btn-guardar { grid-row: 10; }
+
             .panel {
-                max-height: 42vh;
+                position: fixed;
+                top: calc(var(--estado-h) + 10px);
+                left: calc(var(--lateral-menu) + 50%);
+                bottom: 10px;
+                transform: translateX(-50%);
+                width: min(58%, 520px);
+                max-height: none;
+                padding: 12px;
+                border-radius: 14px;
+            }
+
+            .panel h2 {
+                font-size: 17px;
+                margin-bottom: 6px;
+            }
+
+            .panel h3 {
+                font-size: 14px;
+                margin-top: 8px;
+                margin-bottom: 4px;
+            }
+
+            .panel p,
+            .panel li,
+            .opcion {
+                font-size: 12px;
+                line-height: 1.3;
+            }
+
+            .opcion {
+                padding: 7px;
+                margin: 6px 0;
+                border-radius: 9px;
+            }
+
+            .feedback {
+                font-size: 12px;
+                padding: 8px;
+                margin-top: 8px;
+            }
+
+            .cerrar,
+            .boton-secundario {
+                padding: 8px;
+                font-size: 12px;
+                border-radius: 9px;
+                margin-top: 8px;
+            }
+
+            #caja-alias {
+                width: min(82%, 360px);
+                padding: 16px;
+                border-radius: 16px;
+            }
+
+            #caja-alias h2 {
+                font-size: 18px;
+                margin-bottom: 6px;
+            }
+
+            #caja-alias p {
+                font-size: 13px;
+            }
+
+            #alias-input {
+                padding: 9px;
+                font-size: 14px;
+                margin: 8px 0;
+            }
+
+            #caja-alias button {
+                padding: 9px 14px;
+                font-size: 14px;
             }
         }
     </style>
@@ -676,13 +822,14 @@
         <div id="marcador-puntos">
             <span>👤 Alias: <strong id="alias-visible">---</strong></span>
             <span>🏆 Aciertos: <strong id="puntos-visible">0</strong></span>
+            <span>⏱ Tiempo: <strong id="tiempo-visible">00:00</strong></span>
         </div>
     </div>
 
     <div id="visor-ar">
 
         <div id="aviso">
-            Enfoca el marcador del disco o SSD para ver su maqueta 3D.
+            Enfoca el marcador del almacenamiento SSD para ver su maqueta 3D.
         </div>
 
         <a-scene
@@ -744,6 +891,8 @@
         <button id="btn-puntos" onclick="mostrarPanel('puntuacion')">🏆 Puntos</button>
 
         <button id="btn-girar" class="btn-control" onclick="girarModelo()">↻ Girar</button>
+        <button id="btn-arriba" class="btn-control" onclick="inclinarArriba()">⬆ Arriba</button>
+        <button id="btn-abajo" class="btn-control" onclick="inclinarAbajo()">⬇ Abajo</button>
         <button id="btn-mas" class="btn-control" onclick="aumentarModelo()">＋</button>
         <button id="btn-menos" class="btn-control" onclick="reducirModelo()">－</button>
         <button id="btn-reset" class="btn-control" onclick="reiniciarModelo()">⟳</button>
@@ -751,43 +900,45 @@
     </div>
 
     <div id="panel-info" class="panel">
-        <h2>Disco / almacenamiento SSD</h2>
+        <h2>Almacenamiento SSD</h2>
 
         <p>
-            El almacenamiento es el componente donde se guardan el sistema operativo, los programas,
-            los documentos, las imágenes, los vídeos y otros archivos del usuario.
+            El almacenamiento permite guardar de forma permanente el sistema operativo, programas,
+            documentos, imágenes, vídeos y otros archivos. Un SSD es una unidad de estado sólido:
+            no usa platos mecánicos como los discos duros tradicionales, por eso suele ser más rápido
+            y resistente.
         </p>
 
         <h3>Funciones principales</h3>
         <ul>
-            <li><strong>Guardar datos:</strong> conserva archivos aunque el ordenador esté apagado.</li>
-            <li><strong>Almacenar el sistema operativo:</strong> permite arrancar Windows, Linux u otro sistema.</li>
-            <li><strong>Guardar programas:</strong> mantiene instaladas las aplicaciones del equipo.</li>
-            <li><strong>Influir en la velocidad:</strong> un SSD puede hacer que el ordenador arranque y cargue programas más rápido.</li>
+            <li><strong>Guardar datos:</strong> conserva la información aunque el equipo esté apagado.</li>
+            <li><strong>Cargar el sistema:</strong> permite iniciar el sistema operativo.</li>
+            <li><strong>Abrir programas:</strong> influye mucho en la velocidad de carga de aplicaciones.</li>
+            <li><strong>Almacenar archivos:</strong> documentos, fotografías, vídeos, proyectos y copias.</li>
         </ul>
 
         <h3>Tipos habituales</h3>
         <ul>
-            <li><strong>HDD:</strong> disco duro mecánico, más lento pero suele ofrecer mucha capacidad.</li>
-            <li><strong>SSD SATA:</strong> unidad de estado sólido conectada por SATA, más rápida que un HDD.</li>
-            <li><strong>SSD NVMe M.2:</strong> unidad muy rápida instalada directamente en la placa base.</li>
-            <li><strong>Externo USB:</strong> almacenamiento portátil conectado por USB.</li>
+            <li><strong>SSD SATA 2,5":</strong> usa cable SATA de datos y cable de alimentación SATA.</li>
+            <li><strong>SSD M.2 SATA:</strong> se instala en ranura M.2 pero usa protocolo SATA.</li>
+            <li><strong>SSD M.2 NVMe:</strong> usa PCI Express y suele ser mucho más rápido.</li>
+            <li><strong>HDD:</strong> disco duro mecánico, normalmente más lento pero con gran capacidad.</li>
         </ul>
 
         <h3>Buenas prácticas</h3>
         <ul>
-            <li>Comprobar si la placa base admite SATA, M.2 o NVMe.</li>
-            <li>No forzar conectores ni tornillos.</li>
-            <li>Usar cables SATA de datos y alimentación si el disco es SATA.</li>
-            <li>Guardar copias de seguridad de los archivos importantes.</li>
-            <li>Elegir suficiente capacidad según el uso del equipo.</li>
+            <li>Comprobar si la placa base tiene ranura M.2 o conectores SATA disponibles.</li>
+            <li>No doblar ni forzar un SSD M.2 al instalarlo.</li>
+            <li>Usar el tornillo correcto para fijar el SSD M.2.</li>
+            <li>Hacer copias de seguridad de los datos importantes.</li>
+            <li>Comprobar en BIOS/UEFI si la unidad aparece correctamente.</li>
         </ul>
 
         <button class="cerrar" onclick="cerrarPaneles()">Cerrar información</button>
     </div>
 
     <div id="panel-reto" class="panel">
-        <h2>Reto: disco / almacenamiento</h2>
+        <h2>Reto: almacenamiento SSD</h2>
 
         <div id="contenedor-pregunta"></div>
 
@@ -801,9 +952,10 @@
         <p><strong>Alias:</strong> <span id="alias-panel">---</span></p>
         <p><strong>Preguntas correctas:</strong> <span id="correctas-panel">0</span></p>
         <p><strong>Preguntas respondidas:</strong> <span id="respondidas-panel">0</span></p>
+        <p><strong>Tiempo empleado:</strong> <span id="tiempo-panel">00:00</span></p>
 
         <p>
-            Esta puntuación se guarda en este navegador y también se envía al ranking online de la feria.
+            En caso de empate en el ranking, ganará quien haya conseguido la puntuación en menos tiempo.
         </p>
 
         <button class="boton-secundario" onclick="reiniciarRetoActual()">Reiniciar preguntas de esta página</button>
@@ -818,21 +970,17 @@
 
         <p>
             Esta clasificación muestra los participantes guardados en este dispositivo.
-            La clasificación general se consulta desde el botón Ranking.
+            La clasificación general solo está disponible para el administrador.
         </p>
 
         <button class="cerrar" onclick="cerrarPaneles()">Cerrar ranking</button>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-database-compat.js"></script>
 
-    <!-- Configuración Firebase desde la raíz -->
-    <script src="../../firebase-config.js?v=300"></script>
-
-    <!-- Código principal -->
-    <script src="app.js?v=300"></script>
+    <script src="../../firebase-config.js?v=500"></script>
+    <script src="app.js?v=500"></script>
 
 </body>
 </html>

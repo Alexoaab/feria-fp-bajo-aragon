@@ -1,6 +1,7 @@
 /* ============================================================
-   APP.JS - PÁGINA INICIO
+   APP.JS - PÁGINA INICIO / EQUIPO COMPLETO
    Feria FP Bajo Aragón - Hardware RA + Ranking Firebase
+   Administrador + reinicio remoto + cronómetro
    ============================================================ */
 
 const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
@@ -15,121 +16,127 @@ const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
     };
 
 const COMPONENTE_ID = CONFIG_LOCAL.componenteId || 'inicio-equipo-sobremesa';
+
 const RUTA_RANKING_FIREBASE_DIRECTO = 'rankingFeriaFPBajoAragon';
+const RUTA_CONTROL_REINICIO = 'controlFeriaFPBajoAragon/reinicio';
+
+const ALIAS_ADMIN = 'aalbaladejob';
 
 const PREGUNTAS = [
     {
-        texto: 'En la maqueta 3D se ve un equipo de sobremesa completo. ¿Qué tres elementos principales aparecen?',
+        texto: '¿Qué representa esta maqueta de realidad aumentada?',
         opciones: [
             {
-                texto: 'Torre, pantalla y teclado',
+                texto: 'Un equipo de sobremesa completo con sus periféricos principales',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. Un equipo de sobremesa básico suele estar formado por una torre, una pantalla y dispositivos de entrada como el teclado.'
+                feedbackCorrecto: 'Correcto. Esta escena sirve como introducción al ordenador completo antes de estudiar sus componentes internos.'
             },
             {
-                texto: 'Router, impresora y altavoz',
+                texto: 'Solo una memoria RAM',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Esos dispositivos pueden estar conectados al ordenador, pero no son los tres elementos principales que se ven en esta maqueta.'
+                feedbackIncorrecto: 'No es correcto. La memoria RAM es solo uno de los componentes internos del ordenador.'
             },
             {
-                texto: 'Tablet, móvil y cargador',
+                texto: 'Únicamente una fuente de alimentación',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La maqueta representa un ordenador de sobremesa, no dispositivos móviles.'
+                feedbackIncorrecto: 'No es correcto. La fuente de alimentación es una parte del equipo, pero aquí se muestra el conjunto completo.'
             }
         ]
     },
     {
-        texto: '¿Qué función principal tiene la torre del ordenador?',
+        texto: '¿Cuál es la función principal de la torre del ordenador?',
         opciones: [
             {
-                texto: 'Contener los componentes internos que hacen funcionar el equipo',
+                texto: 'Contener y proteger los componentes internos del equipo',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. Dentro de la torre están componentes como la placa base, el procesador, la memoria RAM, el almacenamiento y la fuente de alimentación.'
+                feedbackCorrecto: 'Muy bien. La torre contiene la placa base, fuente, CPU, RAM, discos, GPU y cables internos.'
             },
             {
-                texto: 'Mostrar las imágenes y los vídeos',
+                texto: 'Mostrar imágenes al usuario',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Las imágenes y vídeos se muestran en la pantalla. La torre contiene los componentes internos.'
+                feedbackIncorrecto: 'No es correcto. Las imágenes se muestran en el monitor o pantalla.'
             },
             {
-                texto: 'Escribir textos y números',
+                texto: 'Sustituir al teclado',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Para escribir usamos el teclado. La torre es la parte donde están los componentes internos.'
+                feedbackIncorrecto: 'No es correcto. El teclado sirve para introducir texto y órdenes.'
             }
         ]
     },
     {
-        texto: '¿Para qué sirve la pantalla o monitor?',
+        texto: '¿Qué componente permite ver la información generada por el ordenador?',
         opciones: [
             {
-                texto: 'Para mostrar la información, imágenes, vídeos y programas',
+                texto: 'El monitor o pantalla',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. La pantalla permite ver lo que está haciendo el ordenador: escritorio, programas, vídeos, juegos o páginas web.'
+                feedbackCorrecto: 'Correcto. El monitor muestra el sistema operativo, programas, imágenes, vídeos y páginas web.'
             },
             {
-                texto: 'Para guardar archivos de forma permanente',
+                texto: 'La fuente de alimentación',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Los archivos se guardan en el disco duro o SSD, que normalmente está dentro de la torre.'
+                feedbackIncorrecto: 'No es correcto. La fuente proporciona energía eléctrica al equipo.'
             },
             {
-                texto: 'Para alimentar de electricidad todos los componentes',
+                texto: 'El disipador',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La electricidad la proporciona la fuente de alimentación, situada dentro de la torre.'
+                feedbackIncorrecto: 'No es correcto. El disipador ayuda a refrigerar componentes como la CPU.'
             }
         ]
     },
     {
-        texto: '¿Qué función tiene el teclado en un ordenador de sobremesa?',
+        texto: '¿Cuál es un orden lógico básico para montar un ordenador?',
         opciones: [
             {
-                texto: 'Introducir texto, números y órdenes',
+                texto: 'Carcasa, fuente, placa base, CPU, refrigeración, RAM, disco, GPU y cables',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. El teclado es un dispositivo de entrada: sirve para escribir, introducir datos y usar atajos o comandos.'
+                feedbackCorrecto: 'Muy bien. Ese orden ayuda a montar el equipo de forma organizada y segura.'
             },
             {
-                texto: 'Refrigerar el procesador',
+                texto: 'Monitor, ratón, altavoces y finalmente la CPU suelta sobre la mesa',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La refrigeración la realizan ventiladores y disipadores, no el teclado.'
+                feedbackIncorrecto: 'No es correcto. La CPU debe instalarse en la placa base y el montaje debe seguir un orden lógico.'
             },
             {
-                texto: 'Mostrar el escritorio del sistema operativo',
+                texto: 'Primero cerrar la carcasa y después meter los componentes',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El escritorio se muestra en la pantalla. El teclado sirve para introducir información.'
+                feedbackIncorrecto: 'No es correcto. Los componentes deben instalarse antes de cerrar la carcasa.'
             }
         ]
     },
     {
-        texto: '¿Por qué un ordenador de sobremesa necesita cables o conexiones?',
+        texto: '¿Para qué sirve esta experiencia de realidad aumentada en la feria?',
         opciones: [
             {
-                texto: 'Porque necesita alimentación eléctrica y comunicación entre sus dispositivos',
+                texto: 'Para aprender de forma visual los componentes de un ordenador y su función',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. El ordenador necesita cables de corriente, cables de vídeo para la pantalla y conexiones para teclado, ratón, red u otros periféricos.'
+                feedbackCorrecto: 'Correcto. La realidad aumentada permite explorar modelos 3D y relacionarlos con el hardware real.'
             },
             {
-                texto: 'Porque sin cables no puede tener colores',
+                texto: 'Para borrar todos los programas del ordenador',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Los cables no sirven para dar color. Sirven para alimentar el equipo y comunicar dispositivos.'
+                feedbackIncorrecto: 'No es correcto. La experiencia es educativa y no borra programas.'
             },
             {
-                texto: 'Porque los cables sustituyen al procesador',
+                texto: 'Para sustituir completamente las prácticas reales de montaje',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El procesador está dentro de la torre y se encarga de procesar instrucciones. Los cables conectan y alimentan dispositivos.'
+                feedbackIncorrecto: 'No es correcto. La realidad aumentada ayuda a aprender, pero se complementa con prácticas reales de montaje.'
             }
         ]
     }
 ];
 
 let escalaActual = CONFIG_LOCAL.escalaInicial;
+let rotacionX = CONFIG_LOCAL.rotacionInicial.x;
 let rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 let preguntaActual = 0;
 
 let alias = localStorage.getItem('fp_alias') || '';
 let progreso = {};
-
-// Orden aleatorio de respuestas.
-// Se mantiene mientras la página está abierta para que las opciones no cambien cada vez que se repinta la pregunta.
 let ordenOpcionesPorPregunta = {};
+
+let intervaloCronometro = null;
+let tiempoInicioReto = 0;
+let tiempoFinalReto = 0;
 
 window.addEventListener('load', function () {
     cargarEscalaGuardada();
@@ -137,8 +144,15 @@ window.addEventListener('load', function () {
 
     iniciarAlias();
     cargarProgreso();
+    actualizarBotonRankingAdmin();
 
     preguntaActual = buscarPrimeraPreguntaPendiente();
+
+    if (alias) {
+        iniciarCronometroReto();
+    } else {
+        actualizarCronometroVisible();
+    }
 
     actualizarPuntuacion();
     cargarPregunta();
@@ -148,10 +162,33 @@ window.addEventListener('load', function () {
     configurarEventosMarcador();
     configurarInputAlias();
     comprobarFirebaseComponente();
+    escucharReinicioRemoto();
 });
 
 /* ============================================================
-   FIREBASE
+   ADMINISTRADOR
+   ============================================================ */
+
+function esAdministrador() {
+    return alias && alias.trim().toLowerCase() === ALIAS_ADMIN;
+}
+
+function actualizarBotonRankingAdmin() {
+    const botonRanking = document.querySelector('.ranking-link');
+
+    if (!botonRanking) {
+        return;
+    }
+
+    if (esAdministrador()) {
+        botonRanking.style.display = '';
+    } else {
+        botonRanking.style.display = 'none';
+    }
+}
+
+/* ============================================================
+   FIREBASE Y REINICIO REMOTO
    ============================================================ */
 
 function comprobarFirebaseComponente() {
@@ -165,11 +202,154 @@ function comprobarFirebaseComponente() {
         return;
     }
 
-    console.log('Firebase disponible en página de inicio.');
+    console.log('Firebase disponible en página inicio.');
 
     window.rankingDB.ref('.info/connected').on('value', function (snapshot) {
         console.log('Firebase conectado desde inicio:', snapshot.val());
     });
+}
+
+function escucharReinicioRemoto() {
+    if (!window.rankingDB) {
+        console.warn('No se puede escuchar reinicio remoto porque Firebase no está disponible.');
+        return;
+    }
+
+    window.rankingDB.ref(RUTA_CONTROL_REINICIO).on('value', function (snapshot) {
+        const marcaReinicio = snapshot.val();
+
+        if (!marcaReinicio) {
+            return;
+        }
+
+        const ultimaMarcaLocal = localStorage.getItem('fp_ultima_marca_reinicio') || '';
+
+        if (String(marcaReinicio) === String(ultimaMarcaLocal)) {
+            return;
+        }
+
+        localStorage.setItem('fp_ultima_marca_reinicio', String(marcaReinicio));
+
+        limpiarDatosLocalesPorReinicio();
+
+        alert('El profesor ha reiniciado el reto. Puedes introducir un nuevo alias.');
+
+        window.location.reload();
+    });
+}
+
+function limpiarDatosLocalesPorReinicio() {
+    const clavesABorrar = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+
+        if (
+            clave === 'fp_alias' ||
+            clave === 'fp_ranking_local' ||
+            clave.startsWith('fp_progreso_') ||
+            clave.startsWith('fp_escala_') ||
+            clave.startsWith('fp_tiempo_inicio_') ||
+            clave.startsWith('fp_tiempo_final_')
+        ) {
+            clavesABorrar.push(clave);
+        }
+    }
+
+    clavesABorrar.forEach(function (clave) {
+        localStorage.removeItem(clave);
+    });
+
+    sessionStorage.clear();
+}
+
+/* ============================================================
+   CRONÓMETRO DEL RETO
+   ============================================================ */
+
+function claveTiempoInicioAlias() {
+    return 'fp_tiempo_inicio_' + normalizarAlias(alias);
+}
+
+function claveTiempoFinalAlias() {
+    return 'fp_tiempo_final_' + normalizarAlias(alias);
+}
+
+function iniciarCronometroReto() {
+    if (!alias) {
+        return;
+    }
+
+    const tiempoGuardado = localStorage.getItem(claveTiempoInicioAlias());
+
+    if (tiempoGuardado) {
+        tiempoInicioReto = Number(tiempoGuardado);
+    } else {
+        tiempoInicioReto = Date.now();
+        localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+    }
+
+    const tiempoFinalGuardado = localStorage.getItem(claveTiempoFinalAlias());
+
+    if (tiempoFinalGuardado) {
+        tiempoFinalReto = Number(tiempoFinalGuardado);
+    } else {
+        tiempoFinalReto = 0;
+    }
+
+    if (intervaloCronometro) {
+        clearInterval(intervaloCronometro);
+    }
+
+    intervaloCronometro = setInterval(function () {
+        actualizarCronometroVisible();
+    }, 1000);
+
+    actualizarCronometroVisible();
+}
+
+function finalizarCronometroSiTerminado() {
+    if (!alias) {
+        return;
+    }
+
+    if (preguntaActual < PREGUNTAS.length) {
+        return;
+    }
+
+    if (tiempoFinalReto > 0) {
+        return;
+    }
+
+    tiempoFinalReto = Date.now();
+    localStorage.setItem(claveTiempoFinalAlias(), String(tiempoFinalReto));
+
+    actualizarCronometroVisible();
+}
+
+function obtenerTiempoRetoSegundos() {
+    if (!alias || !tiempoInicioReto) {
+        return 0;
+    }
+
+    const fin = tiempoFinalReto > 0 ? tiempoFinalReto : Date.now();
+
+    return Math.max(0, Math.floor((fin - tiempoInicioReto) / 1000));
+}
+
+function formatearTiempo(segundosTotales) {
+    const minutos = Math.floor(segundosTotales / 60);
+    const segundos = segundosTotales % 60;
+
+    return String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
+}
+
+function actualizarCronometroVisible() {
+    const segundos = obtenerTiempoRetoSegundos();
+    const tiempoTexto = formatearTiempo(segundos);
+
+    actualizarTexto('tiempo-visible', tiempoTexto);
+    actualizarTexto('tiempo-panel', tiempoTexto);
 }
 
 /* ============================================================
@@ -211,6 +391,7 @@ function leerConfiguracionDesdeURL() {
 
     if (rotXURL !== null && !isNaN(parseFloat(rotXURL))) {
         CONFIG_LOCAL.rotacionInicial.x = parseFloat(rotXURL);
+        rotacionX = CONFIG_LOCAL.rotacionInicial.x;
     }
 
     if (rotYURL !== null && !isNaN(parseFloat(rotYURL))) {
@@ -248,10 +429,6 @@ function guardarEscalaActual() {
     mostrarMensajeVisor('✅ Tamaño guardado. Escala inicial: ' + escalaActual.toFixed(3));
 }
 
-/* ============================================================
-   CONTROL DEL MODELO 3D
-   ============================================================ */
-
 function obtenerModelo() {
     return document.getElementById('modelo-ordenador');
 }
@@ -278,7 +455,9 @@ function aplicarEscala(mostrarMensaje) {
 function aplicarPosicionInicial() {
     const modelo = obtenerModelo();
 
-    if (!modelo) return;
+    if (!modelo) {
+        return;
+    }
 
     modelo.setAttribute('position', {
         x: CONFIG_LOCAL.posicionInicial.x,
@@ -287,14 +466,16 @@ function aplicarPosicionInicial() {
     });
 }
 
-function aplicarRotacionInicial() {
+function aplicarRotacionActual() {
     const modelo = obtenerModelo();
 
-    if (!modelo) return;
+    if (!modelo) {
+        return;
+    }
 
     modelo.setAttribute('rotation', {
-        x: CONFIG_LOCAL.rotacionInicial.x,
-        y: CONFIG_LOCAL.rotacionInicial.y,
+        x: rotacionX,
+        y: rotacionY,
         z: CONFIG_LOCAL.rotacionInicial.z
     });
 }
@@ -302,23 +483,32 @@ function aplicarRotacionInicial() {
 function girarModelo() {
     marcarBotonTemporal('btn-girar');
 
-    const modelo = obtenerModelo();
-
-    if (!modelo) return;
-
     rotacionY += 30;
 
-    modelo.setAttribute('rotation', {
-        x: CONFIG_LOCAL.rotacionInicial.x,
-        y: rotacionY,
-        z: CONFIG_LOCAL.rotacionInicial.z
-    });
+    aplicarRotacionActual();
+}
+
+function inclinarArriba() {
+    marcarBotonTemporal('btn-arriba');
+
+    rotacionX -= 15;
+
+    aplicarRotacionActual();
+}
+
+function inclinarAbajo() {
+    marcarBotonTemporal('btn-abajo');
+
+    rotacionX += 15;
+
+    aplicarRotacionActual();
 }
 
 function aumentarModelo() {
     marcarBotonTemporal('btn-mas');
 
     escalaActual += CONFIG_LOCAL.pasoEscala;
+
     aplicarEscala(true);
 }
 
@@ -340,17 +530,20 @@ function reiniciarModelo(mostrarEfecto) {
     }
 
     escalaActual = CONFIG_LOCAL.escalaInicial;
+    rotacionX = CONFIG_LOCAL.rotacionInicial.x;
     rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 
     aplicarEscala(mostrarEfecto !== false);
     aplicarPosicionInicial();
-    aplicarRotacionInicial();
+    aplicarRotacionActual();
 }
 
 function mostrarMensajeVisor(mensaje) {
     const aviso = document.getElementById('aviso');
 
-    if (!aviso) return;
+    if (!aviso) {
+        return;
+    }
 
     aviso.innerHTML = mensaje;
     aviso.style.display = 'block';
@@ -360,15 +553,17 @@ function configurarEventosMarcador() {
     const marcador = document.querySelector('#markerA');
     const aviso = document.querySelector('#aviso');
 
-    if (!marcador || !aviso) return;
+    if (!marcador || !aviso) {
+        return;
+    }
 
     marcador.addEventListener('markerFound', function () {
-        aviso.innerHTML = '✅ Marcador detectado. Explora el equipo de sobremesa completo.';
+        aviso.innerHTML = '✅ Marcador detectado. Explora el equipo completo.';
         aviso.style.display = 'block';
     });
 
     marcador.addEventListener('markerLost', function () {
-        aviso.innerHTML = 'Enfoca de nuevo el marcador principal para ver el equipo de sobremesa.';
+        aviso.innerHTML = 'Enfoca de nuevo el marcador principal.';
         aviso.style.display = 'block';
     });
 }
@@ -397,13 +592,23 @@ function iniciarAlias() {
         if (aliasVisible) {
             aliasVisible.innerText = alias;
         }
+    } else {
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+
+        if (aliasVisible) {
+            aliasVisible.innerText = '---';
+        }
     }
 }
 
 function configurarInputAlias() {
     const inputAlias = document.getElementById('alias-input');
 
-    if (!inputAlias) return;
+    if (!inputAlias) {
+        return;
+    }
 
     inputAlias.addEventListener('keydown', function (evento) {
         if (evento.key === 'Enter') {
@@ -415,7 +620,9 @@ function configurarInputAlias() {
 function guardarAlias() {
     const input = document.getElementById('alias-input');
 
-    if (!input) return;
+    if (!input) {
+        return;
+    }
 
     const valor = input.value.trim();
 
@@ -428,6 +635,7 @@ function guardarAlias() {
     localStorage.setItem('fp_alias', alias);
 
     actualizarTexto('alias-visible', alias);
+    actualizarBotonRankingAdmin();
 
     const modal = document.getElementById('modal-alias');
 
@@ -438,6 +646,8 @@ function guardarAlias() {
     cargarProgreso();
 
     preguntaActual = buscarPrimeraPreguntaPendiente();
+
+    iniciarCronometroReto();
 
     cargarPregunta();
     actualizarPuntuacion();
@@ -468,13 +678,15 @@ function cargarProgreso() {
 }
 
 function guardarProgreso() {
-    if (!alias) return;
+    if (!alias) {
+        return;
+    }
 
     localStorage.setItem(claveProgresoAlias(), JSON.stringify(progreso));
 }
 
 /* ============================================================
-   PANELES Y BOTONES
+   PANELES
    ============================================================ */
 
 function mostrarPanel(tipo) {
@@ -571,7 +783,9 @@ function marcarBotonPanel(tipo) {
 function marcarBotonTemporal(idBoton) {
     const boton = document.getElementById(idBoton);
 
-    if (!boton) return;
+    if (!boton) {
+        return;
+    }
 
     boton.classList.add('boton-pulsado');
 
@@ -581,7 +795,7 @@ function marcarBotonTemporal(idBoton) {
 }
 
 /* ============================================================
-   RETO CON RESPUESTAS ALEATORIAS
+   PREGUNTAS
    ============================================================ */
 
 function idPregunta(indice) {
@@ -627,15 +841,23 @@ function obtenerOrdenOpciones(indicePregunta) {
 function cargarPregunta() {
     const contenedor = document.getElementById('contenedor-pregunta');
 
-    if (!contenedor) return;
+    if (!contenedor) {
+        return;
+    }
 
     if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+
         contenedor.innerHTML = `
-            <p><strong>Has terminado las preguntas de la página de inicio.</strong></p>
-            <p>Ahora puedes continuar con los componentes internos usando el menú superior.</p>
+            <p><strong>Has terminado las preguntas de la pantalla inicial.</strong></p>
+            <p>Ahora puedes continuar con la carcasa.</p>
             <p><strong>Aciertos totales:</strong> ${calcularCorrectas()}</p>
             <p><strong>Preguntas respondidas en total:</strong> ${calcularRespondidas()}</p>
+            <p><strong>Tiempo empleado:</strong> ${formatearTiempo(obtenerTiempoRetoSegundos())}</p>
         `;
+
+        actualizarPuntuacion();
+
         return;
     }
 
@@ -745,15 +967,24 @@ function siguientePregunta() {
         preguntaActual++;
     }
 
+    if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+    }
+
     cargarPregunta();
+    actualizarPuntuacion();
 }
 
 function reiniciarRetoActual() {
-    if (!alias) return;
+    if (!alias) {
+        return;
+    }
 
     const confirmar = confirm('¿Seguro que quieres reiniciar las respuestas de esta página para este alias?');
 
-    if (!confirmar) return;
+    if (!confirmar) {
+        return;
+    }
 
     Object.keys(progreso).forEach(function (clave) {
         if (clave.startsWith(COMPONENTE_ID + '-')) {
@@ -763,16 +994,22 @@ function reiniciarRetoActual() {
 
     guardarProgreso();
 
+    localStorage.removeItem(claveTiempoInicioAlias());
+    localStorage.removeItem(claveTiempoFinalAlias());
+
+    tiempoInicioReto = Date.now();
+    tiempoFinalReto = 0;
+
+    localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+
     preguntaActual = 0;
     ordenOpcionesPorPregunta = {};
+
+    iniciarCronometroReto();
 
     cargarPregunta();
     actualizarPuntuacion();
 }
-
-/* ============================================================
-   PUNTUACIÓN Y RANKING
-   ============================================================ */
 
 function calcularCorrectas() {
     return Object.values(progreso).filter(function (respuesta) {
@@ -784,6 +1021,10 @@ function calcularRespondidas() {
     return Object.keys(progreso).length;
 }
 
+/* ============================================================
+   PUNTUACIÓN Y RANKING
+   ============================================================ */
+
 function actualizarPuntuacion() {
     const correctas = calcularCorrectas();
     const respondidas = calcularRespondidas();
@@ -794,6 +1035,8 @@ function actualizarPuntuacion() {
     actualizarTexto('alias-panel', alias || '---');
     actualizarTexto('correctas-panel', correctas);
     actualizarTexto('respondidas-panel', respondidas);
+
+    actualizarCronometroVisible();
 
     guardarRankingLocal(correctas, respondidas);
 }
@@ -812,12 +1055,16 @@ function guardarRankingLocal(correctas, respondidas) {
         return;
     }
 
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
     const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
 
     ranking[alias] = {
         alias: alias,
         correctas: correctas,
         respondidas: respondidas,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
         fecha: new Date().toISOString()
     };
 
@@ -864,12 +1111,16 @@ function enviarRankingFirebaseDirecto(aliasEnviar, correctas, respondidas) {
         ? Math.round((aciertos / contestadas) * 100)
         : 0;
 
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
     const datos = {
         alias: aliasLimpio,
         correctas: aciertos,
         respondidas: contestadas,
         errores: errores,
         porcentaje: porcentaje,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
         fecha: new Date().toISOString()
     };
 
@@ -902,12 +1153,28 @@ function mostrarRankingLocal() {
             return b.correctas - a.correctas;
         }
 
-        return a.respondidas - b.respondidas;
+        const erroresA = Math.max(0, Number(a.respondidas || 0) - Number(a.correctas || 0));
+        const erroresB = Math.max(0, Number(b.respondidas || 0) - Number(b.correctas || 0));
+
+        if (erroresA !== erroresB) {
+            return erroresA - erroresB;
+        }
+
+        const tiempoA = Number(a.tiempoSegundos || 999999);
+        const tiempoB = Number(b.tiempoSegundos || 999999);
+
+        if (tiempoA !== tiempoB) {
+            return tiempoA - tiempoB;
+        }
+
+        return Number(b.respondidas || 0) - Number(a.respondidas || 0);
     });
 
     const contenedor = document.getElementById('ranking-contenido');
 
-    if (!contenedor) return;
+    if (!contenedor) {
+        return;
+    }
 
     if (lista.length === 0) {
         contenedor.innerHTML = '<p>Todavía no hay participantes guardados en este dispositivo.</p>';
@@ -920,7 +1187,7 @@ function mostrarRankingLocal() {
         html += `
             <div class="fila-ranking">
                 <span>${indice + 1}. ${item.alias}</span>
-                <strong>${item.correctas} aciertos</strong>
+                <strong>${item.correctas} aciertos · ${item.tiempoTexto || '--:--'}</strong>
             </div>
         `;
     });

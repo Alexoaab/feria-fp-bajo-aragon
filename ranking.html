@@ -26,6 +26,49 @@
             box-sizing: border-box;
         }
 
+        #bloqueo-admin {
+            position: fixed;
+            inset: 0;
+            z-index: 3000000;
+            background: #0f172a;
+            color: white;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 22px;
+            text-align: center;
+        }
+
+        #bloqueo-admin .caja {
+            width: min(92%, 440px);
+            background: white;
+            color: #111827;
+            border-radius: 22px;
+            padding: 24px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+        }
+
+        #bloqueo-admin h1 {
+            margin-top: 0;
+            font-size: 24px;
+        }
+
+        #bloqueo-admin p {
+            font-size: 16px;
+            line-height: 1.45;
+        }
+
+        #bloqueo-admin a {
+            display: inline-block;
+            margin-top: 14px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-weight: bold;
+        }
+
         #menu-superior {
             position: fixed;
             top: 0;
@@ -64,8 +107,6 @@
             line-height: 1.1;
             touch-action: manipulation;
             word-break: normal;
-            position: relative;
-            transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease, border 0.12s ease, background 0.12s ease;
         }
 
         .nav-btn:active {
@@ -86,45 +127,16 @@
             display: block;
         }
 
-        .nav-btn.inicio {
-            background: #16a34a;
-        }
-
-        .nav-btn.carcasa {
-            background: #9333ea;
-        }
-
-        .nav-btn.fuente {
-            background: #ca8a04;
-        }
-
-        .nav-btn.placa {
-            background: #2563eb;
-        }
-
-        .nav-btn.cpu {
-            background: #dc2626;
-        }
-
-        .nav-btn.refrigeracion {
-            background: #0284c7;
-        }
-
-        .nav-btn.ram {
-            background: #0891b2;
-        }
-
-        .nav-btn.almacenamiento {
-            background: #ea580c;
-        }
-
-        .nav-btn.gpu {
-            background: #be123c;
-        }
-
-        .nav-btn.conexiones {
-            background: #4b5563;
-        }
+        .nav-btn.inicio { background: #16a34a; }
+        .nav-btn.carcasa { background: #9333ea; }
+        .nav-btn.fuente { background: #ca8a04; }
+        .nav-btn.placa { background: #2563eb; }
+        .nav-btn.cpu { background: #dc2626; }
+        .nav-btn.refrigeracion { background: #0284c7; }
+        .nav-btn.ram { background: #0891b2; }
+        .nav-btn.almacenamiento { background: #ea580c; }
+        .nav-btn.gpu { background: #be123c; }
+        .nav-btn.conexiones { background: #4b5563; }
 
         .nav-btn.ranking-link {
             background: #f59e0b;
@@ -145,7 +157,7 @@
 
         main {
             padding: calc(var(--menu-h) + 24px) 16px 32px 16px;
-            max-width: 1100px;
+            max-width: 1160px;
             margin: 0 auto;
         }
 
@@ -312,6 +324,11 @@
             color: #2563eb;
         }
 
+        .tiempo {
+            color: #7c3aed;
+            font-weight: bold;
+        }
+
         .sin-datos {
             text-align: center;
             padding: 28px;
@@ -320,17 +337,9 @@
             line-height: 1.5;
         }
 
-        .medalla-1 {
-            color: #f59e0b;
-        }
-
-        .medalla-2 {
-            color: #6b7280;
-        }
-
-        .medalla-3 {
-            color: #b45309;
-        }
+        .medalla-1 { color: #f59e0b; }
+        .medalla-2 { color: #6b7280; }
+        .medalla-3 { color: #b45309; }
 
         @media (max-width: 900px) {
             :root {
@@ -509,6 +518,19 @@
 
 <body>
 
+    <div id="bloqueo-admin">
+        <div class="caja">
+            <h1>Acceso restringido</h1>
+            <p>
+                Esta página solo está disponible para el administrador del reto.
+            </p>
+            <p>
+                Para ver el ranking, entra primero con el alias autorizado.
+            </p>
+            <a href="index.html">Volver al inicio</a>
+        </div>
+    </div>
+
     <nav id="menu-superior">
         <div id="menu-botones">
 
@@ -531,18 +553,17 @@
         </div>
     </nav>
 
-    <main>
+    <main id="contenido-ranking">
         <section id="cabecera-ranking">
             <h1>🏆 Ranking del reto Hardware RA</h1>
 
             <p>
-                Esta clasificación muestra los alias con más puntuación en el reto de componentes internos
-                del ordenador.
+                Clasificación general del reto de componentes internos del ordenador.
             </p>
 
             <p>
-                Los alumnos pueden participar desde varios móviles. Cada respuesta se guarda en Firebase y
-                el ranking se actualiza automáticamente.
+                El orden se calcula por más aciertos. En caso de empate, gana quien tenga menos errores.
+                Si sigue el empate, gana quien haya terminado en menos tiempo.
             </p>
 
             <div id="estado-conexion" class="aviso-online">
@@ -562,8 +583,8 @@
             </div>
 
             <div class="tarjeta-resumen">
-                <strong id="total-preguntas">50</strong>
-                <span>Preguntas máximas</span>
+                <strong id="mejor-tiempo">--:--</strong>
+                <span>Mejor tiempo</span>
             </div>
 
             <div class="tarjeta-resumen">
@@ -588,26 +609,40 @@
         </section>
     </main>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-database-compat.js"></script>
 
-    <!-- Configuración de Firebase -->
-    <script src="firebase-config.js?v=10"></script>
+    <script src="firebase-config.js?v=600"></script>
 
     <script>
+        const ALIAS_ADMIN = 'aalbaladejob';
+
         const RUTA_RANKING_FIREBASE = 'rankingFeriaFPBajoAragon';
-        const TOTAL_PREGUNTAS = 50;
+        const RUTA_CONTROL_REINICIO = 'controlFeriaFPBajoAragon/reinicio';
 
         let listaRankingActual = [];
         let escuchaIniciada = false;
 
         window.addEventListener('load', function () {
-            document.getElementById('total-preguntas').innerText = TOTAL_PREGUNTAS;
-            iniciarRanking();
+            protegerRankingAdmin();
         });
 
+        function protegerRankingAdmin() {
+            const aliasActual = localStorage.getItem('fp_alias') || '';
+
+            if (aliasActual.trim().toLowerCase() !== ALIAS_ADMIN) {
+                document.getElementById('bloqueo-admin').style.display = 'flex';
+                document.getElementById('contenido-ranking').style.display = 'none';
+                document.getElementById('menu-superior').style.display = 'none';
+                return;
+            }
+
+            iniciarRanking();
+        }
+
         function iniciarRanking() {
+            const estado = document.getElementById('estado-conexion');
+
             if (typeof firebase === 'undefined') {
                 mostrarErrorConexion('❌ Firebase SDK no se ha cargado.');
                 return;
@@ -619,6 +654,9 @@
             }
 
             comprobarConexionFirebase();
+
+            estado.innerText = '✅ Ranking online conectado. Esperando respuestas de los alumnos.';
+            estado.classList.remove('aviso-error');
 
             if (!escuchaIniciada) {
                 escuchaIniciada = true;
@@ -662,6 +700,15 @@
             return Math.round((correctas / respondidas) * 100);
         }
 
+        function formatearTiempo(segundosTotales) {
+            const segundosValidos = Number(segundosTotales || 0);
+
+            const minutos = Math.floor(segundosValidos / 60);
+            const segundos = segundosValidos % 60;
+
+            return String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
+        }
+
         function ordenarListaRanking(lista) {
             lista.sort(function (a, b) {
                 if (b.correctas !== a.correctas) {
@@ -670,6 +717,13 @@
 
                 if (a.errores !== b.errores) {
                     return a.errores - b.errores;
+                }
+
+                const tiempoA = Number(a.tiempoSegundos || 999999);
+                const tiempoB = Number(b.tiempoSegundos || 999999);
+
+                if (tiempoA !== tiempoB) {
+                    return tiempoA - tiempoB;
                 }
 
                 return b.respondidas - a.respondidas;
@@ -694,7 +748,13 @@
                     const lista = Object.values(datos).map(function (item) {
                         const correctas = Number(item.correctas || 0);
                         const respondidas = Number(item.respondidas || 0);
-                        const errores = Math.max(0, respondidas - correctas);
+                        const errores = Number(
+                            item.errores !== undefined
+                                ? item.errores
+                                : Math.max(0, respondidas - correctas)
+                        );
+
+                        const tiempoSegundos = Number(item.tiempoSegundos || 0);
 
                         return {
                             alias: item.alias || 'Sin alias',
@@ -702,6 +762,8 @@
                             respondidas: respondidas,
                             errores: errores,
                             porcentaje: calcularPorcentajeRanking(correctas, respondidas),
+                            tiempoSegundos: tiempoSegundos,
+                            tiempoTexto: item.tiempoTexto || formatearTiempo(tiempoSegundos),
                             fecha: item.fecha || ''
                         };
                     });
@@ -728,6 +790,7 @@
 
             if (lista.length === 0) {
                 document.getElementById('mejor-puntuacion').innerText = '0';
+                document.getElementById('mejor-tiempo').innerText = '--:--';
 
                 contenedor.innerHTML = `
                     <div class="sin-datos">
@@ -740,6 +803,7 @@
             }
 
             document.getElementById('mejor-puntuacion').innerText = lista[0].correctas;
+            document.getElementById('mejor-tiempo').innerText = lista[0].tiempoTexto || '--:--';
 
             let html = `
                 <table>
@@ -751,6 +815,7 @@
                             <th>Errores</th>
                             <th>Respondidas</th>
                             <th>Porcentaje</th>
+                            <th>Tiempo</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -778,6 +843,7 @@
                         <td class="errores" data-label="Errores">${item.errores}</td>
                         <td class="respondidas" data-label="Respondidas">${item.respondidas}</td>
                         <td class="porcentaje" data-label="Porcentaje">${item.porcentaje}%</td>
+                        <td class="tiempo" data-label="Tiempo">${item.tiempoTexto || '--:--'}</td>
                     </tr>
                 `;
             });
@@ -792,7 +858,7 @@
 
         function borrarRanking() {
             const confirmar = confirm(
-                'Esta acción borra el ranking online de todos los alumnos. ¿Quieres continuar?'
+                'Esta acción borra el ranking online y reinicia el reto en los dispositivos conectados. ¿Quieres continuar?'
             );
 
             if (!confirmar) {
@@ -811,14 +877,46 @@
                 return;
             }
 
+            const marcaReinicio = Date.now();
+
             window.rankingDB.ref(RUTA_RANKING_FIREBASE).remove()
                 .then(function () {
-                    alert('Ranking borrado correctamente.');
+                    return window.rankingDB.ref(RUTA_CONTROL_REINICIO).set(marcaReinicio);
+                })
+                .then(function () {
+                    limpiarDatosLocalesAdministrador();
+                    alert('Ranking borrado y reinicio enviado a los dispositivos.');
+                    window.location.href = 'index.html';
                 })
                 .catch(function (error) {
-                    alert('No se ha podido borrar el ranking.');
-                    console.log(error);
+                    console.error(error);
+                    alert('No se ha podido borrar el ranking o enviar el reinicio.');
                 });
+        }
+
+        function limpiarDatosLocalesAdministrador() {
+            const clavesABorrar = [];
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const clave = localStorage.key(i);
+
+                if (
+                    clave === 'fp_alias' ||
+                    clave === 'fp_ranking_local' ||
+                    clave.startsWith('fp_progreso_') ||
+                    clave.startsWith('fp_escala_') ||
+                    clave.startsWith('fp_tiempo_inicio_') ||
+                    clave.startsWith('fp_tiempo_final_')
+                ) {
+                    clavesABorrar.push(clave);
+                }
+            }
+
+            clavesABorrar.forEach(function (clave) {
+                localStorage.removeItem(clave);
+            });
+
+            sessionStorage.clear();
         }
 
         function exportarCSV() {
@@ -827,7 +925,7 @@
                 return;
             }
 
-            let csv = 'Puesto,Alias,Aciertos,Errores,Respondidas,Porcentaje\n';
+            let csv = 'Puesto,Alias,Aciertos,Errores,Respondidas,Porcentaje,Tiempo\n';
 
             listaRankingActual.forEach(function (item, indice) {
                 csv += [
@@ -836,7 +934,8 @@
                     item.correctas,
                     item.errores,
                     item.respondidas,
-                    item.porcentaje + '%'
+                    item.porcentaje + '%',
+                    item.tiempoTexto || '--:--'
                 ].join(',') + '\n';
             });
 

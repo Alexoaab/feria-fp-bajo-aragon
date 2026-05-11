@@ -1,6 +1,7 @@
 /* ============================================================
    APP.JS - COMPONENTE CABLES Y CONEXIONES INTERNAS
    Feria FP Bajo Aragón - Hardware RA + Ranking Firebase
+   Administrador + reinicio remoto + cronómetro
    ============================================================ */
 
 const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
@@ -15,119 +16,127 @@ const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
     };
 
 const COMPONENTE_ID = CONFIG_LOCAL.componenteId || 'conexiones-internas';
+
 const RUTA_RANKING_FIREBASE_DIRECTO = 'rankingFeriaFPBajoAragon';
+const RUTA_CONTROL_REINICIO = 'controlFeriaFPBajoAragon/reinicio';
+
+const ALIAS_ADMIN = 'aalbaladejob';
 
 const PREGUNTAS = [
     {
-        texto: '¿Para qué sirven principalmente los cables internos de un ordenador?',
+        texto: '¿Para qué sirve el conector ATX de 24 pines?',
         opciones: [
             {
-                texto: 'Para llevar energía y datos entre los componentes',
+                texto: 'Para alimentar principalmente la placa base',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. Los cables internos permiten alimentar componentes y comunicar dispositivos como discos, placa base, ventiladores y tarjeta gráfica.'
+                feedbackCorrecto: 'Correcto. El conector ATX de 24 pines proporciona alimentación principal a la placa base.'
             },
             {
-                texto: 'Para decorar la pantalla del monitor',
+                texto: 'Para conectar el monitor por HDMI',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Los cables internos no decoran la pantalla. Tienen funciones de alimentación, datos y control.'
+                feedbackIncorrecto: 'No es correcto. HDMI sirve para vídeo y audio, no para alimentar la placa base.'
             },
             {
-                texto: 'Para sustituir al procesador',
+                texto: 'Para sujetar la memoria RAM',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El procesador realiza cálculos; los cables solo conectan y alimentan componentes.'
+                feedbackIncorrecto: 'No es correcto. La RAM se sujeta en ranuras DIMM con pestañas laterales.'
             }
         ]
     },
     {
-        texto: '¿Qué conector alimenta principalmente la placa base?',
+        texto: '¿Qué conector alimenta normalmente la CPU desde la fuente?',
         opciones: [
             {
-                texto: 'El conector ATX de 24 pines',
+                texto: 'EPS CPU de 4 u 8 pines',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. El conector ATX de 24 pines proporciona la alimentación principal a la placa base.'
+                feedbackCorrecto: 'Muy bien. El conector EPS CPU proporciona alimentación específica al procesador.'
             },
             {
-                texto: 'El cable HDMI',
+                texto: 'USB frontal',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. HDMI se usa para enviar imagen y sonido al monitor.'
+                feedbackIncorrecto: 'No es correcto. USB frontal conecta los puertos USB de la carcasa.'
             },
             {
-                texto: 'El cable de audio frontal',
+                texto: 'SATA de datos',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El audio frontal conecta los conectores de auriculares y micrófono de la carcasa.'
+                feedbackIncorrecto: 'No es correcto. SATA de datos comunica unidades de almacenamiento con la placa base.'
             }
         ]
     },
     {
-        texto: '¿Para qué sirve normalmente un cable SATA de datos?',
+        texto: '¿Para qué sirve un cable SATA de datos?',
         opciones: [
             {
-                texto: 'Para comunicar un disco SATA con la placa base',
+                texto: 'Para comunicar un disco o SSD SATA con la placa base',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. El cable SATA de datos conecta discos duros o SSD SATA con la placa base.'
+                feedbackCorrecto: 'Correcto. El cable SATA de datos transporta información entre la unidad y la placa base.'
             },
             {
-                texto: 'Para alimentar la CPU directamente desde la pared',
+                texto: 'Para alimentar directamente la CPU',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La CPU recibe alimentación mediante la placa base y el conector EPS CPU.'
+                feedbackIncorrecto: 'No es correcto. La CPU se alimenta mediante el conector EPS CPU.'
             },
             {
-                texto: 'Para conectar el ventilador del procesador al monitor',
+                texto: 'Para conectar el botón de encendido',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El ventilador del procesador se conecta normalmente a CPU_FAN en la placa base.'
+                feedbackIncorrecto: 'No es correcto. El botón de encendido se conecta al panel frontal de la placa.'
             }
         ]
     },
     {
-        texto: '¿Dónde se conecta normalmente el ventilador del procesador?',
+        texto: 'Si el ordenador no enciende al pulsar el botón de la caja, ¿qué conexión conviene revisar?',
         opciones: [
             {
-                texto: 'Al conector CPU_FAN de la placa base',
+                texto: 'Power SW del panel frontal',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. El ventilador de la CPU debe conectarse a CPU_FAN para que la placa pueda alimentarlo y controlar su velocidad.'
+                feedbackCorrecto: 'Muy bien. El conector Power SW une el botón de encendido de la caja con la placa base.'
             },
             {
-                texto: 'A una ranura de memoria RAM',
+                texto: 'Cable HDMI del monitor',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Las ranuras de RAM son para módulos de memoria, no para ventiladores.'
+                feedbackIncorrecto: 'No es correcto. HDMI afecta a la imagen, pero no al encendido del equipo.'
             },
             {
-                texto: 'Al puerto HDMI de la tarjeta gráfica',
+                texto: 'Cable de audio de los altavoces',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. HDMI es una conexión de vídeo y sonido.'
+                feedbackIncorrecto: 'No es correcto. El audio no controla el encendido del ordenador.'
             }
         ]
     },
     {
-        texto: '¿Por qué es importante ordenar bien los cables dentro de la carcasa?',
+        texto: '¿Por qué es importante ordenar los cables dentro de la carcasa?',
         opciones: [
             {
                 texto: 'Porque mejora el flujo de aire y facilita el mantenimiento',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. Una buena organización de cables evita bloqueos de aire, mejora la ventilación y facilita revisar o cambiar componentes.'
+                feedbackCorrecto: 'Correcto. Un cableado ordenado ayuda a refrigerar mejor y facilita detectar errores o cambiar piezas.'
             },
             {
-                texto: 'Porque así aumenta automáticamente la memoria RAM',
+                texto: 'Porque aumenta automáticamente la capacidad del disco',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Ordenar cables no aumenta la memoria RAM.'
+                feedbackIncorrecto: 'No es correcto. Ordenar cables no cambia la capacidad de almacenamiento.'
             },
             {
-                texto: 'Porque así el monitor no necesita cable de vídeo',
+                texto: 'Porque convierte una fuente normal en una tarjeta gráfica',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El monitor seguirá necesitando una conexión de vídeo si no usa tecnología inalámbrica.'
+                feedbackIncorrecto: 'No es correcto. Los cables no transforman un componente en otro.'
             }
         ]
     }
 ];
 
 let escalaActual = CONFIG_LOCAL.escalaInicial;
+let rotacionX = CONFIG_LOCAL.rotacionInicial.x;
 let rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 let preguntaActual = 0;
 
 let alias = localStorage.getItem('fp_alias') || '';
 let progreso = {};
-
 let ordenOpcionesPorPregunta = {};
+
+let intervaloCronometro = null;
+let tiempoInicioReto = 0;
+let tiempoFinalReto = 0;
 
 window.addEventListener('load', function () {
     cargarEscalaGuardada();
@@ -135,8 +144,15 @@ window.addEventListener('load', function () {
 
     iniciarAlias();
     cargarProgreso();
+    actualizarBotonRankingAdmin();
 
     preguntaActual = buscarPrimeraPreguntaPendiente();
+
+    if (alias) {
+        iniciarCronometroReto();
+    } else {
+        actualizarCronometroVisible();
+    }
 
     actualizarPuntuacion();
     cargarPregunta();
@@ -146,7 +162,26 @@ window.addEventListener('load', function () {
     configurarEventosMarcador();
     configurarInputAlias();
     comprobarFirebaseComponente();
+    escucharReinicioRemoto();
 });
+
+function esAdministrador() {
+    return alias && alias.trim().toLowerCase() === ALIAS_ADMIN;
+}
+
+function actualizarBotonRankingAdmin() {
+    const botonRanking = document.querySelector('.ranking-link');
+
+    if (!botonRanking) {
+        return;
+    }
+
+    if (esAdministrador()) {
+        botonRanking.style.display = '';
+    } else {
+        botonRanking.style.display = 'none';
+    }
+}
 
 function comprobarFirebaseComponente() {
     if (typeof firebase === 'undefined') {
@@ -164,6 +199,145 @@ function comprobarFirebaseComponente() {
     window.rankingDB.ref('.info/connected').on('value', function (snapshot) {
         console.log('Firebase conectado desde conexiones internas:', snapshot.val());
     });
+}
+
+function escucharReinicioRemoto() {
+    if (!window.rankingDB) {
+        console.warn('No se puede escuchar reinicio remoto porque Firebase no está disponible.');
+        return;
+    }
+
+    window.rankingDB.ref(RUTA_CONTROL_REINICIO).on('value', function (snapshot) {
+        const marcaReinicio = snapshot.val();
+
+        if (!marcaReinicio) {
+            return;
+        }
+
+        const ultimaMarcaLocal = localStorage.getItem('fp_ultima_marca_reinicio') || '';
+
+        if (String(marcaReinicio) === String(ultimaMarcaLocal)) {
+            return;
+        }
+
+        localStorage.setItem('fp_ultima_marca_reinicio', String(marcaReinicio));
+
+        limpiarDatosLocalesPorReinicio();
+
+        alert('El profesor ha reiniciado el reto. Puedes introducir un nuevo alias.');
+
+        window.location.reload();
+    });
+}
+
+function limpiarDatosLocalesPorReinicio() {
+    const clavesABorrar = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+
+        if (
+            clave === 'fp_alias' ||
+            clave === 'fp_ranking_local' ||
+            clave.startsWith('fp_progreso_') ||
+            clave.startsWith('fp_escala_') ||
+            clave.startsWith('fp_tiempo_inicio_') ||
+            clave.startsWith('fp_tiempo_final_')
+        ) {
+            clavesABorrar.push(clave);
+        }
+    }
+
+    clavesABorrar.forEach(function (clave) {
+        localStorage.removeItem(clave);
+    });
+
+    sessionStorage.clear();
+}
+
+function claveTiempoInicioAlias() {
+    return 'fp_tiempo_inicio_' + normalizarAlias(alias);
+}
+
+function claveTiempoFinalAlias() {
+    return 'fp_tiempo_final_' + normalizarAlias(alias);
+}
+
+function iniciarCronometroReto() {
+    if (!alias) {
+        return;
+    }
+
+    const tiempoGuardado = localStorage.getItem(claveTiempoInicioAlias());
+
+    if (tiempoGuardado) {
+        tiempoInicioReto = Number(tiempoGuardado);
+    } else {
+        tiempoInicioReto = Date.now();
+        localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+    }
+
+    const tiempoFinalGuardado = localStorage.getItem(claveTiempoFinalAlias());
+
+    if (tiempoFinalGuardado) {
+        tiempoFinalReto = Number(tiempoFinalGuardado);
+    } else {
+        tiempoFinalReto = 0;
+    }
+
+    if (intervaloCronometro) {
+        clearInterval(intervaloCronometro);
+    }
+
+    intervaloCronometro = setInterval(function () {
+        actualizarCronometroVisible();
+    }, 1000);
+
+    actualizarCronometroVisible();
+}
+
+function finalizarCronometroSiTerminado() {
+    if (!alias) {
+        return;
+    }
+
+    if (preguntaActual < PREGUNTAS.length) {
+        return;
+    }
+
+    if (tiempoFinalReto > 0) {
+        return;
+    }
+
+    tiempoFinalReto = Date.now();
+    localStorage.setItem(claveTiempoFinalAlias(), String(tiempoFinalReto));
+
+    actualizarCronometroVisible();
+}
+
+function obtenerTiempoRetoSegundos() {
+    if (!alias || !tiempoInicioReto) {
+        return 0;
+    }
+
+    const fin = tiempoFinalReto > 0 ? tiempoFinalReto : Date.now();
+
+    return Math.max(0, Math.floor((fin - tiempoInicioReto) / 1000));
+}
+
+function formatearTiempo(segundosTotales) {
+    const minutos = Math.floor(segundosTotales / 60);
+    const segundos = segundosTotales % 60;
+
+    return String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
+}
+
+function actualizarCronometroVisible() {
+    const segundos = obtenerTiempoRetoSegundos();
+    const tiempoTexto = formatearTiempo(segundos);
+
+    actualizarTexto('tiempo-visible', tiempoTexto);
+    actualizarTexto('tiempo-panel', tiempoTexto);
 }
 
 function leerConfiguracionDesdeURL() {
@@ -201,6 +375,7 @@ function leerConfiguracionDesdeURL() {
 
     if (rotXURL !== null && !isNaN(parseFloat(rotXURL))) {
         CONFIG_LOCAL.rotacionInicial.x = parseFloat(rotXURL);
+        rotacionX = CONFIG_LOCAL.rotacionInicial.x;
     }
 
     if (rotYURL !== null && !isNaN(parseFloat(rotYURL))) {
@@ -264,7 +439,9 @@ function aplicarEscala(mostrarMensaje) {
 function aplicarPosicionInicial() {
     const modelo = obtenerModelo();
 
-    if (!modelo) return;
+    if (!modelo) {
+        return;
+    }
 
     modelo.setAttribute('position', {
         x: CONFIG_LOCAL.posicionInicial.x,
@@ -273,14 +450,16 @@ function aplicarPosicionInicial() {
     });
 }
 
-function aplicarRotacionInicial() {
+function aplicarRotacionActual() {
     const modelo = obtenerModelo();
 
-    if (!modelo) return;
+    if (!modelo) {
+        return;
+    }
 
     modelo.setAttribute('rotation', {
-        x: CONFIG_LOCAL.rotacionInicial.x,
-        y: CONFIG_LOCAL.rotacionInicial.y,
+        x: rotacionX,
+        y: rotacionY,
         z: CONFIG_LOCAL.rotacionInicial.z
     });
 }
@@ -288,23 +467,32 @@ function aplicarRotacionInicial() {
 function girarModelo() {
     marcarBotonTemporal('btn-girar');
 
-    const modelo = obtenerModelo();
-
-    if (!modelo) return;
-
     rotacionY += 30;
 
-    modelo.setAttribute('rotation', {
-        x: CONFIG_LOCAL.rotacionInicial.x,
-        y: rotacionY,
-        z: CONFIG_LOCAL.rotacionInicial.z
-    });
+    aplicarRotacionActual();
+}
+
+function inclinarArriba() {
+    marcarBotonTemporal('btn-arriba');
+
+    rotacionX -= 15;
+
+    aplicarRotacionActual();
+}
+
+function inclinarAbajo() {
+    marcarBotonTemporal('btn-abajo');
+
+    rotacionX += 15;
+
+    aplicarRotacionActual();
 }
 
 function aumentarModelo() {
     marcarBotonTemporal('btn-mas');
 
     escalaActual += CONFIG_LOCAL.pasoEscala;
+
     aplicarEscala(true);
 }
 
@@ -326,17 +514,20 @@ function reiniciarModelo(mostrarEfecto) {
     }
 
     escalaActual = CONFIG_LOCAL.escalaInicial;
+    rotacionX = CONFIG_LOCAL.rotacionInicial.x;
     rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 
     aplicarEscala(mostrarEfecto !== false);
     aplicarPosicionInicial();
-    aplicarRotacionInicial();
+    aplicarRotacionActual();
 }
 
 function mostrarMensajeVisor(mensaje) {
     const aviso = document.getElementById('aviso');
 
-    if (!aviso) return;
+    if (!aviso) {
+        return;
+    }
 
     aviso.innerHTML = mensaje;
     aviso.style.display = 'block';
@@ -346,7 +537,9 @@ function configurarEventosMarcador() {
     const marcador = document.querySelector('#markerA');
     const aviso = document.querySelector('#aviso');
 
-    if (!marcador || !aviso) return;
+    if (!marcador || !aviso) {
+        return;
+    }
 
     marcador.addEventListener('markerFound', function () {
         aviso.innerHTML = '✅ Marcador detectado. Explora los cables y conexiones internas.';
@@ -379,13 +572,23 @@ function iniciarAlias() {
         if (aliasVisible) {
             aliasVisible.innerText = alias;
         }
+    } else {
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+
+        if (aliasVisible) {
+            aliasVisible.innerText = '---';
+        }
     }
 }
 
 function configurarInputAlias() {
     const inputAlias = document.getElementById('alias-input');
 
-    if (!inputAlias) return;
+    if (!inputAlias) {
+        return;
+    }
 
     inputAlias.addEventListener('keydown', function (evento) {
         if (evento.key === 'Enter') {
@@ -397,7 +600,9 @@ function configurarInputAlias() {
 function guardarAlias() {
     const input = document.getElementById('alias-input');
 
-    if (!input) return;
+    if (!input) {
+        return;
+    }
 
     const valor = input.value.trim();
 
@@ -410,6 +615,7 @@ function guardarAlias() {
     localStorage.setItem('fp_alias', alias);
 
     actualizarTexto('alias-visible', alias);
+    actualizarBotonRankingAdmin();
 
     const modal = document.getElementById('modal-alias');
 
@@ -420,6 +626,8 @@ function guardarAlias() {
     cargarProgreso();
 
     preguntaActual = buscarPrimeraPreguntaPendiente();
+
+    iniciarCronometroReto();
 
     cargarPregunta();
     actualizarPuntuacion();
@@ -450,7 +658,9 @@ function cargarProgreso() {
 }
 
 function guardarProgreso() {
-    if (!alias) return;
+    if (!alias) {
+        return;
+    }
 
     localStorage.setItem(claveProgresoAlias(), JSON.stringify(progreso));
 }
@@ -549,7 +759,9 @@ function marcarBotonPanel(tipo) {
 function marcarBotonTemporal(idBoton) {
     const boton = document.getElementById(idBoton);
 
-    if (!boton) return;
+    if (!boton) {
+        return;
+    }
 
     boton.classList.add('boton-pulsado');
 
@@ -557,10 +769,6 @@ function marcarBotonTemporal(idBoton) {
         boton.classList.remove('boton-pulsado');
     }, 180);
 }
-
-/* ============================================================
-   RETO CON RESPUESTAS ALEATORIAS
-   ============================================================ */
 
 function idPregunta(indice) {
     return COMPONENTE_ID + '-pregunta-' + indice;
@@ -605,16 +813,23 @@ function obtenerOrdenOpciones(indicePregunta) {
 function cargarPregunta() {
     const contenedor = document.getElementById('contenedor-pregunta');
 
-    if (!contenedor) return;
+    if (!contenedor) {
+        return;
+    }
 
     if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+
         contenedor.innerHTML = `
             <p><strong>Has terminado las preguntas de cables y conexiones internas.</strong></p>
-            <p>Has completado todos los apartados principales del montaje de un ordenador.</p>
-            <p>Consulta el botón <strong>Ranking</strong> para ver la clasificación general.</p>
+            <p>Has completado el recorrido de montaje del equipo.</p>
             <p><strong>Aciertos totales:</strong> ${calcularCorrectas()}</p>
             <p><strong>Preguntas respondidas en total:</strong> ${calcularRespondidas()}</p>
+            <p><strong>Tiempo empleado:</strong> ${formatearTiempo(obtenerTiempoRetoSegundos())}</p>
         `;
+
+        actualizarPuntuacion();
+
         return;
     }
 
@@ -724,15 +939,24 @@ function siguientePregunta() {
         preguntaActual++;
     }
 
+    if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+    }
+
     cargarPregunta();
+    actualizarPuntuacion();
 }
 
 function reiniciarRetoActual() {
-    if (!alias) return;
+    if (!alias) {
+        return;
+    }
 
     const confirmar = confirm('¿Seguro que quieres reiniciar las respuestas de esta página para este alias?');
 
-    if (!confirmar) return;
+    if (!confirmar) {
+        return;
+    }
 
     Object.keys(progreso).forEach(function (clave) {
         if (clave.startsWith(COMPONENTE_ID + '-')) {
@@ -742,16 +966,22 @@ function reiniciarRetoActual() {
 
     guardarProgreso();
 
+    localStorage.removeItem(claveTiempoInicioAlias());
+    localStorage.removeItem(claveTiempoFinalAlias());
+
+    tiempoInicioReto = Date.now();
+    tiempoFinalReto = 0;
+
+    localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+
     preguntaActual = 0;
     ordenOpcionesPorPregunta = {};
+
+    iniciarCronometroReto();
 
     cargarPregunta();
     actualizarPuntuacion();
 }
-
-/* ============================================================
-   PUNTUACIÓN Y RANKING
-   ============================================================ */
 
 function calcularCorrectas() {
     return Object.values(progreso).filter(function (respuesta) {
@@ -774,6 +1004,8 @@ function actualizarPuntuacion() {
     actualizarTexto('correctas-panel', correctas);
     actualizarTexto('respondidas-panel', respondidas);
 
+    actualizarCronometroVisible();
+
     guardarRankingLocal(correctas, respondidas);
 }
 
@@ -791,12 +1023,16 @@ function guardarRankingLocal(correctas, respondidas) {
         return;
     }
 
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
     const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
 
     ranking[alias] = {
         alias: alias,
         correctas: correctas,
         respondidas: respondidas,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
         fecha: new Date().toISOString()
     };
 
@@ -843,12 +1079,16 @@ function enviarRankingFirebaseDirecto(aliasEnviar, correctas, respondidas) {
         ? Math.round((aciertos / contestadas) * 100)
         : 0;
 
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
     const datos = {
         alias: aliasLimpio,
         correctas: aciertos,
         respondidas: contestadas,
         errores: errores,
         porcentaje: porcentaje,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
         fecha: new Date().toISOString()
     };
 
@@ -881,12 +1121,28 @@ function mostrarRankingLocal() {
             return b.correctas - a.correctas;
         }
 
-        return a.respondidas - b.respondidas;
+        const erroresA = Math.max(0, Number(a.respondidas || 0) - Number(a.correctas || 0));
+        const erroresB = Math.max(0, Number(b.respondidas || 0) - Number(b.correctas || 0));
+
+        if (erroresA !== erroresB) {
+            return erroresA - erroresB;
+        }
+
+        const tiempoA = Number(a.tiempoSegundos || 999999);
+        const tiempoB = Number(b.tiempoSegundos || 999999);
+
+        if (tiempoA !== tiempoB) {
+            return tiempoA - tiempoB;
+        }
+
+        return Number(b.respondidas || 0) - Number(a.respondidas || 0);
     });
 
     const contenedor = document.getElementById('ranking-contenido');
 
-    if (!contenedor) return;
+    if (!contenedor) {
+        return;
+    }
 
     if (lista.length === 0) {
         contenedor.innerHTML = '<p>Todavía no hay participantes guardados en este dispositivo.</p>';
@@ -899,7 +1155,7 @@ function mostrarRankingLocal() {
         html += `
             <div class="fila-ranking">
                 <span>${indice + 1}. ${item.alias}</span>
-                <strong>${item.correctas} aciertos</strong>
+                <strong>${item.correctas} aciertos · ${item.tiempoTexto || '--:--'}</strong>
             </div>
         `;
     });

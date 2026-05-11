@@ -1,6 +1,7 @@
 /* ============================================================
    APP.JS - COMPONENTE PLACA BASE
    Feria FP Bajo Aragón - Hardware RA + Ranking Firebase
+   Administrador + reinicio remoto + cronómetro
    ============================================================ */
 
 const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
@@ -15,121 +16,127 @@ const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
     };
 
 const COMPONENTE_ID = CONFIG_LOCAL.componenteId || 'placa-base';
+
 const RUTA_RANKING_FIREBASE_DIRECTO = 'rankingFeriaFPBajoAragon';
+const RUTA_CONTROL_REINICIO = 'controlFeriaFPBajoAragon/reinicio';
+
+const ALIAS_ADMIN = 'aalbaladejob';
 
 const PREGUNTAS = [
     {
-        texto: '¿Para qué sirve principalmente la placa base?',
+        texto: '¿Cuál es la función principal de la placa base?',
         opciones: [
             {
-                texto: 'Para conectar y comunicar los componentes principales del ordenador',
+                texto: 'Conectar y comunicar los componentes principales del ordenador',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. La placa base conecta CPU, RAM, almacenamiento, GPU, fuente y otros dispositivos para que trabajen juntos.'
+                feedbackCorrecto: 'Correcto. La placa base permite que CPU, RAM, discos, GPU y otros componentes se comuniquen.'
             },
             {
-                texto: 'Para mostrar imágenes en la pantalla',
+                texto: 'Sustituir a la fuente de alimentación',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Las imágenes se muestran en el monitor y las procesa la gráfica.'
+                feedbackIncorrecto: 'No es correcto. La fuente proporciona energía; la placa base conecta y comunica componentes.'
             },
             {
-                texto: 'Para guardar fotos y documentos de forma permanente',
+                texto: 'Guardar archivos de usuario permanentemente',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Los archivos se guardan en un disco duro o SSD.'
+                feedbackIncorrecto: 'No es correcto. Los archivos se guardan en discos duros o SSD.'
             }
         ]
     },
     {
-        texto: '¿Dónde se instala el procesador en la placa base?',
+        texto: '¿Dónde se instala normalmente el procesador?',
         opciones: [
             {
-                texto: 'En el socket de la CPU',
+                texto: 'En el socket de la placa base',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. El socket es el lugar específico de la placa base donde se coloca el procesador.'
+                feedbackCorrecto: 'Muy bien. El socket CPU es el zócalo donde se coloca el procesador.'
             },
             {
-                texto: 'En el puerto HDMI',
+                texto: 'En un puerto HDMI',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. HDMI sirve para enviar imagen y sonido al monitor.'
+                feedbackIncorrecto: 'No es correcto. HDMI es una conexión de vídeo.'
             },
             {
-                texto: 'En una bahía de disco duro',
+                texto: 'Dentro de la fuente de alimentación',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Las bahías de disco están en la carcasa, no son el lugar de instalación de la CPU.'
+                feedbackIncorrecto: 'No es correcto. El procesador se instala en la placa base.'
             }
         ]
     },
     {
-        texto: '¿Dónde se colocan normalmente los módulos de memoria RAM?',
+        texto: '¿Para qué sirven las ranuras DIMM?',
         opciones: [
             {
-                texto: 'En las ranuras DIMM',
+                texto: 'Para instalar módulos de memoria RAM',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. La memoria RAM se instala en las ranuras DIMM de la placa base.'
+                feedbackCorrecto: 'Correcto. Las ranuras DIMM permiten instalar la memoria RAM del equipo.'
             },
             {
-                texto: 'En el conector ATX de 24 pines',
+                texto: 'Para conectar el cable de red',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El conector ATX de 24 pines sirve para alimentar la placa base.'
+                feedbackIncorrecto: 'No es correcto. El cable de red se conecta a un puerto Ethernet RJ45.'
             },
             {
-                texto: 'En el ventilador de la fuente',
+                texto: 'Para colocar tornillos de la carcasa',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La RAM se coloca en la placa base, no en la fuente de alimentación.'
+                feedbackIncorrecto: 'No es correcto. Los tornillos de la carcasa se colocan en separadores y puntos de fijación.'
             }
         ]
     },
     {
-        texto: '¿Para qué sirve una ranura PCI Express?',
+        texto: '¿Qué ranura se usa normalmente para una tarjeta gráfica dedicada?',
         opciones: [
             {
-                texto: 'Para conectar tarjetas de expansión como la tarjeta gráfica',
+                texto: 'PCI Express x16',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. PCI Express permite instalar tarjetas como GPU, tarjetas de red o capturadoras.'
+                feedbackCorrecto: 'Muy bien. Las tarjetas gráficas dedicadas suelen instalarse en una ranura PCI Express x16.'
             },
             {
-                texto: 'Para conectar el cable de corriente de la pared',
+                texto: 'SATA de alimentación',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El cable de corriente se conecta a la fuente de alimentación.'
+                feedbackIncorrecto: 'No es correcto. SATA de alimentación sirve para alimentar discos o SSD SATA.'
             },
             {
-                texto: 'Para sujetar el monitor encima de la torre',
+                texto: 'USB frontal',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. PCI Express es una conexión interna de la placa base.'
+                feedbackIncorrecto: 'No es correcto. USB frontal conecta los puertos USB de la carcasa.'
             }
         ]
     },
     {
-        texto: '¿Por qué es importante consultar el manual de la placa base?',
+        texto: '¿Qué contiene la BIOS o UEFI de la placa base?',
         opciones: [
             {
-                texto: 'Porque indica cómo conectar RAM, panel frontal, ventiladores y otros conectores',
+                texto: 'El firmware que permite iniciar y configurar el equipo',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. El manual ayuda a conectar correctamente los componentes y evita errores de montaje.'
+                feedbackCorrecto: 'Correcto. BIOS/UEFI gestiona el arranque y permite configurar opciones del hardware.'
             },
             {
-                texto: 'Porque permite que el ordenador funcione sin fuente',
+                texto: 'Los documentos personales del usuario',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El ordenador necesita fuente de alimentación.'
+                feedbackIncorrecto: 'No es correcto. Los documentos se almacenan en unidades de almacenamiento.'
             },
             {
-                texto: 'Porque cambia automáticamente el tamaño de la carcasa',
+                texto: 'La pantalla física del ordenador',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El manual no cambia el tamaño físico de la carcasa.'
+                feedbackIncorrecto: 'No es correcto. La pantalla es un periférico externo.'
             }
         ]
     }
 ];
 
 let escalaActual = CONFIG_LOCAL.escalaInicial;
+let rotacionX = CONFIG_LOCAL.rotacionInicial.x;
 let rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 let preguntaActual = 0;
 
 let alias = localStorage.getItem('fp_alias') || '';
 let progreso = {};
-
-// Orden aleatorio de respuestas.
-// Se mantiene mientras la página está abierta para que las opciones no cambien cada vez que se repinta la pregunta.
 let ordenOpcionesPorPregunta = {};
+
+let intervaloCronometro = null;
+let tiempoInicioReto = 0;
+let tiempoFinalReto = 0;
 
 window.addEventListener('load', function () {
     cargarEscalaGuardada();
@@ -137,8 +144,15 @@ window.addEventListener('load', function () {
 
     iniciarAlias();
     cargarProgreso();
+    actualizarBotonRankingAdmin();
 
     preguntaActual = buscarPrimeraPreguntaPendiente();
+
+    if (alias) {
+        iniciarCronometroReto();
+    } else {
+        actualizarCronometroVisible();
+    }
 
     actualizarPuntuacion();
     cargarPregunta();
@@ -148,7 +162,26 @@ window.addEventListener('load', function () {
     configurarEventosMarcador();
     configurarInputAlias();
     comprobarFirebaseComponente();
+    escucharReinicioRemoto();
 });
+
+function esAdministrador() {
+    return alias && alias.trim().toLowerCase() === ALIAS_ADMIN;
+}
+
+function actualizarBotonRankingAdmin() {
+    const botonRanking = document.querySelector('.ranking-link');
+
+    if (!botonRanking) {
+        return;
+    }
+
+    if (esAdministrador()) {
+        botonRanking.style.display = '';
+    } else {
+        botonRanking.style.display = 'none';
+    }
+}
 
 function comprobarFirebaseComponente() {
     if (typeof firebase === 'undefined') {
@@ -166,6 +199,145 @@ function comprobarFirebaseComponente() {
     window.rankingDB.ref('.info/connected').on('value', function (snapshot) {
         console.log('Firebase conectado desde placa base:', snapshot.val());
     });
+}
+
+function escucharReinicioRemoto() {
+    if (!window.rankingDB) {
+        console.warn('No se puede escuchar reinicio remoto porque Firebase no está disponible.');
+        return;
+    }
+
+    window.rankingDB.ref(RUTA_CONTROL_REINICIO).on('value', function (snapshot) {
+        const marcaReinicio = snapshot.val();
+
+        if (!marcaReinicio) {
+            return;
+        }
+
+        const ultimaMarcaLocal = localStorage.getItem('fp_ultima_marca_reinicio') || '';
+
+        if (String(marcaReinicio) === String(ultimaMarcaLocal)) {
+            return;
+        }
+
+        localStorage.setItem('fp_ultima_marca_reinicio', String(marcaReinicio));
+
+        limpiarDatosLocalesPorReinicio();
+
+        alert('El profesor ha reiniciado el reto. Puedes introducir un nuevo alias.');
+
+        window.location.reload();
+    });
+}
+
+function limpiarDatosLocalesPorReinicio() {
+    const clavesABorrar = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+
+        if (
+            clave === 'fp_alias' ||
+            clave === 'fp_ranking_local' ||
+            clave.startsWith('fp_progreso_') ||
+            clave.startsWith('fp_escala_') ||
+            clave.startsWith('fp_tiempo_inicio_') ||
+            clave.startsWith('fp_tiempo_final_')
+        ) {
+            clavesABorrar.push(clave);
+        }
+    }
+
+    clavesABorrar.forEach(function (clave) {
+        localStorage.removeItem(clave);
+    });
+
+    sessionStorage.clear();
+}
+
+function claveTiempoInicioAlias() {
+    return 'fp_tiempo_inicio_' + normalizarAlias(alias);
+}
+
+function claveTiempoFinalAlias() {
+    return 'fp_tiempo_final_' + normalizarAlias(alias);
+}
+
+function iniciarCronometroReto() {
+    if (!alias) {
+        return;
+    }
+
+    const tiempoGuardado = localStorage.getItem(claveTiempoInicioAlias());
+
+    if (tiempoGuardado) {
+        tiempoInicioReto = Number(tiempoGuardado);
+    } else {
+        tiempoInicioReto = Date.now();
+        localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+    }
+
+    const tiempoFinalGuardado = localStorage.getItem(claveTiempoFinalAlias());
+
+    if (tiempoFinalGuardado) {
+        tiempoFinalReto = Number(tiempoFinalGuardado);
+    } else {
+        tiempoFinalReto = 0;
+    }
+
+    if (intervaloCronometro) {
+        clearInterval(intervaloCronometro);
+    }
+
+    intervaloCronometro = setInterval(function () {
+        actualizarCronometroVisible();
+    }, 1000);
+
+    actualizarCronometroVisible();
+}
+
+function finalizarCronometroSiTerminado() {
+    if (!alias) {
+        return;
+    }
+
+    if (preguntaActual < PREGUNTAS.length) {
+        return;
+    }
+
+    if (tiempoFinalReto > 0) {
+        return;
+    }
+
+    tiempoFinalReto = Date.now();
+    localStorage.setItem(claveTiempoFinalAlias(), String(tiempoFinalReto));
+
+    actualizarCronometroVisible();
+}
+
+function obtenerTiempoRetoSegundos() {
+    if (!alias || !tiempoInicioReto) {
+        return 0;
+    }
+
+    const fin = tiempoFinalReto > 0 ? tiempoFinalReto : Date.now();
+
+    return Math.max(0, Math.floor((fin - tiempoInicioReto) / 1000));
+}
+
+function formatearTiempo(segundosTotales) {
+    const minutos = Math.floor(segundosTotales / 60);
+    const segundos = segundosTotales % 60;
+
+    return String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
+}
+
+function actualizarCronometroVisible() {
+    const segundos = obtenerTiempoRetoSegundos();
+    const tiempoTexto = formatearTiempo(segundos);
+
+    actualizarTexto('tiempo-visible', tiempoTexto);
+    actualizarTexto('tiempo-panel', tiempoTexto);
 }
 
 function leerConfiguracionDesdeURL() {
@@ -203,6 +375,7 @@ function leerConfiguracionDesdeURL() {
 
     if (rotXURL !== null && !isNaN(parseFloat(rotXURL))) {
         CONFIG_LOCAL.rotacionInicial.x = parseFloat(rotXURL);
+        rotacionX = CONFIG_LOCAL.rotacionInicial.x;
     }
 
     if (rotYURL !== null && !isNaN(parseFloat(rotYURL))) {
@@ -266,7 +439,9 @@ function aplicarEscala(mostrarMensaje) {
 function aplicarPosicionInicial() {
     const modelo = obtenerModelo();
 
-    if (!modelo) return;
+    if (!modelo) {
+        return;
+    }
 
     modelo.setAttribute('position', {
         x: CONFIG_LOCAL.posicionInicial.x,
@@ -275,14 +450,16 @@ function aplicarPosicionInicial() {
     });
 }
 
-function aplicarRotacionInicial() {
+function aplicarRotacionActual() {
     const modelo = obtenerModelo();
 
-    if (!modelo) return;
+    if (!modelo) {
+        return;
+    }
 
     modelo.setAttribute('rotation', {
-        x: CONFIG_LOCAL.rotacionInicial.x,
-        y: CONFIG_LOCAL.rotacionInicial.y,
+        x: rotacionX,
+        y: rotacionY,
         z: CONFIG_LOCAL.rotacionInicial.z
     });
 }
@@ -290,23 +467,32 @@ function aplicarRotacionInicial() {
 function girarModelo() {
     marcarBotonTemporal('btn-girar');
 
-    const modelo = obtenerModelo();
-
-    if (!modelo) return;
-
     rotacionY += 30;
 
-    modelo.setAttribute('rotation', {
-        x: CONFIG_LOCAL.rotacionInicial.x,
-        y: rotacionY,
-        z: CONFIG_LOCAL.rotacionInicial.z
-    });
+    aplicarRotacionActual();
+}
+
+function inclinarArriba() {
+    marcarBotonTemporal('btn-arriba');
+
+    rotacionX -= 15;
+
+    aplicarRotacionActual();
+}
+
+function inclinarAbajo() {
+    marcarBotonTemporal('btn-abajo');
+
+    rotacionX += 15;
+
+    aplicarRotacionActual();
 }
 
 function aumentarModelo() {
     marcarBotonTemporal('btn-mas');
 
     escalaActual += CONFIG_LOCAL.pasoEscala;
+
     aplicarEscala(true);
 }
 
@@ -328,17 +514,20 @@ function reiniciarModelo(mostrarEfecto) {
     }
 
     escalaActual = CONFIG_LOCAL.escalaInicial;
+    rotacionX = CONFIG_LOCAL.rotacionInicial.x;
     rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 
     aplicarEscala(mostrarEfecto !== false);
     aplicarPosicionInicial();
-    aplicarRotacionInicial();
+    aplicarRotacionActual();
 }
 
 function mostrarMensajeVisor(mensaje) {
     const aviso = document.getElementById('aviso');
 
-    if (!aviso) return;
+    if (!aviso) {
+        return;
+    }
 
     aviso.innerHTML = mensaje;
     aviso.style.display = 'block';
@@ -348,7 +537,9 @@ function configurarEventosMarcador() {
     const marcador = document.querySelector('#markerA');
     const aviso = document.querySelector('#aviso');
 
-    if (!marcador || !aviso) return;
+    if (!marcador || !aviso) {
+        return;
+    }
 
     marcador.addEventListener('markerFound', function () {
         aviso.innerHTML = '✅ Marcador detectado. Explora la placa base.';
@@ -381,13 +572,23 @@ function iniciarAlias() {
         if (aliasVisible) {
             aliasVisible.innerText = alias;
         }
+    } else {
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+
+        if (aliasVisible) {
+            aliasVisible.innerText = '---';
+        }
     }
 }
 
 function configurarInputAlias() {
     const inputAlias = document.getElementById('alias-input');
 
-    if (!inputAlias) return;
+    if (!inputAlias) {
+        return;
+    }
 
     inputAlias.addEventListener('keydown', function (evento) {
         if (evento.key === 'Enter') {
@@ -399,7 +600,9 @@ function configurarInputAlias() {
 function guardarAlias() {
     const input = document.getElementById('alias-input');
 
-    if (!input) return;
+    if (!input) {
+        return;
+    }
 
     const valor = input.value.trim();
 
@@ -412,6 +615,7 @@ function guardarAlias() {
     localStorage.setItem('fp_alias', alias);
 
     actualizarTexto('alias-visible', alias);
+    actualizarBotonRankingAdmin();
 
     const modal = document.getElementById('modal-alias');
 
@@ -422,6 +626,8 @@ function guardarAlias() {
     cargarProgreso();
 
     preguntaActual = buscarPrimeraPreguntaPendiente();
+
+    iniciarCronometroReto();
 
     cargarPregunta();
     actualizarPuntuacion();
@@ -452,7 +658,9 @@ function cargarProgreso() {
 }
 
 function guardarProgreso() {
-    if (!alias) return;
+    if (!alias) {
+        return;
+    }
 
     localStorage.setItem(claveProgresoAlias(), JSON.stringify(progreso));
 }
@@ -551,7 +759,9 @@ function marcarBotonPanel(tipo) {
 function marcarBotonTemporal(idBoton) {
     const boton = document.getElementById(idBoton);
 
-    if (!boton) return;
+    if (!boton) {
+        return;
+    }
 
     boton.classList.add('boton-pulsado');
 
@@ -559,10 +769,6 @@ function marcarBotonTemporal(idBoton) {
         boton.classList.remove('boton-pulsado');
     }, 180);
 }
-
-/* ============================================================
-   RETO CON RESPUESTAS ALEATORIAS
-   ============================================================ */
 
 function idPregunta(indice) {
     return COMPONENTE_ID + '-pregunta-' + indice;
@@ -607,15 +813,23 @@ function obtenerOrdenOpciones(indicePregunta) {
 function cargarPregunta() {
     const contenedor = document.getElementById('contenedor-pregunta');
 
-    if (!contenedor) return;
+    if (!contenedor) {
+        return;
+    }
 
     if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+
         contenedor.innerHTML = `
             <p><strong>Has terminado las preguntas de la placa base.</strong></p>
             <p>Ahora puedes continuar con la CPU.</p>
             <p><strong>Aciertos totales:</strong> ${calcularCorrectas()}</p>
             <p><strong>Preguntas respondidas en total:</strong> ${calcularRespondidas()}</p>
+            <p><strong>Tiempo empleado:</strong> ${formatearTiempo(obtenerTiempoRetoSegundos())}</p>
         `;
+
+        actualizarPuntuacion();
+
         return;
     }
 
@@ -725,15 +939,24 @@ function siguientePregunta() {
         preguntaActual++;
     }
 
+    if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+    }
+
     cargarPregunta();
+    actualizarPuntuacion();
 }
 
 function reiniciarRetoActual() {
-    if (!alias) return;
+    if (!alias) {
+        return;
+    }
 
     const confirmar = confirm('¿Seguro que quieres reiniciar las respuestas de esta página para este alias?');
 
-    if (!confirmar) return;
+    if (!confirmar) {
+        return;
+    }
 
     Object.keys(progreso).forEach(function (clave) {
         if (clave.startsWith(COMPONENTE_ID + '-')) {
@@ -743,16 +966,22 @@ function reiniciarRetoActual() {
 
     guardarProgreso();
 
+    localStorage.removeItem(claveTiempoInicioAlias());
+    localStorage.removeItem(claveTiempoFinalAlias());
+
+    tiempoInicioReto = Date.now();
+    tiempoFinalReto = 0;
+
+    localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+
     preguntaActual = 0;
     ordenOpcionesPorPregunta = {};
+
+    iniciarCronometroReto();
 
     cargarPregunta();
     actualizarPuntuacion();
 }
-
-/* ============================================================
-   PUNTUACIÓN Y RANKING
-   ============================================================ */
 
 function calcularCorrectas() {
     return Object.values(progreso).filter(function (respuesta) {
@@ -775,6 +1004,8 @@ function actualizarPuntuacion() {
     actualizarTexto('correctas-panel', correctas);
     actualizarTexto('respondidas-panel', respondidas);
 
+    actualizarCronometroVisible();
+
     guardarRankingLocal(correctas, respondidas);
 }
 
@@ -792,12 +1023,16 @@ function guardarRankingLocal(correctas, respondidas) {
         return;
     }
 
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
     const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
 
     ranking[alias] = {
         alias: alias,
         correctas: correctas,
         respondidas: respondidas,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
         fecha: new Date().toISOString()
     };
 
@@ -844,12 +1079,16 @@ function enviarRankingFirebaseDirecto(aliasEnviar, correctas, respondidas) {
         ? Math.round((aciertos / contestadas) * 100)
         : 0;
 
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
     const datos = {
         alias: aliasLimpio,
         correctas: aciertos,
         respondidas: contestadas,
         errores: errores,
         porcentaje: porcentaje,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
         fecha: new Date().toISOString()
     };
 
@@ -882,12 +1121,28 @@ function mostrarRankingLocal() {
             return b.correctas - a.correctas;
         }
 
-        return a.respondidas - b.respondidas;
+        const erroresA = Math.max(0, Number(a.respondidas || 0) - Number(a.correctas || 0));
+        const erroresB = Math.max(0, Number(b.respondidas || 0) - Number(b.correctas || 0));
+
+        if (erroresA !== erroresB) {
+            return erroresA - erroresB;
+        }
+
+        const tiempoA = Number(a.tiempoSegundos || 999999);
+        const tiempoB = Number(b.tiempoSegundos || 999999);
+
+        if (tiempoA !== tiempoB) {
+            return tiempoA - tiempoB;
+        }
+
+        return Number(b.respondidas || 0) - Number(a.respondidas || 0);
     });
 
     const contenedor = document.getElementById('ranking-contenido');
 
-    if (!contenedor) return;
+    if (!contenedor) {
+        return;
+    }
 
     if (lista.length === 0) {
         contenedor.innerHTML = '<p>Todavía no hay participantes guardados en este dispositivo.</p>';
@@ -900,7 +1155,7 @@ function mostrarRankingLocal() {
         html += `
             <div class="fila-ranking">
                 <span>${indice + 1}. ${item.alias}</span>
-                <strong>${item.correctas} aciertos</strong>
+                <strong>${item.correctas} aciertos · ${item.tiempoTexto || '--:--'}</strong>
             </div>
         `;
     });

@@ -1,12 +1,13 @@
 /* ============================================================
-   APP.JS - COMPONENTE DISCO / ALMACENAMIENTO SSD
+   APP.JS - COMPONENTE ALMACENAMIENTO / SSD
    Feria FP Bajo Aragón - Hardware RA + Ranking Firebase
+   Administrador + reinicio remoto + cronómetro
    ============================================================ */
 
 const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
     ? CONFIG_AR
     : {
-        componenteId: 'almacenamiento-ssd',
+        componenteId: 'ssd',
         escalaInicial: 1,
         escalaMinima: 0.005,
         pasoEscala: 0.05,
@@ -14,122 +15,128 @@ const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
         rotacionInicial: { x: 0, y: 0, z: 0 }
     };
 
-const COMPONENTE_ID = CONFIG_LOCAL.componenteId || 'almacenamiento-ssd';
+const COMPONENTE_ID = CONFIG_LOCAL.componenteId || 'ssd';
+
 const RUTA_RANKING_FIREBASE_DIRECTO = 'rankingFeriaFPBajoAragon';
+const RUTA_CONTROL_REINICIO = 'controlFeriaFPBajoAragon/reinicio';
+
+const ALIAS_ADMIN = 'aalbaladejob';
 
 const PREGUNTAS = [
     {
-        texto: '¿Para qué sirve principalmente un disco duro o SSD?',
+        texto: '¿Cuál es la función principal de una unidad de almacenamiento?',
         opciones: [
             {
-                texto: 'Para guardar el sistema operativo, programas y archivos',
+                texto: 'Guardar datos de forma permanente aunque el ordenador se apague',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. El almacenamiento conserva la información aunque el ordenador esté apagado.'
+                feedbackCorrecto: 'Correcto. El almacenamiento conserva sistema operativo, programas y archivos aunque no haya corriente.'
             },
             {
-                texto: 'Para enfriar el procesador',
+                texto: 'Ejecutar instrucciones como la CPU',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La refrigeración del procesador la hacen el disipador, el ventilador y la pasta térmica.'
+                feedbackIncorrecto: 'No es correcto. La CPU ejecuta instrucciones; el almacenamiento guarda datos.'
             },
             {
-                texto: 'Para alimentar eléctricamente la placa base',
+                texto: 'Refrigerar el procesador',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La alimentación eléctrica la proporciona la fuente de alimentación.'
+                feedbackIncorrecto: 'No es correcto. La refrigeración se encarga de mantener temperaturas seguras.'
             }
         ]
     },
     {
-        texto: '¿Qué diferencia importante hay entre la RAM y el almacenamiento?',
+        texto: '¿Qué diferencia principal hay entre un SSD y un HDD tradicional?',
         opciones: [
             {
-                texto: 'La RAM es temporal y el almacenamiento conserva los datos apagado el equipo',
+                texto: 'El SSD no tiene partes mecánicas móviles y suele ser más rápido',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. La RAM pierde la información al apagar el equipo, pero el disco o SSD conserva archivos y programas.'
+                feedbackCorrecto: 'Muy bien. Los SSD usan memoria flash y no platos giratorios, por eso suelen ser más rápidos y resistentes.'
             },
             {
-                texto: 'La RAM guarda vídeos y el SSD solo guarda electricidad',
+                texto: 'El SSD solo sirve para mostrar imágenes en pantalla',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El SSD guarda datos, no electricidad.'
+                feedbackIncorrecto: 'No es correcto. Mostrar imágenes es función del sistema gráfico y del monitor.'
             },
             {
-                texto: 'No hay ninguna diferencia entre RAM y almacenamiento',
+                texto: 'El HDD no puede guardar archivos',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. RAM y almacenamiento tienen funciones diferentes.'
+                feedbackIncorrecto: 'No es correcto. Los HDD también guardan archivos, aunque suelen ser más lentos que los SSD.'
             }
         ]
     },
     {
-        texto: '¿Qué tipo de almacenamiento suele ser más rápido?',
+        texto: '¿Qué tipo de SSD suele conectarse directamente a una ranura M.2 de la placa base?',
         opciones: [
             {
-                texto: 'Un SSD, especialmente si es NVMe',
+                texto: 'SSD M.2',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. Los SSD, sobre todo NVMe M.2, suelen ser mucho más rápidos que los discos duros mecánicos.'
+                feedbackCorrecto: 'Correcto. Los SSD M.2 se insertan directamente en una ranura M.2 de la placa base.'
             },
             {
-                texto: 'Un disquete antiguo',
+                texto: 'Memoria RAM DIMM',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Los disquetes son dispositivos antiguos y muy lentos.'
+                feedbackIncorrecto: 'No es correcto. La RAM DIMM se instala en ranuras de memoria, no en M.2.'
             },
             {
-                texto: 'Una carcasa sin ventiladores',
+                texto: 'Fuente de alimentación ATX',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La carcasa no es un dispositivo de almacenamiento.'
+                feedbackIncorrecto: 'No es correcto. La fuente de alimentación no se instala en una ranura M.2.'
             }
         ]
     },
     {
-        texto: '¿Qué conexión se usa habitualmente en un SSD SATA?',
+        texto: '¿Qué ventaja suele tener un SSD NVMe frente a un SSD SATA?',
         opciones: [
             {
-                texto: 'Cable SATA de datos y cable SATA de alimentación',
+                texto: 'Mayor velocidad al usar PCI Express',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. Un SSD SATA necesita conexión de datos a la placa base y alimentación desde la fuente.'
+                feedbackCorrecto: 'Muy bien. Los SSD NVMe usan PCI Express y pueden alcanzar velocidades superiores a SATA.'
             },
             {
-                texto: 'Cable HDMI al monitor',
+                texto: 'Necesita siempre un cable VGA',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. HDMI se usa para vídeo y sonido, no para almacenamiento interno.'
+                feedbackIncorrecto: 'No es correcto. VGA es una conexión de vídeo antigua.'
             },
             {
-                texto: 'Conector CPU_FAN',
+                texto: 'Hace que la fuente de alimentación no sea necesaria',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. CPU_FAN es para el ventilador del procesador.'
+                feedbackIncorrecto: 'No es correcto. El equipo sigue necesitando fuente de alimentación.'
             }
         ]
     },
     {
-        texto: '¿Por qué es recomendable hacer copias de seguridad?',
+        texto: '¿Qué buena práctica es recomendable con cualquier unidad de almacenamiento?',
         opciones: [
             {
-                texto: 'Para no perder archivos importantes si falla el disco o se borran por error',
+                texto: 'Realizar copias de seguridad de los datos importantes',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. Las copias de seguridad ayudan a recuperar datos importantes ante fallos, borrados o problemas del equipo.'
+                feedbackCorrecto: 'Correcto. Las copias de seguridad protegen la información ante fallos, borrados accidentales o pérdida del equipo.'
             },
             {
-                texto: 'Para que el teclado tenga más teclas',
+                texto: 'No guardar nunca el sistema operativo',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Las copias de seguridad no modifican el teclado.'
+                feedbackIncorrecto: 'No es correcto. El sistema operativo normalmente se instala en una unidad de almacenamiento.'
             },
             {
-                texto: 'Para que la pantalla sea más grande',
+                texto: 'Doblar el SSD M.2 para que encaje mejor',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Las copias de seguridad no cambian el tamaño del monitor.'
+                feedbackIncorrecto: 'No es correcto. Nunca hay que doblar ni forzar un SSD M.2.'
             }
         ]
     }
 ];
 
 let escalaActual = CONFIG_LOCAL.escalaInicial;
+let rotacionX = CONFIG_LOCAL.rotacionInicial.x;
 let rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 let preguntaActual = 0;
 
 let alias = localStorage.getItem('fp_alias') || '';
 let progreso = {};
-
-// Orden aleatorio de respuestas.
-// Se mantiene mientras la página está abierta para que las opciones no cambien cada vez que se repinta la pregunta.
 let ordenOpcionesPorPregunta = {};
+
+let intervaloCronometro = null;
+let tiempoInicioReto = 0;
+let tiempoFinalReto = 0;
 
 window.addEventListener('load', function () {
     cargarEscalaGuardada();
@@ -137,8 +144,15 @@ window.addEventListener('load', function () {
 
     iniciarAlias();
     cargarProgreso();
+    actualizarBotonRankingAdmin();
 
     preguntaActual = buscarPrimeraPreguntaPendiente();
+
+    if (alias) {
+        iniciarCronometroReto();
+    } else {
+        actualizarCronometroVisible();
+    }
 
     actualizarPuntuacion();
     cargarPregunta();
@@ -148,11 +162,30 @@ window.addEventListener('load', function () {
     configurarEventosMarcador();
     configurarInputAlias();
     comprobarFirebaseComponente();
+    escucharReinicioRemoto();
 });
+
+function esAdministrador() {
+    return alias && alias.trim().toLowerCase() === ALIAS_ADMIN;
+}
+
+function actualizarBotonRankingAdmin() {
+    const botonRanking = document.querySelector('.ranking-link');
+
+    if (!botonRanking) {
+        return;
+    }
+
+    if (esAdministrador()) {
+        botonRanking.style.display = '';
+    } else {
+        botonRanking.style.display = 'none';
+    }
+}
 
 function comprobarFirebaseComponente() {
     if (typeof firebase === 'undefined') {
-        console.warn('Firebase SDK no está cargado en la página de almacenamiento.');
+        console.warn('Firebase SDK no está cargado en la página de SSD.');
         return;
     }
 
@@ -161,11 +194,150 @@ function comprobarFirebaseComponente() {
         return;
     }
 
-    console.log('Firebase disponible en página almacenamiento.');
+    console.log('Firebase disponible en página SSD.');
 
     window.rankingDB.ref('.info/connected').on('value', function (snapshot) {
-        console.log('Firebase conectado desde almacenamiento:', snapshot.val());
+        console.log('Firebase conectado desde SSD:', snapshot.val());
     });
+}
+
+function escucharReinicioRemoto() {
+    if (!window.rankingDB) {
+        console.warn('No se puede escuchar reinicio remoto porque Firebase no está disponible.');
+        return;
+    }
+
+    window.rankingDB.ref(RUTA_CONTROL_REINICIO).on('value', function (snapshot) {
+        const marcaReinicio = snapshot.val();
+
+        if (!marcaReinicio) {
+            return;
+        }
+
+        const ultimaMarcaLocal = localStorage.getItem('fp_ultima_marca_reinicio') || '';
+
+        if (String(marcaReinicio) === String(ultimaMarcaLocal)) {
+            return;
+        }
+
+        localStorage.setItem('fp_ultima_marca_reinicio', String(marcaReinicio));
+
+        limpiarDatosLocalesPorReinicio();
+
+        alert('El profesor ha reiniciado el reto. Puedes introducir un nuevo alias.');
+
+        window.location.reload();
+    });
+}
+
+function limpiarDatosLocalesPorReinicio() {
+    const clavesABorrar = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+
+        if (
+            clave === 'fp_alias' ||
+            clave === 'fp_ranking_local' ||
+            clave.startsWith('fp_progreso_') ||
+            clave.startsWith('fp_escala_') ||
+            clave.startsWith('fp_tiempo_inicio_') ||
+            clave.startsWith('fp_tiempo_final_')
+        ) {
+            clavesABorrar.push(clave);
+        }
+    }
+
+    clavesABorrar.forEach(function (clave) {
+        localStorage.removeItem(clave);
+    });
+
+    sessionStorage.clear();
+}
+
+function claveTiempoInicioAlias() {
+    return 'fp_tiempo_inicio_' + normalizarAlias(alias);
+}
+
+function claveTiempoFinalAlias() {
+    return 'fp_tiempo_final_' + normalizarAlias(alias);
+}
+
+function iniciarCronometroReto() {
+    if (!alias) {
+        return;
+    }
+
+    const tiempoGuardado = localStorage.getItem(claveTiempoInicioAlias());
+
+    if (tiempoGuardado) {
+        tiempoInicioReto = Number(tiempoGuardado);
+    } else {
+        tiempoInicioReto = Date.now();
+        localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+    }
+
+    const tiempoFinalGuardado = localStorage.getItem(claveTiempoFinalAlias());
+
+    if (tiempoFinalGuardado) {
+        tiempoFinalReto = Number(tiempoFinalGuardado);
+    } else {
+        tiempoFinalReto = 0;
+    }
+
+    if (intervaloCronometro) {
+        clearInterval(intervaloCronometro);
+    }
+
+    intervaloCronometro = setInterval(function () {
+        actualizarCronometroVisible();
+    }, 1000);
+
+    actualizarCronometroVisible();
+}
+
+function finalizarCronometroSiTerminado() {
+    if (!alias) {
+        return;
+    }
+
+    if (preguntaActual < PREGUNTAS.length) {
+        return;
+    }
+
+    if (tiempoFinalReto > 0) {
+        return;
+    }
+
+    tiempoFinalReto = Date.now();
+    localStorage.setItem(claveTiempoFinalAlias(), String(tiempoFinalReto));
+
+    actualizarCronometroVisible();
+}
+
+function obtenerTiempoRetoSegundos() {
+    if (!alias || !tiempoInicioReto) {
+        return 0;
+    }
+
+    const fin = tiempoFinalReto > 0 ? tiempoFinalReto : Date.now();
+
+    return Math.max(0, Math.floor((fin - tiempoInicioReto) / 1000));
+}
+
+function formatearTiempo(segundosTotales) {
+    const minutos = Math.floor(segundosTotales / 60);
+    const segundos = segundosTotales % 60;
+
+    return String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
+}
+
+function actualizarCronometroVisible() {
+    const segundos = obtenerTiempoRetoSegundos();
+    const tiempoTexto = formatearTiempo(segundos);
+
+    actualizarTexto('tiempo-visible', tiempoTexto);
+    actualizarTexto('tiempo-panel', tiempoTexto);
 }
 
 function leerConfiguracionDesdeURL() {
@@ -203,6 +375,7 @@ function leerConfiguracionDesdeURL() {
 
     if (rotXURL !== null && !isNaN(parseFloat(rotXURL))) {
         CONFIG_LOCAL.rotacionInicial.x = parseFloat(rotXURL);
+        rotacionX = CONFIG_LOCAL.rotacionInicial.x;
     }
 
     if (rotYURL !== null && !isNaN(parseFloat(rotYURL))) {
@@ -266,7 +439,9 @@ function aplicarEscala(mostrarMensaje) {
 function aplicarPosicionInicial() {
     const modelo = obtenerModelo();
 
-    if (!modelo) return;
+    if (!modelo) {
+        return;
+    }
 
     modelo.setAttribute('position', {
         x: CONFIG_LOCAL.posicionInicial.x,
@@ -275,14 +450,16 @@ function aplicarPosicionInicial() {
     });
 }
 
-function aplicarRotacionInicial() {
+function aplicarRotacionActual() {
     const modelo = obtenerModelo();
 
-    if (!modelo) return;
+    if (!modelo) {
+        return;
+    }
 
     modelo.setAttribute('rotation', {
-        x: CONFIG_LOCAL.rotacionInicial.x,
-        y: CONFIG_LOCAL.rotacionInicial.y,
+        x: rotacionX,
+        y: rotacionY,
         z: CONFIG_LOCAL.rotacionInicial.z
     });
 }
@@ -290,23 +467,32 @@ function aplicarRotacionInicial() {
 function girarModelo() {
     marcarBotonTemporal('btn-girar');
 
-    const modelo = obtenerModelo();
-
-    if (!modelo) return;
-
     rotacionY += 30;
 
-    modelo.setAttribute('rotation', {
-        x: CONFIG_LOCAL.rotacionInicial.x,
-        y: rotacionY,
-        z: CONFIG_LOCAL.rotacionInicial.z
-    });
+    aplicarRotacionActual();
+}
+
+function inclinarArriba() {
+    marcarBotonTemporal('btn-arriba');
+
+    rotacionX -= 15;
+
+    aplicarRotacionActual();
+}
+
+function inclinarAbajo() {
+    marcarBotonTemporal('btn-abajo');
+
+    rotacionX += 15;
+
+    aplicarRotacionActual();
 }
 
 function aumentarModelo() {
     marcarBotonTemporal('btn-mas');
 
     escalaActual += CONFIG_LOCAL.pasoEscala;
+
     aplicarEscala(true);
 }
 
@@ -328,17 +514,20 @@ function reiniciarModelo(mostrarEfecto) {
     }
 
     escalaActual = CONFIG_LOCAL.escalaInicial;
+    rotacionX = CONFIG_LOCAL.rotacionInicial.x;
     rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 
     aplicarEscala(mostrarEfecto !== false);
     aplicarPosicionInicial();
-    aplicarRotacionInicial();
+    aplicarRotacionActual();
 }
 
 function mostrarMensajeVisor(mensaje) {
     const aviso = document.getElementById('aviso');
 
-    if (!aviso) return;
+    if (!aviso) {
+        return;
+    }
 
     aviso.innerHTML = mensaje;
     aviso.style.display = 'block';
@@ -348,15 +537,17 @@ function configurarEventosMarcador() {
     const marcador = document.querySelector('#markerA');
     const aviso = document.querySelector('#aviso');
 
-    if (!marcador || !aviso) return;
+    if (!marcador || !aviso) {
+        return;
+    }
 
     marcador.addEventListener('markerFound', function () {
-        aviso.innerHTML = '✅ Marcador detectado. Explora el almacenamiento del ordenador.';
+        aviso.innerHTML = '✅ Marcador detectado. Explora la unidad de almacenamiento.';
         aviso.style.display = 'block';
     });
 
     marcador.addEventListener('markerLost', function () {
-        aviso.innerHTML = 'Enfoca de nuevo el marcador del disco o SSD.';
+        aviso.innerHTML = 'Enfoca de nuevo el marcador del almacenamiento SSD.';
         aviso.style.display = 'block';
     });
 }
@@ -381,13 +572,23 @@ function iniciarAlias() {
         if (aliasVisible) {
             aliasVisible.innerText = alias;
         }
+    } else {
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+
+        if (aliasVisible) {
+            aliasVisible.innerText = '---';
+        }
     }
 }
 
 function configurarInputAlias() {
     const inputAlias = document.getElementById('alias-input');
 
-    if (!inputAlias) return;
+    if (!inputAlias) {
+        return;
+    }
 
     inputAlias.addEventListener('keydown', function (evento) {
         if (evento.key === 'Enter') {
@@ -399,7 +600,9 @@ function configurarInputAlias() {
 function guardarAlias() {
     const input = document.getElementById('alias-input');
 
-    if (!input) return;
+    if (!input) {
+        return;
+    }
 
     const valor = input.value.trim();
 
@@ -412,6 +615,7 @@ function guardarAlias() {
     localStorage.setItem('fp_alias', alias);
 
     actualizarTexto('alias-visible', alias);
+    actualizarBotonRankingAdmin();
 
     const modal = document.getElementById('modal-alias');
 
@@ -422,6 +626,8 @@ function guardarAlias() {
     cargarProgreso();
 
     preguntaActual = buscarPrimeraPreguntaPendiente();
+
+    iniciarCronometroReto();
 
     cargarPregunta();
     actualizarPuntuacion();
@@ -452,7 +658,9 @@ function cargarProgreso() {
 }
 
 function guardarProgreso() {
-    if (!alias) return;
+    if (!alias) {
+        return;
+    }
 
     localStorage.setItem(claveProgresoAlias(), JSON.stringify(progreso));
 }
@@ -551,7 +759,9 @@ function marcarBotonPanel(tipo) {
 function marcarBotonTemporal(idBoton) {
     const boton = document.getElementById(idBoton);
 
-    if (!boton) return;
+    if (!boton) {
+        return;
+    }
 
     boton.classList.add('boton-pulsado');
 
@@ -559,10 +769,6 @@ function marcarBotonTemporal(idBoton) {
         boton.classList.remove('boton-pulsado');
     }, 180);
 }
-
-/* ============================================================
-   RETO CON RESPUESTAS ALEATORIAS
-   ============================================================ */
 
 function idPregunta(indice) {
     return COMPONENTE_ID + '-pregunta-' + indice;
@@ -607,15 +813,23 @@ function obtenerOrdenOpciones(indicePregunta) {
 function cargarPregunta() {
     const contenedor = document.getElementById('contenedor-pregunta');
 
-    if (!contenedor) return;
+    if (!contenedor) {
+        return;
+    }
 
     if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+
         contenedor.innerHTML = `
-            <p><strong>Has terminado las preguntas de almacenamiento.</strong></p>
+            <p><strong>Has terminado las preguntas de almacenamiento SSD.</strong></p>
             <p>Ahora puedes continuar con la tarjeta gráfica.</p>
             <p><strong>Aciertos totales:</strong> ${calcularCorrectas()}</p>
             <p><strong>Preguntas respondidas en total:</strong> ${calcularRespondidas()}</p>
+            <p><strong>Tiempo empleado:</strong> ${formatearTiempo(obtenerTiempoRetoSegundos())}</p>
         `;
+
+        actualizarPuntuacion();
+
         return;
     }
 
@@ -725,15 +939,24 @@ function siguientePregunta() {
         preguntaActual++;
     }
 
+    if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+    }
+
     cargarPregunta();
+    actualizarPuntuacion();
 }
 
 function reiniciarRetoActual() {
-    if (!alias) return;
+    if (!alias) {
+        return;
+    }
 
     const confirmar = confirm('¿Seguro que quieres reiniciar las respuestas de esta página para este alias?');
 
-    if (!confirmar) return;
+    if (!confirmar) {
+        return;
+    }
 
     Object.keys(progreso).forEach(function (clave) {
         if (clave.startsWith(COMPONENTE_ID + '-')) {
@@ -743,16 +966,22 @@ function reiniciarRetoActual() {
 
     guardarProgreso();
 
+    localStorage.removeItem(claveTiempoInicioAlias());
+    localStorage.removeItem(claveTiempoFinalAlias());
+
+    tiempoInicioReto = Date.now();
+    tiempoFinalReto = 0;
+
+    localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+
     preguntaActual = 0;
     ordenOpcionesPorPregunta = {};
+
+    iniciarCronometroReto();
 
     cargarPregunta();
     actualizarPuntuacion();
 }
-
-/* ============================================================
-   PUNTUACIÓN Y RANKING
-   ============================================================ */
 
 function calcularCorrectas() {
     return Object.values(progreso).filter(function (respuesta) {
@@ -775,6 +1004,8 @@ function actualizarPuntuacion() {
     actualizarTexto('correctas-panel', correctas);
     actualizarTexto('respondidas-panel', respondidas);
 
+    actualizarCronometroVisible();
+
     guardarRankingLocal(correctas, respondidas);
 }
 
@@ -792,12 +1023,16 @@ function guardarRankingLocal(correctas, respondidas) {
         return;
     }
 
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
     const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
 
     ranking[alias] = {
         alias: alias,
         correctas: correctas,
         respondidas: respondidas,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
         fecha: new Date().toISOString()
     };
 
@@ -844,12 +1079,16 @@ function enviarRankingFirebaseDirecto(aliasEnviar, correctas, respondidas) {
         ? Math.round((aciertos / contestadas) * 100)
         : 0;
 
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
     const datos = {
         alias: aliasLimpio,
         correctas: aciertos,
         respondidas: contestadas,
         errores: errores,
         porcentaje: porcentaje,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
         fecha: new Date().toISOString()
     };
 
@@ -882,12 +1121,28 @@ function mostrarRankingLocal() {
             return b.correctas - a.correctas;
         }
 
-        return a.respondidas - b.respondidas;
+        const erroresA = Math.max(0, Number(a.respondidas || 0) - Number(a.correctas || 0));
+        const erroresB = Math.max(0, Number(b.respondidas || 0) - Number(b.correctas || 0));
+
+        if (erroresA !== erroresB) {
+            return erroresA - erroresB;
+        }
+
+        const tiempoA = Number(a.tiempoSegundos || 999999);
+        const tiempoB = Number(b.tiempoSegundos || 999999);
+
+        if (tiempoA !== tiempoB) {
+            return tiempoA - tiempoB;
+        }
+
+        return Number(b.respondidas || 0) - Number(a.respondidas || 0);
     });
 
     const contenedor = document.getElementById('ranking-contenido');
 
-    if (!contenedor) return;
+    if (!contenedor) {
+        return;
+    }
 
     if (lista.length === 0) {
         contenedor.innerHTML = '<p>Todavía no hay participantes guardados en este dispositivo.</p>';
@@ -900,7 +1155,7 @@ function mostrarRankingLocal() {
         html += `
             <div class="fila-ranking">
                 <span>${indice + 1}. ${item.alias}</span>
-                <strong>${item.correctas} aciertos</strong>
+                <strong>${item.correctas} aciertos · ${item.tiempoTexto || '--:--'}</strong>
             </div>
         `;
     });

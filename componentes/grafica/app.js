@@ -1,12 +1,13 @@
 /* ============================================================
-   APP.JS - COMPONENTE GPU / TARJETA GRÁFICA
+   APP.JS - COMPONENTE TARJETA GRÁFICA / GPU
    Feria FP Bajo Aragón - Hardware RA + Ranking Firebase
+   Administrador + reinicio remoto + cronómetro
    ============================================================ */
 
 const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
     ? CONFIG_AR
     : {
-        componenteId: 'tarjeta-grafica-gpu',
+        componenteId: 'gpu',
         escalaInicial: 1,
         escalaMinima: 0.005,
         pasoEscala: 0.05,
@@ -14,27 +15,31 @@ const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
         rotacionInicial: { x: 0, y: 0, z: 0 }
     };
 
-const COMPONENTE_ID = CONFIG_LOCAL.componenteId || 'tarjeta-grafica-gpu';
+const COMPONENTE_ID = CONFIG_LOCAL.componenteId || 'gpu';
+
 const RUTA_RANKING_FIREBASE_DIRECTO = 'rankingFeriaFPBajoAragon';
+const RUTA_CONTROL_REINICIO = 'controlFeriaFPBajoAragon/reinicio';
+
+const ALIAS_ADMIN = 'aalbaladejob';
 
 const PREGUNTAS = [
     {
-        texto: '¿Para qué sirve principalmente una tarjeta gráfica o GPU?',
+        texto: '¿Cuál es la función principal de una tarjeta gráfica?',
         opciones: [
             {
-                texto: 'Para procesar imágenes, vídeo y gráficos',
+                texto: 'Procesar gráficos, vídeo e imágenes para mostrarlos en pantalla',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. La GPU se encarga de procesar gráficos, imágenes, vídeo, juegos y escenas 3D.'
+                feedbackCorrecto: 'Correcto. La GPU procesa información gráfica y envía la señal visual al monitor.'
             },
             {
-                texto: 'Para guardar archivos de forma permanente',
+                texto: 'Guardar archivos de forma permanente',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Los archivos se guardan en el disco duro o SSD.'
+                feedbackIncorrecto: 'No es correcto. Los archivos se guardan en unidades de almacenamiento.'
             },
             {
-                texto: 'Para alimentar eléctricamente todo el ordenador',
+                texto: 'Transformar corriente alterna en continua',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La alimentación eléctrica la proporciona la fuente de alimentación.'
+                feedbackIncorrecto: 'No es correcto. Esa función corresponde a la fuente de alimentación.'
             }
         ]
     },
@@ -42,92 +47,96 @@ const PREGUNTAS = [
         texto: '¿En qué ranura se instala normalmente una tarjeta gráfica dedicada?',
         opciones: [
             {
-                texto: 'En una ranura PCI Express de la placa base',
+                texto: 'En una ranura PCI Express x16',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. Las tarjetas gráficas dedicadas se instalan normalmente en una ranura PCI Express.'
+                feedbackCorrecto: 'Muy bien. Las tarjetas gráficas dedicadas suelen instalarse en ranuras PCI Express x16.'
             },
             {
                 texto: 'En una ranura DIMM de memoria RAM',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Las ranuras DIMM son para memoria RAM.'
+                feedbackIncorrecto: 'No es correcto. Las ranuras DIMM son para módulos de memoria RAM.'
             },
             {
-                texto: 'En el conector SATA de un disco duro',
+                texto: 'En el conector CPU_FAN',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. SATA se usa para almacenamiento, no para tarjetas gráficas.'
+                feedbackIncorrecto: 'No es correcto. CPU_FAN se usa para el ventilador del procesador.'
             }
         ]
     },
     {
-        texto: '¿Qué cable o conector puede usarse para llevar imagen desde la GPU al monitor?',
+        texto: '¿Qué tipo de conector se usa habitualmente para conectar un monitor moderno a una GPU?',
         opciones: [
             {
                 texto: 'HDMI o DisplayPort',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. HDMI y DisplayPort son conexiones habituales para enviar imagen y sonido al monitor.'
+                feedbackCorrecto: 'Correcto. HDMI y DisplayPort son conexiones habituales para enviar vídeo y audio al monitor.'
             },
             {
-                texto: 'CPU_FAN',
+                texto: 'SATA de alimentación',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. CPU_FAN es un conector para el ventilador del procesador.'
+                feedbackIncorrecto: 'No es correcto. SATA de alimentación se usa para discos y algunas unidades.'
             },
             {
-                texto: 'ATX de 24 pines',
+                texto: 'Molex para ventiladores antiguos',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El ATX de 24 pines alimenta la placa base.'
+                feedbackIncorrecto: 'No es correcto. Molex puede alimentar algunos accesorios, pero no es una salida de vídeo moderna.'
             }
         ]
     },
     {
-        texto: '¿Por qué algunas tarjetas gráficas necesitan conectores de alimentación PCIe?',
+        texto: '¿Qué debe comprobarse antes de instalar una GPU potente?',
         opciones: [
             {
-                texto: 'Porque consumen más energía de la que puede aportar solo la ranura PCI Express',
+                texto: 'Que la fuente tenga potencia suficiente y conectores PCIe adecuados',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. Algunas gráficas necesitan energía adicional desde la fuente mediante conectores PCIe.'
+                feedbackCorrecto: 'Muy bien. Muchas GPUs necesitan alimentación adicional y una fuente con potencia suficiente.'
             },
             {
-                texto: 'Porque así guardan más documentos',
+                texto: 'Que la RAM esté pegada con pasta térmica',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La alimentación extra no sirve para guardar documentos.'
+                feedbackIncorrecto: 'No es correcto. La RAM no se pega con pasta térmica.'
             },
             {
-                texto: 'Porque sustituyen al disco duro',
+                texto: 'Que el disco duro sea de color rojo',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La GPU no sustituye al almacenamiento del ordenador.'
+                feedbackIncorrecto: 'No es correcto. El color del disco no determina la compatibilidad de la GPU.'
             }
         ]
     },
     {
-        texto: '¿Qué hay que comprobar antes de montar una tarjeta gráfica?',
+        texto: '¿Qué es la VRAM de una tarjeta gráfica dedicada?',
         opciones: [
             {
-                texto: 'Que quepa en la carcasa y que la fuente tenga potencia y conectores adecuados',
+                texto: 'Memoria propia de la GPU para trabajar con texturas, imágenes y datos gráficos',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. Hay que comprobar espacio físico, potencia de la fuente y conectores de alimentación.'
+                feedbackCorrecto: 'Correcto. La VRAM es memoria de vídeo usada por la GPU para tareas gráficas.'
             },
             {
-                texto: 'Que el teclado sea del mismo color',
+                texto: 'Una copia de seguridad automática del sistema operativo',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El color del teclado no afecta al montaje de la GPU.'
+                feedbackIncorrecto: 'No es correcto. Las copias de seguridad se almacenan en unidades de almacenamiento.'
             },
             {
-                texto: 'Que el monitor esté guardado dentro de la torre',
+                texto: 'El cable que conecta la fuente a la placa base',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El monitor es un periférico externo y no se guarda dentro de la torre.'
+                feedbackIncorrecto: 'No es correcto. La VRAM es memoria, no un cable.'
             }
         ]
     }
 ];
 
 let escalaActual = CONFIG_LOCAL.escalaInicial;
+let rotacionX = CONFIG_LOCAL.rotacionInicial.x;
 let rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 let preguntaActual = 0;
 
 let alias = localStorage.getItem('fp_alias') || '';
 let progreso = {};
-
 let ordenOpcionesPorPregunta = {};
+
+let intervaloCronometro = null;
+let tiempoInicioReto = 0;
+let tiempoFinalReto = 0;
 
 window.addEventListener('load', function () {
     cargarEscalaGuardada();
@@ -135,8 +144,15 @@ window.addEventListener('load', function () {
 
     iniciarAlias();
     cargarProgreso();
+    actualizarBotonRankingAdmin();
 
     preguntaActual = buscarPrimeraPreguntaPendiente();
+
+    if (alias) {
+        iniciarCronometroReto();
+    } else {
+        actualizarCronometroVisible();
+    }
 
     actualizarPuntuacion();
     cargarPregunta();
@@ -146,7 +162,26 @@ window.addEventListener('load', function () {
     configurarEventosMarcador();
     configurarInputAlias();
     comprobarFirebaseComponente();
+    escucharReinicioRemoto();
 });
+
+function esAdministrador() {
+    return alias && alias.trim().toLowerCase() === ALIAS_ADMIN;
+}
+
+function actualizarBotonRankingAdmin() {
+    const botonRanking = document.querySelector('.ranking-link');
+
+    if (!botonRanking) {
+        return;
+    }
+
+    if (esAdministrador()) {
+        botonRanking.style.display = '';
+    } else {
+        botonRanking.style.display = 'none';
+    }
+}
 
 function comprobarFirebaseComponente() {
     if (typeof firebase === 'undefined') {
@@ -164,6 +199,145 @@ function comprobarFirebaseComponente() {
     window.rankingDB.ref('.info/connected').on('value', function (snapshot) {
         console.log('Firebase conectado desde GPU:', snapshot.val());
     });
+}
+
+function escucharReinicioRemoto() {
+    if (!window.rankingDB) {
+        console.warn('No se puede escuchar reinicio remoto porque Firebase no está disponible.');
+        return;
+    }
+
+    window.rankingDB.ref(RUTA_CONTROL_REINICIO).on('value', function (snapshot) {
+        const marcaReinicio = snapshot.val();
+
+        if (!marcaReinicio) {
+            return;
+        }
+
+        const ultimaMarcaLocal = localStorage.getItem('fp_ultima_marca_reinicio') || '';
+
+        if (String(marcaReinicio) === String(ultimaMarcaLocal)) {
+            return;
+        }
+
+        localStorage.setItem('fp_ultima_marca_reinicio', String(marcaReinicio));
+
+        limpiarDatosLocalesPorReinicio();
+
+        alert('El profesor ha reiniciado el reto. Puedes introducir un nuevo alias.');
+
+        window.location.reload();
+    });
+}
+
+function limpiarDatosLocalesPorReinicio() {
+    const clavesABorrar = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+
+        if (
+            clave === 'fp_alias' ||
+            clave === 'fp_ranking_local' ||
+            clave.startsWith('fp_progreso_') ||
+            clave.startsWith('fp_escala_') ||
+            clave.startsWith('fp_tiempo_inicio_') ||
+            clave.startsWith('fp_tiempo_final_')
+        ) {
+            clavesABorrar.push(clave);
+        }
+    }
+
+    clavesABorrar.forEach(function (clave) {
+        localStorage.removeItem(clave);
+    });
+
+    sessionStorage.clear();
+}
+
+function claveTiempoInicioAlias() {
+    return 'fp_tiempo_inicio_' + normalizarAlias(alias);
+}
+
+function claveTiempoFinalAlias() {
+    return 'fp_tiempo_final_' + normalizarAlias(alias);
+}
+
+function iniciarCronometroReto() {
+    if (!alias) {
+        return;
+    }
+
+    const tiempoGuardado = localStorage.getItem(claveTiempoInicioAlias());
+
+    if (tiempoGuardado) {
+        tiempoInicioReto = Number(tiempoGuardado);
+    } else {
+        tiempoInicioReto = Date.now();
+        localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+    }
+
+    const tiempoFinalGuardado = localStorage.getItem(claveTiempoFinalAlias());
+
+    if (tiempoFinalGuardado) {
+        tiempoFinalReto = Number(tiempoFinalGuardado);
+    } else {
+        tiempoFinalReto = 0;
+    }
+
+    if (intervaloCronometro) {
+        clearInterval(intervaloCronometro);
+    }
+
+    intervaloCronometro = setInterval(function () {
+        actualizarCronometroVisible();
+    }, 1000);
+
+    actualizarCronometroVisible();
+}
+
+function finalizarCronometroSiTerminado() {
+    if (!alias) {
+        return;
+    }
+
+    if (preguntaActual < PREGUNTAS.length) {
+        return;
+    }
+
+    if (tiempoFinalReto > 0) {
+        return;
+    }
+
+    tiempoFinalReto = Date.now();
+    localStorage.setItem(claveTiempoFinalAlias(), String(tiempoFinalReto));
+
+    actualizarCronometroVisible();
+}
+
+function obtenerTiempoRetoSegundos() {
+    if (!alias || !tiempoInicioReto) {
+        return 0;
+    }
+
+    const fin = tiempoFinalReto > 0 ? tiempoFinalReto : Date.now();
+
+    return Math.max(0, Math.floor((fin - tiempoInicioReto) / 1000));
+}
+
+function formatearTiempo(segundosTotales) {
+    const minutos = Math.floor(segundosTotales / 60);
+    const segundos = segundosTotales % 60;
+
+    return String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
+}
+
+function actualizarCronometroVisible() {
+    const segundos = obtenerTiempoRetoSegundos();
+    const tiempoTexto = formatearTiempo(segundos);
+
+    actualizarTexto('tiempo-visible', tiempoTexto);
+    actualizarTexto('tiempo-panel', tiempoTexto);
 }
 
 function leerConfiguracionDesdeURL() {
@@ -201,6 +375,7 @@ function leerConfiguracionDesdeURL() {
 
     if (rotXURL !== null && !isNaN(parseFloat(rotXURL))) {
         CONFIG_LOCAL.rotacionInicial.x = parseFloat(rotXURL);
+        rotacionX = CONFIG_LOCAL.rotacionInicial.x;
     }
 
     if (rotYURL !== null && !isNaN(parseFloat(rotYURL))) {
@@ -264,7 +439,9 @@ function aplicarEscala(mostrarMensaje) {
 function aplicarPosicionInicial() {
     const modelo = obtenerModelo();
 
-    if (!modelo) return;
+    if (!modelo) {
+        return;
+    }
 
     modelo.setAttribute('position', {
         x: CONFIG_LOCAL.posicionInicial.x,
@@ -273,14 +450,16 @@ function aplicarPosicionInicial() {
     });
 }
 
-function aplicarRotacionInicial() {
+function aplicarRotacionActual() {
     const modelo = obtenerModelo();
 
-    if (!modelo) return;
+    if (!modelo) {
+        return;
+    }
 
     modelo.setAttribute('rotation', {
-        x: CONFIG_LOCAL.rotacionInicial.x,
-        y: CONFIG_LOCAL.rotacionInicial.y,
+        x: rotacionX,
+        y: rotacionY,
         z: CONFIG_LOCAL.rotacionInicial.z
     });
 }
@@ -288,23 +467,32 @@ function aplicarRotacionInicial() {
 function girarModelo() {
     marcarBotonTemporal('btn-girar');
 
-    const modelo = obtenerModelo();
-
-    if (!modelo) return;
-
     rotacionY += 30;
 
-    modelo.setAttribute('rotation', {
-        x: CONFIG_LOCAL.rotacionInicial.x,
-        y: rotacionY,
-        z: CONFIG_LOCAL.rotacionInicial.z
-    });
+    aplicarRotacionActual();
+}
+
+function inclinarArriba() {
+    marcarBotonTemporal('btn-arriba');
+
+    rotacionX -= 15;
+
+    aplicarRotacionActual();
+}
+
+function inclinarAbajo() {
+    marcarBotonTemporal('btn-abajo');
+
+    rotacionX += 15;
+
+    aplicarRotacionActual();
 }
 
 function aumentarModelo() {
     marcarBotonTemporal('btn-mas');
 
     escalaActual += CONFIG_LOCAL.pasoEscala;
+
     aplicarEscala(true);
 }
 
@@ -326,17 +514,20 @@ function reiniciarModelo(mostrarEfecto) {
     }
 
     escalaActual = CONFIG_LOCAL.escalaInicial;
+    rotacionX = CONFIG_LOCAL.rotacionInicial.x;
     rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 
     aplicarEscala(mostrarEfecto !== false);
     aplicarPosicionInicial();
-    aplicarRotacionInicial();
+    aplicarRotacionActual();
 }
 
 function mostrarMensajeVisor(mensaje) {
     const aviso = document.getElementById('aviso');
 
-    if (!aviso) return;
+    if (!aviso) {
+        return;
+    }
 
     aviso.innerHTML = mensaje;
     aviso.style.display = 'block';
@@ -346,7 +537,9 @@ function configurarEventosMarcador() {
     const marcador = document.querySelector('#markerA');
     const aviso = document.querySelector('#aviso');
 
-    if (!marcador || !aviso) return;
+    if (!marcador || !aviso) {
+        return;
+    }
 
     marcador.addEventListener('markerFound', function () {
         aviso.innerHTML = '✅ Marcador detectado. Explora la tarjeta gráfica.';
@@ -379,13 +572,23 @@ function iniciarAlias() {
         if (aliasVisible) {
             aliasVisible.innerText = alias;
         }
+    } else {
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+
+        if (aliasVisible) {
+            aliasVisible.innerText = '---';
+        }
     }
 }
 
 function configurarInputAlias() {
     const inputAlias = document.getElementById('alias-input');
 
-    if (!inputAlias) return;
+    if (!inputAlias) {
+        return;
+    }
 
     inputAlias.addEventListener('keydown', function (evento) {
         if (evento.key === 'Enter') {
@@ -397,7 +600,9 @@ function configurarInputAlias() {
 function guardarAlias() {
     const input = document.getElementById('alias-input');
 
-    if (!input) return;
+    if (!input) {
+        return;
+    }
 
     const valor = input.value.trim();
 
@@ -410,6 +615,7 @@ function guardarAlias() {
     localStorage.setItem('fp_alias', alias);
 
     actualizarTexto('alias-visible', alias);
+    actualizarBotonRankingAdmin();
 
     const modal = document.getElementById('modal-alias');
 
@@ -420,6 +626,8 @@ function guardarAlias() {
     cargarProgreso();
 
     preguntaActual = buscarPrimeraPreguntaPendiente();
+
+    iniciarCronometroReto();
 
     cargarPregunta();
     actualizarPuntuacion();
@@ -450,7 +658,9 @@ function cargarProgreso() {
 }
 
 function guardarProgreso() {
-    if (!alias) return;
+    if (!alias) {
+        return;
+    }
 
     localStorage.setItem(claveProgresoAlias(), JSON.stringify(progreso));
 }
@@ -549,7 +759,9 @@ function marcarBotonPanel(tipo) {
 function marcarBotonTemporal(idBoton) {
     const boton = document.getElementById(idBoton);
 
-    if (!boton) return;
+    if (!boton) {
+        return;
+    }
 
     boton.classList.add('boton-pulsado');
 
@@ -557,10 +769,6 @@ function marcarBotonTemporal(idBoton) {
         boton.classList.remove('boton-pulsado');
     }, 180);
 }
-
-/* ============================================================
-   RETO CON RESPUESTAS ALEATORIAS
-   ============================================================ */
 
 function idPregunta(indice) {
     return COMPONENTE_ID + '-pregunta-' + indice;
@@ -605,15 +813,23 @@ function obtenerOrdenOpciones(indicePregunta) {
 function cargarPregunta() {
     const contenedor = document.getElementById('contenedor-pregunta');
 
-    if (!contenedor) return;
+    if (!contenedor) {
+        return;
+    }
 
     if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+
         contenedor.innerHTML = `
-            <p><strong>Has terminado las preguntas de la tarjeta gráfica.</strong></p>
-            <p>Ahora puedes continuar con los cables y conexiones internas.</p>
+            <p><strong>Has terminado las preguntas de tarjeta gráfica / GPU.</strong></p>
+            <p>Ahora puedes continuar con cables y conexiones internas.</p>
             <p><strong>Aciertos totales:</strong> ${calcularCorrectas()}</p>
             <p><strong>Preguntas respondidas en total:</strong> ${calcularRespondidas()}</p>
+            <p><strong>Tiempo empleado:</strong> ${formatearTiempo(obtenerTiempoRetoSegundos())}</p>
         `;
+
+        actualizarPuntuacion();
+
         return;
     }
 
@@ -723,15 +939,24 @@ function siguientePregunta() {
         preguntaActual++;
     }
 
+    if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+    }
+
     cargarPregunta();
+    actualizarPuntuacion();
 }
 
 function reiniciarRetoActual() {
-    if (!alias) return;
+    if (!alias) {
+        return;
+    }
 
     const confirmar = confirm('¿Seguro que quieres reiniciar las respuestas de esta página para este alias?');
 
-    if (!confirmar) return;
+    if (!confirmar) {
+        return;
+    }
 
     Object.keys(progreso).forEach(function (clave) {
         if (clave.startsWith(COMPONENTE_ID + '-')) {
@@ -741,16 +966,22 @@ function reiniciarRetoActual() {
 
     guardarProgreso();
 
+    localStorage.removeItem(claveTiempoInicioAlias());
+    localStorage.removeItem(claveTiempoFinalAlias());
+
+    tiempoInicioReto = Date.now();
+    tiempoFinalReto = 0;
+
+    localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+
     preguntaActual = 0;
     ordenOpcionesPorPregunta = {};
+
+    iniciarCronometroReto();
 
     cargarPregunta();
     actualizarPuntuacion();
 }
-
-/* ============================================================
-   PUNTUACIÓN Y RANKING
-   ============================================================ */
 
 function calcularCorrectas() {
     return Object.values(progreso).filter(function (respuesta) {
@@ -773,6 +1004,8 @@ function actualizarPuntuacion() {
     actualizarTexto('correctas-panel', correctas);
     actualizarTexto('respondidas-panel', respondidas);
 
+    actualizarCronometroVisible();
+
     guardarRankingLocal(correctas, respondidas);
 }
 
@@ -790,12 +1023,16 @@ function guardarRankingLocal(correctas, respondidas) {
         return;
     }
 
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
     const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
 
     ranking[alias] = {
         alias: alias,
         correctas: correctas,
         respondidas: respondidas,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
         fecha: new Date().toISOString()
     };
 
@@ -842,12 +1079,16 @@ function enviarRankingFirebaseDirecto(aliasEnviar, correctas, respondidas) {
         ? Math.round((aciertos / contestadas) * 100)
         : 0;
 
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
     const datos = {
         alias: aliasLimpio,
         correctas: aciertos,
         respondidas: contestadas,
         errores: errores,
         porcentaje: porcentaje,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
         fecha: new Date().toISOString()
     };
 
@@ -880,12 +1121,28 @@ function mostrarRankingLocal() {
             return b.correctas - a.correctas;
         }
 
-        return a.respondidas - b.respondidas;
+        const erroresA = Math.max(0, Number(a.respondidas || 0) - Number(a.correctas || 0));
+        const erroresB = Math.max(0, Number(b.respondidas || 0) - Number(b.correctas || 0));
+
+        if (erroresA !== erroresB) {
+            return erroresA - erroresB;
+        }
+
+        const tiempoA = Number(a.tiempoSegundos || 999999);
+        const tiempoB = Number(b.tiempoSegundos || 999999);
+
+        if (tiempoA !== tiempoB) {
+            return tiempoA - tiempoB;
+        }
+
+        return Number(b.respondidas || 0) - Number(a.respondidas || 0);
     });
 
     const contenedor = document.getElementById('ranking-contenido');
 
-    if (!contenedor) return;
+    if (!contenedor) {
+        return;
+    }
 
     if (lista.length === 0) {
         contenedor.innerHTML = '<p>Todavía no hay participantes guardados en este dispositivo.</p>';
@@ -898,7 +1155,7 @@ function mostrarRankingLocal() {
         html += `
             <div class="fila-ranking">
                 <span>${indice + 1}. ${item.alias}</span>
-                <strong>${item.correctas} aciertos</strong>
+                <strong>${item.correctas} aciertos · ${item.tiempoTexto || '--:--'}</strong>
             </div>
         `;
     });

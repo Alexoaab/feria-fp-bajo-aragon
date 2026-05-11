@@ -1,12 +1,13 @@
 /* ============================================================
    APP.JS - COMPONENTE MEMORIA RAM
    Feria FP Bajo Aragón - Hardware RA + Ranking Firebase
+   Administrador + reinicio remoto + cronómetro
    ============================================================ */
 
 const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
     ? CONFIG_AR
     : {
-        componenteId: 'ram-memoria',
+        componenteId: 'ram',
         escalaInicial: 1,
         escalaMinima: 0.005,
         pasoEscala: 0.05,
@@ -14,122 +15,128 @@ const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
         rotacionInicial: { x: 0, y: 0, z: 0 }
     };
 
-const COMPONENTE_ID = CONFIG_LOCAL.componenteId || 'ram-memoria';
+const COMPONENTE_ID = CONFIG_LOCAL.componenteId || 'ram';
+
 const RUTA_RANKING_FIREBASE_DIRECTO = 'rankingFeriaFPBajoAragon';
+const RUTA_CONTROL_REINICIO = 'controlFeriaFPBajoAragon/reinicio';
+
+const ALIAS_ADMIN = 'aalbaladejob';
 
 const PREGUNTAS = [
     {
-        texto: '¿Para qué sirve principalmente la memoria RAM?',
+        texto: '¿Cuál es la función principal de la memoria RAM?',
         opciones: [
             {
-                texto: 'Para guardar temporalmente datos y programas que se están usando',
+                texto: 'Guardar temporalmente datos e instrucciones mientras el equipo está encendido',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. La RAM guarda de forma temporal la información que el ordenador necesita usar rápidamente mientras está encendido.'
+                feedbackCorrecto: 'Correcto. La RAM almacena temporalmente la información que necesitan la CPU y los programas en ejecución.'
             },
             {
-                texto: 'Para guardar archivos aunque el ordenador esté apagado',
+                texto: 'Guardar archivos permanentemente aunque se apague el ordenador',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Para guardar archivos de forma permanente se usa el disco duro o SSD.'
+                feedbackIncorrecto: 'No es correcto. El almacenamiento permanente lo realizan discos duros o SSD.'
             },
             {
-                texto: 'Para alimentar de electricidad la placa base',
+                texto: 'Transformar la corriente eléctrica de la red',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La alimentación eléctrica la proporciona la fuente de alimentación.'
+                feedbackIncorrecto: 'No es correcto. Esa función corresponde a la fuente de alimentación.'
             }
         ]
     },
     {
-        texto: '¿Qué ocurre con la información de la RAM cuando apagamos el ordenador?',
+        texto: '¿Qué ocurre con los datos de la RAM al apagar el ordenador?',
         opciones: [
             {
-                texto: 'Se pierde porque es memoria temporal',
+                texto: 'Se pierden porque es una memoria volátil',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. La RAM es volátil: necesita corriente para conservar la información.'
+                feedbackCorrecto: 'Muy bien. La RAM es volátil: necesita energía para mantener los datos.'
             },
             {
-                texto: 'Se guarda para siempre automáticamente',
+                texto: 'Se guardan para siempre en el módulo',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La RAM no guarda información de forma permanente.'
+                feedbackIncorrecto: 'No es correcto. La RAM no conserva los datos cuando se corta la alimentación.'
             },
             {
-                texto: 'Se convierte en espacio del disco duro',
+                texto: 'Se imprimen automáticamente',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La RAM y el almacenamiento son componentes diferentes.'
+                feedbackIncorrecto: 'No es correcto. Apagar el equipo no imprime los datos de la RAM.'
             }
         ]
     },
     {
-        texto: '¿Dónde se instalan normalmente los módulos de RAM?',
+        texto: '¿Dónde se instala la memoria RAM en un ordenador de sobremesa?',
         opciones: [
             {
                 texto: 'En las ranuras DIMM de la placa base',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. Los módulos de RAM se colocan en las ranuras DIMM de la placa base.'
-            },
-            {
-                texto: 'En el conector HDMI del monitor',
-                correcta: false,
-                feedbackIncorrecto: 'No es correcto. HDMI es una conexión de vídeo y sonido.'
+                feedbackCorrecto: 'Correcto. Los módulos de RAM se instalan en ranuras DIMM de la placa base.'
             },
             {
                 texto: 'Dentro de la fuente de alimentación',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La RAM se instala en la placa base, no en la fuente.'
+                feedbackIncorrecto: 'No es correcto. La fuente alimenta el equipo, pero no contiene la RAM.'
+            },
+            {
+                texto: 'En el puerto HDMI',
+                correcta: false,
+                feedbackIncorrecto: 'No es correcto. HDMI es una conexión de vídeo y audio.'
             }
         ]
     },
     {
-        texto: '¿Por qué puede mejorar el rendimiento tener más memoria RAM?',
+        texto: '¿Qué puede ocurrir si un equipo tiene poca memoria RAM?',
         opciones: [
             {
-                texto: 'Porque permite trabajar mejor con varios programas abiertos',
+                texto: 'Puede ir más lento al abrir varios programas o trabajar con muchas pestañas',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. Con más RAM, el equipo puede manejar más datos temporales y más aplicaciones abiertas con menos lentitud.'
+                feedbackCorrecto: 'Muy bien. Si falta RAM, el sistema puede usar memoria virtual en disco, que es mucho más lenta.'
             },
             {
-                texto: 'Porque aumenta automáticamente el tamaño del monitor',
+                texto: 'La fuente deja de convertir corriente',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La RAM no cambia el tamaño físico del monitor.'
+                feedbackIncorrecto: 'No es correcto. La cantidad de RAM no impide que la fuente convierta corriente.'
             },
             {
-                texto: 'Porque sustituye a la tarjeta gráfica',
+                texto: 'El monitor deja de tener píxeles',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La RAM no sustituye a una tarjeta gráfica.'
+                feedbackIncorrecto: 'No es correcto. Los píxeles pertenecen a la pantalla, no a la RAM.'
             }
         ]
     },
     {
-        texto: '¿Qué hay que comprobar antes de comprar memoria RAM?',
+        texto: '¿Qué significa que dos módulos trabajen en Dual Channel?',
         opciones: [
             {
-                texto: 'Que sea compatible con la placa base en tipo, capacidad y velocidad',
+                texto: 'Que la placa puede acceder a dos canales de memoria para mejorar el rendimiento',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. Hay que revisar si la placa admite ese tipo de RAM, por ejemplo DDR4 o DDR5, y su capacidad máxima.'
+                feedbackCorrecto: 'Correcto. Dual Channel puede aumentar el ancho de banda de memoria si se instalan módulos compatibles en las ranuras adecuadas.'
             },
             {
-                texto: 'Que tenga cable de corriente propio',
+                texto: 'Que la RAM funciona como tarjeta gráfica dedicada',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La RAM no se conecta con un cable de corriente propio.'
+                feedbackIncorrecto: 'No es correcto. Dual Channel mejora el acceso a memoria, pero no convierte la RAM en una GPU dedicada.'
             },
             {
-                texto: 'Que tenga salida HDMI',
+                texto: 'Que los módulos se conectan al cable HDMI',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La RAM no tiene salida HDMI.'
+                feedbackIncorrecto: 'No es correcto. La RAM se instala en la placa base, no en HDMI.'
             }
         ]
     }
 ];
 
 let escalaActual = CONFIG_LOCAL.escalaInicial;
+let rotacionX = CONFIG_LOCAL.rotacionInicial.x;
 let rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 let preguntaActual = 0;
 
 let alias = localStorage.getItem('fp_alias') || '';
 let progreso = {};
-
-// Orden aleatorio de respuestas.
-// Se mantiene mientras la página está abierta para que las opciones no cambien cada vez que se repinta la pregunta.
 let ordenOpcionesPorPregunta = {};
+
+let intervaloCronometro = null;
+let tiempoInicioReto = 0;
+let tiempoFinalReto = 0;
 
 window.addEventListener('load', function () {
     cargarEscalaGuardada();
@@ -137,8 +144,15 @@ window.addEventListener('load', function () {
 
     iniciarAlias();
     cargarProgreso();
+    actualizarBotonRankingAdmin();
 
     preguntaActual = buscarPrimeraPreguntaPendiente();
+
+    if (alias) {
+        iniciarCronometroReto();
+    } else {
+        actualizarCronometroVisible();
+    }
 
     actualizarPuntuacion();
     cargarPregunta();
@@ -148,7 +162,26 @@ window.addEventListener('load', function () {
     configurarEventosMarcador();
     configurarInputAlias();
     comprobarFirebaseComponente();
+    escucharReinicioRemoto();
 });
+
+function esAdministrador() {
+    return alias && alias.trim().toLowerCase() === ALIAS_ADMIN;
+}
+
+function actualizarBotonRankingAdmin() {
+    const botonRanking = document.querySelector('.ranking-link');
+
+    if (!botonRanking) {
+        return;
+    }
+
+    if (esAdministrador()) {
+        botonRanking.style.display = '';
+    } else {
+        botonRanking.style.display = 'none';
+    }
+}
 
 function comprobarFirebaseComponente() {
     if (typeof firebase === 'undefined') {
@@ -166,6 +199,145 @@ function comprobarFirebaseComponente() {
     window.rankingDB.ref('.info/connected').on('value', function (snapshot) {
         console.log('Firebase conectado desde RAM:', snapshot.val());
     });
+}
+
+function escucharReinicioRemoto() {
+    if (!window.rankingDB) {
+        console.warn('No se puede escuchar reinicio remoto porque Firebase no está disponible.');
+        return;
+    }
+
+    window.rankingDB.ref(RUTA_CONTROL_REINICIO).on('value', function (snapshot) {
+        const marcaReinicio = snapshot.val();
+
+        if (!marcaReinicio) {
+            return;
+        }
+
+        const ultimaMarcaLocal = localStorage.getItem('fp_ultima_marca_reinicio') || '';
+
+        if (String(marcaReinicio) === String(ultimaMarcaLocal)) {
+            return;
+        }
+
+        localStorage.setItem('fp_ultima_marca_reinicio', String(marcaReinicio));
+
+        limpiarDatosLocalesPorReinicio();
+
+        alert('El profesor ha reiniciado el reto. Puedes introducir un nuevo alias.');
+
+        window.location.reload();
+    });
+}
+
+function limpiarDatosLocalesPorReinicio() {
+    const clavesABorrar = [];
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+
+        if (
+            clave === 'fp_alias' ||
+            clave === 'fp_ranking_local' ||
+            clave.startsWith('fp_progreso_') ||
+            clave.startsWith('fp_escala_') ||
+            clave.startsWith('fp_tiempo_inicio_') ||
+            clave.startsWith('fp_tiempo_final_')
+        ) {
+            clavesABorrar.push(clave);
+        }
+    }
+
+    clavesABorrar.forEach(function (clave) {
+        localStorage.removeItem(clave);
+    });
+
+    sessionStorage.clear();
+}
+
+function claveTiempoInicioAlias() {
+    return 'fp_tiempo_inicio_' + normalizarAlias(alias);
+}
+
+function claveTiempoFinalAlias() {
+    return 'fp_tiempo_final_' + normalizarAlias(alias);
+}
+
+function iniciarCronometroReto() {
+    if (!alias) {
+        return;
+    }
+
+    const tiempoGuardado = localStorage.getItem(claveTiempoInicioAlias());
+
+    if (tiempoGuardado) {
+        tiempoInicioReto = Number(tiempoGuardado);
+    } else {
+        tiempoInicioReto = Date.now();
+        localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+    }
+
+    const tiempoFinalGuardado = localStorage.getItem(claveTiempoFinalAlias());
+
+    if (tiempoFinalGuardado) {
+        tiempoFinalReto = Number(tiempoFinalGuardado);
+    } else {
+        tiempoFinalReto = 0;
+    }
+
+    if (intervaloCronometro) {
+        clearInterval(intervaloCronometro);
+    }
+
+    intervaloCronometro = setInterval(function () {
+        actualizarCronometroVisible();
+    }, 1000);
+
+    actualizarCronometroVisible();
+}
+
+function finalizarCronometroSiTerminado() {
+    if (!alias) {
+        return;
+    }
+
+    if (preguntaActual < PREGUNTAS.length) {
+        return;
+    }
+
+    if (tiempoFinalReto > 0) {
+        return;
+    }
+
+    tiempoFinalReto = Date.now();
+    localStorage.setItem(claveTiempoFinalAlias(), String(tiempoFinalReto));
+
+    actualizarCronometroVisible();
+}
+
+function obtenerTiempoRetoSegundos() {
+    if (!alias || !tiempoInicioReto) {
+        return 0;
+    }
+
+    const fin = tiempoFinalReto > 0 ? tiempoFinalReto : Date.now();
+
+    return Math.max(0, Math.floor((fin - tiempoInicioReto) / 1000));
+}
+
+function formatearTiempo(segundosTotales) {
+    const minutos = Math.floor(segundosTotales / 60);
+    const segundos = segundosTotales % 60;
+
+    return String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
+}
+
+function actualizarCronometroVisible() {
+    const segundos = obtenerTiempoRetoSegundos();
+    const tiempoTexto = formatearTiempo(segundos);
+
+    actualizarTexto('tiempo-visible', tiempoTexto);
+    actualizarTexto('tiempo-panel', tiempoTexto);
 }
 
 function leerConfiguracionDesdeURL() {
@@ -203,6 +375,7 @@ function leerConfiguracionDesdeURL() {
 
     if (rotXURL !== null && !isNaN(parseFloat(rotXURL))) {
         CONFIG_LOCAL.rotacionInicial.x = parseFloat(rotXURL);
+        rotacionX = CONFIG_LOCAL.rotacionInicial.x;
     }
 
     if (rotYURL !== null && !isNaN(parseFloat(rotYURL))) {
@@ -266,7 +439,9 @@ function aplicarEscala(mostrarMensaje) {
 function aplicarPosicionInicial() {
     const modelo = obtenerModelo();
 
-    if (!modelo) return;
+    if (!modelo) {
+        return;
+    }
 
     modelo.setAttribute('position', {
         x: CONFIG_LOCAL.posicionInicial.x,
@@ -275,14 +450,16 @@ function aplicarPosicionInicial() {
     });
 }
 
-function aplicarRotacionInicial() {
+function aplicarRotacionActual() {
     const modelo = obtenerModelo();
 
-    if (!modelo) return;
+    if (!modelo) {
+        return;
+    }
 
     modelo.setAttribute('rotation', {
-        x: CONFIG_LOCAL.rotacionInicial.x,
-        y: CONFIG_LOCAL.rotacionInicial.y,
+        x: rotacionX,
+        y: rotacionY,
         z: CONFIG_LOCAL.rotacionInicial.z
     });
 }
@@ -290,23 +467,32 @@ function aplicarRotacionInicial() {
 function girarModelo() {
     marcarBotonTemporal('btn-girar');
 
-    const modelo = obtenerModelo();
-
-    if (!modelo) return;
-
     rotacionY += 30;
 
-    modelo.setAttribute('rotation', {
-        x: CONFIG_LOCAL.rotacionInicial.x,
-        y: rotacionY,
-        z: CONFIG_LOCAL.rotacionInicial.z
-    });
+    aplicarRotacionActual();
+}
+
+function inclinarArriba() {
+    marcarBotonTemporal('btn-arriba');
+
+    rotacionX -= 15;
+
+    aplicarRotacionActual();
+}
+
+function inclinarAbajo() {
+    marcarBotonTemporal('btn-abajo');
+
+    rotacionX += 15;
+
+    aplicarRotacionActual();
 }
 
 function aumentarModelo() {
     marcarBotonTemporal('btn-mas');
 
     escalaActual += CONFIG_LOCAL.pasoEscala;
+
     aplicarEscala(true);
 }
 
@@ -328,17 +514,20 @@ function reiniciarModelo(mostrarEfecto) {
     }
 
     escalaActual = CONFIG_LOCAL.escalaInicial;
+    rotacionX = CONFIG_LOCAL.rotacionInicial.x;
     rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 
     aplicarEscala(mostrarEfecto !== false);
     aplicarPosicionInicial();
-    aplicarRotacionInicial();
+    aplicarRotacionActual();
 }
 
 function mostrarMensajeVisor(mensaje) {
     const aviso = document.getElementById('aviso');
 
-    if (!aviso) return;
+    if (!aviso) {
+        return;
+    }
 
     aviso.innerHTML = mensaje;
     aviso.style.display = 'block';
@@ -348,7 +537,9 @@ function configurarEventosMarcador() {
     const marcador = document.querySelector('#markerA');
     const aviso = document.querySelector('#aviso');
 
-    if (!marcador || !aviso) return;
+    if (!marcador || !aviso) {
+        return;
+    }
 
     marcador.addEventListener('markerFound', function () {
         aviso.innerHTML = '✅ Marcador detectado. Explora la memoria RAM.';
@@ -356,7 +547,7 @@ function configurarEventosMarcador() {
     });
 
     marcador.addEventListener('markerLost', function () {
-        aviso.innerHTML = 'Enfoca de nuevo el marcador de memoria RAM.';
+        aviso.innerHTML = 'Enfoca de nuevo el marcador de la memoria RAM.';
         aviso.style.display = 'block';
     });
 }
@@ -381,13 +572,23 @@ function iniciarAlias() {
         if (aliasVisible) {
             aliasVisible.innerText = alias;
         }
+    } else {
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+
+        if (aliasVisible) {
+            aliasVisible.innerText = '---';
+        }
     }
 }
 
 function configurarInputAlias() {
     const inputAlias = document.getElementById('alias-input');
 
-    if (!inputAlias) return;
+    if (!inputAlias) {
+        return;
+    }
 
     inputAlias.addEventListener('keydown', function (evento) {
         if (evento.key === 'Enter') {
@@ -399,7 +600,9 @@ function configurarInputAlias() {
 function guardarAlias() {
     const input = document.getElementById('alias-input');
 
-    if (!input) return;
+    if (!input) {
+        return;
+    }
 
     const valor = input.value.trim();
 
@@ -412,6 +615,7 @@ function guardarAlias() {
     localStorage.setItem('fp_alias', alias);
 
     actualizarTexto('alias-visible', alias);
+    actualizarBotonRankingAdmin();
 
     const modal = document.getElementById('modal-alias');
 
@@ -422,6 +626,8 @@ function guardarAlias() {
     cargarProgreso();
 
     preguntaActual = buscarPrimeraPreguntaPendiente();
+
+    iniciarCronometroReto();
 
     cargarPregunta();
     actualizarPuntuacion();
@@ -452,7 +658,9 @@ function cargarProgreso() {
 }
 
 function guardarProgreso() {
-    if (!alias) return;
+    if (!alias) {
+        return;
+    }
 
     localStorage.setItem(claveProgresoAlias(), JSON.stringify(progreso));
 }
@@ -551,7 +759,9 @@ function marcarBotonPanel(tipo) {
 function marcarBotonTemporal(idBoton) {
     const boton = document.getElementById(idBoton);
 
-    if (!boton) return;
+    if (!boton) {
+        return;
+    }
 
     boton.classList.add('boton-pulsado');
 
@@ -559,10 +769,6 @@ function marcarBotonTemporal(idBoton) {
         boton.classList.remove('boton-pulsado');
     }, 180);
 }
-
-/* ============================================================
-   RETO CON RESPUESTAS ALEATORIAS
-   ============================================================ */
 
 function idPregunta(indice) {
     return COMPONENTE_ID + '-pregunta-' + indice;
@@ -607,15 +813,23 @@ function obtenerOrdenOpciones(indicePregunta) {
 function cargarPregunta() {
     const contenedor = document.getElementById('contenedor-pregunta');
 
-    if (!contenedor) return;
+    if (!contenedor) {
+        return;
+    }
 
     if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+
         contenedor.innerHTML = `
             <p><strong>Has terminado las preguntas de memoria RAM.</strong></p>
-            <p>Ahora puedes continuar con el disco o almacenamiento.</p>
+            <p>Ahora puedes continuar con el almacenamiento.</p>
             <p><strong>Aciertos totales:</strong> ${calcularCorrectas()}</p>
             <p><strong>Preguntas respondidas en total:</strong> ${calcularRespondidas()}</p>
+            <p><strong>Tiempo empleado:</strong> ${formatearTiempo(obtenerTiempoRetoSegundos())}</p>
         `;
+
+        actualizarPuntuacion();
+
         return;
     }
 
@@ -725,15 +939,24 @@ function siguientePregunta() {
         preguntaActual++;
     }
 
+    if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+    }
+
     cargarPregunta();
+    actualizarPuntuacion();
 }
 
 function reiniciarRetoActual() {
-    if (!alias) return;
+    if (!alias) {
+        return;
+    }
 
     const confirmar = confirm('¿Seguro que quieres reiniciar las respuestas de esta página para este alias?');
 
-    if (!confirmar) return;
+    if (!confirmar) {
+        return;
+    }
 
     Object.keys(progreso).forEach(function (clave) {
         if (clave.startsWith(COMPONENTE_ID + '-')) {
@@ -743,16 +966,22 @@ function reiniciarRetoActual() {
 
     guardarProgreso();
 
+    localStorage.removeItem(claveTiempoInicioAlias());
+    localStorage.removeItem(claveTiempoFinalAlias());
+
+    tiempoInicioReto = Date.now();
+    tiempoFinalReto = 0;
+
+    localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+
     preguntaActual = 0;
     ordenOpcionesPorPregunta = {};
+
+    iniciarCronometroReto();
 
     cargarPregunta();
     actualizarPuntuacion();
 }
-
-/* ============================================================
-   PUNTUACIÓN Y RANKING
-   ============================================================ */
 
 function calcularCorrectas() {
     return Object.values(progreso).filter(function (respuesta) {
@@ -775,6 +1004,8 @@ function actualizarPuntuacion() {
     actualizarTexto('correctas-panel', correctas);
     actualizarTexto('respondidas-panel', respondidas);
 
+    actualizarCronometroVisible();
+
     guardarRankingLocal(correctas, respondidas);
 }
 
@@ -792,12 +1023,16 @@ function guardarRankingLocal(correctas, respondidas) {
         return;
     }
 
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
     const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
 
     ranking[alias] = {
         alias: alias,
         correctas: correctas,
         respondidas: respondidas,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
         fecha: new Date().toISOString()
     };
 
@@ -844,12 +1079,16 @@ function enviarRankingFirebaseDirecto(aliasEnviar, correctas, respondidas) {
         ? Math.round((aciertos / contestadas) * 100)
         : 0;
 
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
     const datos = {
         alias: aliasLimpio,
         correctas: aciertos,
         respondidas: contestadas,
         errores: errores,
         porcentaje: porcentaje,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
         fecha: new Date().toISOString()
     };
 
@@ -882,12 +1121,28 @@ function mostrarRankingLocal() {
             return b.correctas - a.correctas;
         }
 
-        return a.respondidas - b.respondidas;
+        const erroresA = Math.max(0, Number(a.respondidas || 0) - Number(a.correctas || 0));
+        const erroresB = Math.max(0, Number(b.respondidas || 0) - Number(b.correctas || 0));
+
+        if (erroresA !== erroresB) {
+            return erroresA - erroresB;
+        }
+
+        const tiempoA = Number(a.tiempoSegundos || 999999);
+        const tiempoB = Number(b.tiempoSegundos || 999999);
+
+        if (tiempoA !== tiempoB) {
+            return tiempoA - tiempoB;
+        }
+
+        return Number(b.respondidas || 0) - Number(a.respondidas || 0);
     });
 
     const contenedor = document.getElementById('ranking-contenido');
 
-    if (!contenedor) return;
+    if (!contenedor) {
+        return;
+    }
 
     if (lista.length === 0) {
         contenedor.innerHTML = '<p>Todavía no hay participantes guardados en este dispositivo.</p>';
@@ -900,7 +1155,7 @@ function mostrarRankingLocal() {
         html += `
             <div class="fila-ranking">
                 <span>${indice + 1}. ${item.alias}</span>
-                <strong>${item.correctas} aciertos</strong>
+                <strong>${item.correctas} aciertos · ${item.tiempoTexto || '--:--'}</strong>
             </div>
         `;
     });
