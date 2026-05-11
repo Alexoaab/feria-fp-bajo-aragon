@@ -1,7 +1,7 @@
 const CONFIG_AR = {
     componenteId: 'ram-memoria',
 
-    escalaInicial: 50.00,
+    escalaInicial: 5.00,
     escalaMinima: 0.005,
 
     pasoEscala: 0.05,
