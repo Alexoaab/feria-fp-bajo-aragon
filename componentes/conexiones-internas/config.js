@@ -1,7 +1,7 @@
 const CONFIG_AR = {
     componenteId: 'conexiones-internas',
 
-    escalaInicial: 1.00,
+    escalaInicial: 0.005,
     escalaMinima: 0.005,
 
     pasoEscala: 0.05,

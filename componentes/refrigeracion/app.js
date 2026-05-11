@@ -1,7 +1,14 @@
 /* ============================================================
    APP.JS - COMPONENTE REFRIGERACIÓN
-   Feria FP Bajo Aragón - Hardware RA + Ranking Firebase
-   Administrador + reinicio remoto + cronómetro
+   Feria FP Bajo Aragón - Hardware RA
+
+   - Preguntas exclusivas de refrigeración.
+   - Admin: feriadelafp.
+   - Total reto completo: 50 preguntas.
+   - El tiempo empieza al escribir alias.
+   - El tiempo NO se detiene al terminar este bloque.
+   - El tiempo solo se detiene cuando se han respondido 50 preguntas.
+   - Ranking: más aciertos -> menor tiempo.
    ============================================================ */
 
 const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
@@ -20,51 +27,83 @@ const COMPONENTE_ID = CONFIG_LOCAL.componenteId || 'refrigeracion';
 const RUTA_RANKING_FIREBASE_DIRECTO = 'rankingFeriaFPBajoAragon';
 const RUTA_CONTROL_REINICIO = 'controlFeriaFPBajoAragon/reinicio';
 
-const ALIAS_ADMIN = 'aalbaladejob';
+const ALIAS_ADMIN = 'feriadelafp';
+const TOTAL_PREGUNTAS_RETO = 50;
+
+/* ============================================================
+   PREGUNTAS EXCLUSIVAS DE REFRIGERACIÓN
+   ============================================================ */
+
+const NOMBRE_COMPONENTE = 'Refrigeración';
+
+const MENSAJE_MARCADOR_DETECTADO = '✅ Marcador detectado. Explora el sistema de refrigeración.';
+const MENSAJE_MARCADOR_PERDIDO = 'Enfoca de nuevo el marcador de refrigeración.';
+const MENSAJE_FINAL = 'Has terminado las preguntas de refrigeración.';
+const SIGUIENTE_COMPONENTE = 'Ahora puedes continuar con la memoria RAM.';
 
 const PREGUNTAS = [
     {
-        texto: '¿Cuál es la función principal de la refrigeración en un ordenador?',
+        texto: '¿Cuál es la función principal del sistema de refrigeración en un ordenador?',
         opciones: [
             {
-                texto: 'Evitar que los componentes alcancen temperaturas demasiado altas',
+                texto: 'Mantener los componentes a temperaturas seguras',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. La refrigeración mantiene temperaturas seguras y ayuda a que el equipo funcione de forma estable.'
+                feedbackCorrecto: 'Correcto. La refrigeración evita sobrecalentamientos y ayuda a que el equipo funcione de forma estable.'
             },
             {
                 texto: 'Guardar archivos de forma permanente',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Los archivos se guardan en discos duros o SSD.'
+                feedbackIncorrecto: 'No es correcto. Esa función corresponde a las unidades de almacenamiento.'
             },
             {
-                texto: 'Sustituir a la fuente de alimentación',
+                texto: 'Convertir corriente alterna en corriente continua',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La fuente alimenta el equipo; la refrigeración controla la temperatura.'
+                feedbackIncorrecto: 'No es correcto. Esa función corresponde a la fuente de alimentación.'
             }
         ]
     },
     {
-        texto: '¿Para qué sirve la pasta térmica?',
+        texto: '¿Qué elemento se coloca normalmente sobre la CPU para extraer calor?',
         opciones: [
             {
-                texto: 'Para mejorar la transferencia de calor entre CPU y disipador',
+                texto: 'Un disipador con ventilador o un bloque de refrigeración líquida',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. La pasta térmica rellena pequeñas imperfecciones y mejora el contacto térmico.'
+                feedbackCorrecto: 'Muy bien. El disipador o el bloque de refrigeración ayuda a transferir el calor desde la CPU hacia el aire o el líquido refrigerante.'
+            },
+            {
+                texto: 'Un módulo de memoria RAM',
+                correcta: false,
+                feedbackIncorrecto: 'No es correcto. La RAM se instala en ranuras DIMM, no encima de la CPU.'
+            },
+            {
+                texto: 'Un cable SATA de datos',
+                correcta: false,
+                feedbackIncorrecto: 'No es correcto. SATA de datos comunica unidades de almacenamiento con la placa base.'
+            }
+        ]
+    },
+    {
+        texto: '¿Para qué sirve la pasta térmica entre la CPU y el disipador?',
+        opciones: [
+            {
+                texto: 'Para mejorar la transferencia de calor entre ambas superficies',
+                correcta: true,
+                feedbackCorrecto: 'Correcto. La pasta térmica rellena pequeñas imperfecciones y mejora el contacto térmico entre CPU y disipador.'
             },
             {
                 texto: 'Para pegar la RAM a la placa base',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La RAM se instala en ranuras DIMM, no se pega.'
+                feedbackIncorrecto: 'No es correcto. La RAM se instala en ranuras DIMM y no utiliza pasta térmica.'
             },
             {
-                texto: 'Para limpiar archivos temporales del sistema',
+                texto: 'Para alimentar eléctricamente el procesador',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La pasta térmica es un material físico, no una herramienta de software.'
+                feedbackIncorrecto: 'No es correcto. La CPU se alimenta mediante conectores de la fuente y la placa base.'
             }
         ]
     },
     {
-        texto: '¿Dónde debe conectarse normalmente el ventilador del procesador?',
+        texto: '¿Dónde se conecta normalmente el ventilador del procesador?',
         opciones: [
             {
                 texto: 'Al conector CPU_FAN de la placa base',
@@ -74,32 +113,12 @@ const PREGUNTAS = [
             {
                 texto: 'Al puerto HDMI',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. HDMI se usa para vídeo y audio.'
+                feedbackIncorrecto: 'No es correcto. HDMI sirve para transmitir vídeo y audio.'
             },
             {
-                texto: 'Al conector SATA de datos',
+                texto: 'Al conector Power SW del panel frontal',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. SATA de datos comunica discos con la placa base.'
-            }
-        ]
-    },
-    {
-        texto: '¿Qué puede ocurrir si la CPU se calienta demasiado?',
-        opciones: [
-            {
-                texto: 'Puede bajar rendimiento, bloquearse o apagarse el equipo',
-                correcta: true,
-                feedbackCorrecto: 'Muy bien. El exceso de temperatura puede provocar thermal throttling, bloqueos o apagados de protección.'
-            },
-            {
-                texto: 'Aumenta automáticamente la capacidad de la RAM',
-                correcta: false,
-                feedbackIncorrecto: 'No es correcto. La temperatura no aumenta la capacidad de memoria.'
-            },
-            {
-                texto: 'Se convierten los discos SATA en NVMe',
-                correcta: false,
-                feedbackIncorrecto: 'No es correcto. Son tecnologías distintas y no cambian por temperatura.'
+                feedbackIncorrecto: 'No es correcto. Power SW conecta el botón de encendido de la carcasa.'
             }
         ]
     },
@@ -107,23 +126,27 @@ const PREGUNTAS = [
         texto: '¿Qué mejora el flujo de aire dentro de la carcasa?',
         opciones: [
             {
-                texto: 'Tener entrada de aire fresco, salida de aire caliente y cables ordenados',
+                texto: 'Entrada de aire fresco, salida de aire caliente y cables ordenados',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. Un buen flujo de aire ayuda a refrigerar todos los componentes internos.'
+                feedbackCorrecto: 'Muy bien. Un buen flujo de aire ayuda a expulsar el calor y a mantener temperaturas adecuadas en todo el equipo.'
             },
             {
                 texto: 'Tapar todas las rejillas de ventilación',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Tapar rejillas empeora la ventilación.'
+                feedbackIncorrecto: 'No es correcto. Tapar las rejillas empeora la ventilación y puede aumentar la temperatura.'
             },
             {
                 texto: 'Desconectar todos los ventiladores',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Los ventiladores son importantes para mover aire dentro de la caja.'
+                feedbackIncorrecto: 'No es correcto. Los ventiladores son necesarios para mover el aire dentro de la caja.'
             }
         ]
     }
 ];
+
+/* ============================================================
+   VARIABLES
+   ============================================================ */
 
 let escalaActual = CONFIG_LOCAL.escalaInicial;
 let rotacionX = CONFIG_LOCAL.rotacionInicial.x;
@@ -137,6 +160,10 @@ let ordenOpcionesPorPregunta = {};
 let intervaloCronometro = null;
 let tiempoInicioReto = 0;
 let tiempoFinalReto = 0;
+
+/* ============================================================
+   INICIO
+   ============================================================ */
 
 window.addEventListener('load', function () {
     cargarEscalaGuardada();
@@ -165,6 +192,10 @@ window.addEventListener('load', function () {
     escucharReinicioRemoto();
 });
 
+/* ============================================================
+   ADMINISTRADOR
+   ============================================================ */
+
 function esAdministrador() {
     return alias && alias.trim().toLowerCase() === ALIAS_ADMIN;
 }
@@ -176,34 +207,101 @@ function actualizarBotonRankingAdmin() {
         return;
     }
 
-    if (esAdministrador()) {
-        botonRanking.style.display = '';
-    } else {
-        botonRanking.style.display = 'none';
-    }
+    botonRanking.style.display = esAdministrador() ? '' : 'none';
 }
+
+/* ============================================================
+   FIREBASE Y RANKING
+   ============================================================ */
 
 function comprobarFirebaseComponente() {
     if (typeof firebase === 'undefined') {
-        console.warn('Firebase SDK no está cargado en la página de refrigeración.');
+        console.warn('Firebase SDK no está cargado.');
         return;
     }
 
     if (!window.rankingDB) {
-        console.warn('window.rankingDB no existe. Revisa ../../firebase-config.js.');
+        console.warn('window.rankingDB no existe. Revisa firebase-config.js.');
         return;
     }
 
-    console.log('Firebase disponible en página refrigeración.');
-
     window.rankingDB.ref('.info/connected').on('value', function (snapshot) {
-        console.log('Firebase conectado desde refrigeración:', snapshot.val());
+        console.log('Firebase conectado:', snapshot.val());
     });
 }
 
+function enviarRankingFirebaseDirecto(aliasEnviar, correctas, respondidas) {
+    if (typeof firebase === 'undefined') {
+        return;
+    }
+
+    if (!window.rankingDB) {
+        try {
+            if (firebase.apps.length > 0) {
+                window.rankingDB = firebase.database();
+            }
+        } catch (error) {
+            console.error('No se ha podido crear window.rankingDB:', error);
+            return;
+        }
+    }
+
+    if (!window.rankingDB) {
+        return;
+    }
+
+    if (!aliasEnviar || aliasEnviar.trim().length < 2) {
+        return;
+    }
+
+    const aliasLimpio = aliasEnviar.trim().substring(0, 18);
+    const aliasId = normalizarAliasParaFirebase(aliasLimpio);
+
+    const aciertos = Number(correctas || 0);
+    const contestadas = Number(respondidas || 0);
+    const errores = Math.max(0, contestadas - aciertos);
+    const porcentaje = contestadas > 0
+        ? Math.round((aciertos / contestadas) * 100)
+        : 0;
+
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
+    const datos = {
+        alias: aliasLimpio,
+        correctas: aciertos,
+        respondidas: contestadas,
+        errores: errores,
+        porcentaje: porcentaje,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
+        retoCompletado: contestadas >= TOTAL_PREGUNTAS_RETO,
+        totalPreguntasReto: TOTAL_PREGUNTAS_RETO,
+        fecha: new Date().toISOString()
+    };
+
+    window.rankingDB
+        .ref(RUTA_RANKING_FIREBASE_DIRECTO + '/' + aliasId)
+        .set(datos)
+        .catch(function (error) {
+            console.error('Error guardando ranking en Firebase:', error);
+        });
+}
+
+function normalizarAliasParaFirebase(texto) {
+    return encodeURIComponent(
+        texto
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, '-')
+    );
+}
+
+/* ============================================================
+   REINICIO REMOTO
+   ============================================================ */
+
 function escucharReinicioRemoto() {
     if (!window.rankingDB) {
-        console.warn('No se puede escuchar reinicio remoto porque Firebase no está disponible.');
         return;
     }
 
@@ -255,6 +353,10 @@ function limpiarDatosLocalesPorReinicio() {
     sessionStorage.clear();
 }
 
+/* ============================================================
+   CRONÓMETRO GLOBAL DEL RETO
+   ============================================================ */
+
 function claveTiempoInicioAlias() {
     return 'fp_tiempo_inicio_' + normalizarAlias(alias);
 }
@@ -289,19 +391,17 @@ function iniciarCronometroReto() {
         clearInterval(intervaloCronometro);
     }
 
-    intervaloCronometro = setInterval(function () {
-        actualizarCronometroVisible();
-    }, 1000);
+    if (tiempoFinalReto === 0) {
+        intervaloCronometro = setInterval(function () {
+            actualizarCronometroVisible();
+        }, 1000);
+    }
 
     actualizarCronometroVisible();
 }
 
-function finalizarCronometroSiTerminado() {
+function finalizarCronometroReto() {
     if (!alias) {
-        return;
-    }
-
-    if (preguntaActual < PREGUNTAS.length) {
         return;
     }
 
@@ -312,7 +412,24 @@ function finalizarCronometroSiTerminado() {
     tiempoFinalReto = Date.now();
     localStorage.setItem(claveTiempoFinalAlias(), String(tiempoFinalReto));
 
+    if (intervaloCronometro) {
+        clearInterval(intervaloCronometro);
+        intervaloCronometro = null;
+    }
+
     actualizarCronometroVisible();
+}
+
+function finalizarCronometroSiTerminado() {
+    if (!alias) {
+        return;
+    }
+
+    if (calcularRespondidas() < TOTAL_PREGUNTAS_RETO) {
+        return;
+    }
+
+    finalizarCronometroReto();
 }
 
 function obtenerTiempoRetoSegundos() {
@@ -326,66 +443,55 @@ function obtenerTiempoRetoSegundos() {
 }
 
 function formatearTiempo(segundosTotales) {
-    const minutos = Math.floor(segundosTotales / 60);
-    const segundos = segundosTotales % 60;
+    const segundosValidos = Number(segundosTotales || 0);
+    const minutos = Math.floor(segundosValidos / 60);
+    const segundos = segundosValidos % 60;
 
     return String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
 }
 
 function actualizarCronometroVisible() {
     const segundos = obtenerTiempoRetoSegundos();
-    const tiempoTexto = formatearTiempo(segundos);
+    const texto = formatearTiempo(segundos);
 
-    actualizarTexto('tiempo-visible', tiempoTexto);
-    actualizarTexto('tiempo-panel', tiempoTexto);
+    actualizarTexto('tiempo-visible', texto);
+    actualizarTexto('tiempo-panel', texto);
 }
+
+/* ============================================================
+   MODELO 3D
+   ============================================================ */
 
 function leerConfiguracionDesdeURL() {
     const parametros = new URLSearchParams(window.location.search);
 
     const escalaURL = parametros.get('escala');
     const pasoURL = parametros.get('paso');
-    const posXURL = parametros.get('posX');
-    const posYURL = parametros.get('posY');
-    const posZURL = parametros.get('posZ');
-    const rotXURL = parametros.get('rotX');
-    const rotYURL = parametros.get('rotY');
-    const rotZURL = parametros.get('rotZ');
 
     if (escalaURL !== null && !isNaN(parseFloat(escalaURL))) {
         CONFIG_LOCAL.escalaInicial = parseFloat(escalaURL);
-        escalaActual = CONFIG_LOCAL.escalaInicial;
     }
 
     if (pasoURL !== null && !isNaN(parseFloat(pasoURL))) {
         CONFIG_LOCAL.pasoEscala = parseFloat(pasoURL);
     }
 
-    if (posXURL !== null && !isNaN(parseFloat(posXURL))) {
-        CONFIG_LOCAL.posicionInicial.x = parseFloat(posXURL);
-    }
+    ['x', 'y', 'z'].forEach(function (eje) {
+        const pos = parametros.get('pos' + eje.toUpperCase());
+        const rot = parametros.get('rot' + eje.toUpperCase());
 
-    if (posYURL !== null && !isNaN(parseFloat(posYURL))) {
-        CONFIG_LOCAL.posicionInicial.y = parseFloat(posYURL);
-    }
+        if (pos !== null && !isNaN(parseFloat(pos))) {
+            CONFIG_LOCAL.posicionInicial[eje] = parseFloat(pos);
+        }
 
-    if (posZURL !== null && !isNaN(parseFloat(posZURL))) {
-        CONFIG_LOCAL.posicionInicial.z = parseFloat(posZURL);
-    }
+        if (rot !== null && !isNaN(parseFloat(rot))) {
+            CONFIG_LOCAL.rotacionInicial[eje] = parseFloat(rot);
+        }
+    });
 
-    if (rotXURL !== null && !isNaN(parseFloat(rotXURL))) {
-        CONFIG_LOCAL.rotacionInicial.x = parseFloat(rotXURL);
-        rotacionX = CONFIG_LOCAL.rotacionInicial.x;
-    }
-
-    if (rotYURL !== null && !isNaN(parseFloat(rotYURL))) {
-        CONFIG_LOCAL.rotacionInicial.y = parseFloat(rotYURL);
-        rotacionY = CONFIG_LOCAL.rotacionInicial.y;
-    }
-
-    if (rotZURL !== null && !isNaN(parseFloat(rotZURL))) {
-        CONFIG_LOCAL.rotacionInicial.z = parseFloat(rotZURL);
-    }
+    escalaActual = CONFIG_LOCAL.escalaInicial;
+    rotacionX = CONFIG_LOCAL.rotacionInicial.x;
+    rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 }
 
 function claveEscalaGuardada() {
@@ -421,7 +527,6 @@ function aplicarEscala(mostrarMensaje) {
     const modelo = obtenerModelo();
 
     if (!modelo) {
-        console.log('No se encuentra el modelo 3D.');
         return;
     }
 
@@ -466,39 +571,30 @@ function aplicarRotacionActual() {
 
 function girarModelo() {
     marcarBotonTemporal('btn-girar');
-
     rotacionY += 30;
-
     aplicarRotacionActual();
 }
 
 function inclinarArriba() {
     marcarBotonTemporal('btn-arriba');
-
     rotacionX -= 15;
-
     aplicarRotacionActual();
 }
 
 function inclinarAbajo() {
     marcarBotonTemporal('btn-abajo');
-
     rotacionX += 15;
-
     aplicarRotacionActual();
 }
 
 function aumentarModelo() {
     marcarBotonTemporal('btn-mas');
-
     escalaActual += CONFIG_LOCAL.pasoEscala;
-
     aplicarEscala(true);
 }
 
 function reducirModelo() {
     marcarBotonTemporal('btn-menos');
-
     escalaActual -= CONFIG_LOCAL.pasoEscala;
 
     if (escalaActual < CONFIG_LOCAL.escalaMinima) {
@@ -542,15 +638,19 @@ function configurarEventosMarcador() {
     }
 
     marcador.addEventListener('markerFound', function () {
-        aviso.innerHTML = '✅ Marcador detectado. Explora el sistema de refrigeración.';
+        aviso.innerHTML = MENSAJE_MARCADOR_DETECTADO;
         aviso.style.display = 'block';
     });
 
     marcador.addEventListener('markerLost', function () {
-        aviso.innerHTML = 'Enfoca de nuevo el marcador de refrigeración.';
+        aviso.innerHTML = MENSAJE_MARCADOR_PERDIDO;
         aviso.style.display = 'block';
     });
 }
+
+/* ============================================================
+   ALIAS
+   ============================================================ */
 
 function normalizarAlias(texto) {
     return encodeURIComponent(texto.trim().toLowerCase());
@@ -562,24 +662,19 @@ function claveProgresoAlias() {
 
 function iniciarAlias() {
     const modal = document.getElementById('modal-alias');
-    const aliasVisible = document.getElementById('alias-visible');
 
     if (alias.trim() !== '') {
         if (modal) {
             modal.style.display = 'none';
         }
 
-        if (aliasVisible) {
-            aliasVisible.innerText = alias;
-        }
+        actualizarTexto('alias-visible', alias);
     } else {
         if (modal) {
             modal.style.display = 'flex';
         }
 
-        if (aliasVisible) {
-            aliasVisible.innerText = '---';
-        }
+        actualizarTexto('alias-visible', '---');
     }
 }
 
@@ -624,11 +719,9 @@ function guardarAlias() {
     }
 
     cargarProgreso();
-
     preguntaActual = buscarPrimeraPreguntaPendiente();
 
     iniciarCronometroReto();
-
     cargarPregunta();
     actualizarPuntuacion();
 }
@@ -648,6 +741,10 @@ function cambiarAlias() {
     }
 }
 
+/* ============================================================
+   PREGUNTAS
+   ============================================================ */
+
 function cargarProgreso() {
     if (!alias) {
         progreso = {};
@@ -664,6 +761,349 @@ function guardarProgreso() {
 
     localStorage.setItem(claveProgresoAlias(), JSON.stringify(progreso));
 }
+
+function idPregunta(indice) {
+    return COMPONENTE_ID + '-pregunta-' + indice;
+}
+
+function buscarPrimeraPreguntaPendiente() {
+    for (let i = 0; i < PREGUNTAS.length; i++) {
+        if (progreso[idPregunta(i)] === undefined) {
+            return i;
+        }
+    }
+
+    return PREGUNTAS.length;
+}
+
+function mezclarArray(arrayOriginal) {
+    const array = arrayOriginal.slice();
+
+    for (let i = array.length - 1; i > 0; i--) {
+        const indiceAleatorio = Math.floor(Math.random() * (i + 1));
+        const temporal = array[i];
+
+        array[i] = array[indiceAleatorio];
+        array[indiceAleatorio] = temporal;
+    }
+
+    return array;
+}
+
+function obtenerOrdenOpciones(indicePregunta) {
+    if (!ordenOpcionesPorPregunta[indicePregunta]) {
+        const indices = PREGUNTAS[indicePregunta].opciones.map(function (_, indice) {
+            return indice;
+        });
+
+        ordenOpcionesPorPregunta[indicePregunta] = mezclarArray(indices);
+    }
+
+    return ordenOpcionesPorPregunta[indicePregunta];
+}
+
+function cargarPregunta() {
+    const contenedor = document.getElementById('contenedor-pregunta');
+
+    if (!contenedor) {
+        return;
+    }
+
+    if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+
+        const respondidasTotales = calcularRespondidas();
+        const quedan = Math.max(0, TOTAL_PREGUNTAS_RETO - respondidasTotales);
+
+        let bloqueTiempo = '';
+
+        if (respondidasTotales >= TOTAL_PREGUNTAS_RETO) {
+            bloqueTiempo = `
+                <p><strong>✅ Reto completo finalizado.</strong></p>
+                <p><strong>Tiempo final:</strong> ${formatearTiempo(obtenerTiempoRetoSegundos())}</p>
+            `;
+        } else {
+            bloqueTiempo = `
+                <p><strong>Tiempo actual:</strong> ${formatearTiempo(obtenerTiempoRetoSegundos())}</p>
+                <p><strong>Preguntas restantes:</strong> ${quedan}</p>
+                <p>Continúa con el siguiente componente. El cronómetro seguirá contando.</p>
+            `;
+        }
+
+        contenedor.innerHTML = `
+            <p><strong>${MENSAJE_FINAL}</strong></p>
+            <p>${SIGUIENTE_COMPONENTE}</p>
+            <p><strong>Aciertos totales:</strong> ${calcularCorrectas()}</p>
+            <p><strong>Preguntas respondidas en total:</strong> ${respondidasTotales} / ${TOTAL_PREGUNTAS_RETO}</p>
+            ${bloqueTiempo}
+        `;
+
+        actualizarPuntuacion();
+        return;
+    }
+
+    const pregunta = PREGUNTAS[preguntaActual];
+    const clave = idPregunta(preguntaActual);
+    const respuestaGuardada = progreso[clave];
+    const yaRespondida = respuestaGuardada !== undefined;
+    const ordenOpciones = obtenerOrdenOpciones(preguntaActual);
+
+    let html = `
+        <p><strong>Pregunta ${preguntaActual + 1} de ${PREGUNTAS.length}:</strong></p>
+        <p>${pregunta.texto}</p>
+    `;
+
+    ordenOpciones.forEach(function (indiceOriginal) {
+        const opcion = pregunta.opciones[indiceOriginal];
+
+        let clases = 'opcion';
+
+        if (yaRespondida && opcion.correcta) {
+            clases += ' correcta';
+        }
+
+        if (yaRespondida && respuestaGuardada.elegida === indiceOriginal && !opcion.correcta) {
+            clases += ' incorrecta';
+        }
+
+        html += `
+            <button
+                class="${clases}"
+                onclick="responder(${indiceOriginal})"
+                ${yaRespondida ? 'disabled' : ''}>
+                ${opcion.texto}
+            </button>
+        `;
+    });
+
+    if (yaRespondida) {
+        html += generarFeedback(pregunta, respuestaGuardada);
+    }
+
+    contenedor.innerHTML = html;
+}
+
+function responder(indiceElegido) {
+    if (!alias) {
+        alert('Primero escribe un alias para participar en el reto.');
+        return;
+    }
+
+    const pregunta = PREGUNTAS[preguntaActual];
+    const clave = idPregunta(preguntaActual);
+
+    if (progreso[clave] !== undefined) {
+        return;
+    }
+
+    const opcionElegida = pregunta.opciones[indiceElegido];
+    const esCorrecta = opcionElegida.correcta === true;
+
+    progreso[clave] = {
+        elegida: indiceElegido,
+        correcta: esCorrecta
+    };
+
+    guardarProgreso();
+
+    if (calcularRespondidas() >= TOTAL_PREGUNTAS_RETO) {
+        finalizarCronometroReto();
+    }
+
+    cargarPregunta();
+    actualizarPuntuacion();
+}
+
+function generarFeedback(pregunta, respuestaGuardada) {
+    const opcionElegida = pregunta.opciones[respuestaGuardada.elegida];
+
+    const opcionCorrecta = pregunta.opciones.find(function (opcion) {
+        return opcion.correcta === true;
+    });
+
+    if (respuestaGuardada.correcta) {
+        return `
+            <div class="feedback correcto">
+                ✅ <strong>¡Respuesta correcta!</strong><br><br>
+                ${opcionElegida.feedbackCorrecto}
+                <br>
+                <span class="puntos-extra">+1 acierto</span>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="feedback incorrecto">
+            ❌ <strong>Respuesta incorrecta.</strong><br><br>
+            ${opcionElegida.feedbackIncorrecto}
+            <br><br>
+            ✅ <strong>La respuesta correcta era:</strong> ${opcionCorrecta.texto}
+            <br><br>
+            <strong>Explicación:</strong> ${opcionCorrecta.feedbackCorrecto}
+        </div>
+    `;
+}
+
+function siguientePregunta() {
+    if (preguntaActual < PREGUNTAS.length) {
+        preguntaActual++;
+    }
+
+    if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+    }
+
+    cargarPregunta();
+    actualizarPuntuacion();
+}
+
+function reiniciarRetoActual() {
+    if (!alias) {
+        return;
+    }
+
+    const confirmar = confirm('¿Seguro que quieres reiniciar las respuestas de esta página para este alias?');
+
+    if (!confirmar) {
+        return;
+    }
+
+    Object.keys(progreso).forEach(function (clave) {
+        if (clave.startsWith(COMPONENTE_ID + '-')) {
+            delete progreso[clave];
+        }
+    });
+
+    guardarProgreso();
+
+    localStorage.removeItem(claveTiempoInicioAlias());
+    localStorage.removeItem(claveTiempoFinalAlias());
+
+    tiempoInicioReto = Date.now();
+    tiempoFinalReto = 0;
+
+    localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+
+    preguntaActual = 0;
+    ordenOpcionesPorPregunta = {};
+
+    iniciarCronometroReto();
+    cargarPregunta();
+    actualizarPuntuacion();
+}
+
+/* ============================================================
+   PUNTUACIÓN
+   ============================================================ */
+
+function calcularCorrectas() {
+    return Object.values(progreso).filter(function (respuesta) {
+        return respuesta && respuesta.correcta === true;
+    }).length;
+}
+
+function calcularRespondidas() {
+    return Object.keys(progreso).length;
+}
+
+function actualizarPuntuacion() {
+    const correctas = calcularCorrectas();
+    const respondidas = calcularRespondidas();
+
+    actualizarTexto('alias-visible', alias || '---');
+    actualizarTexto('puntos-visible', correctas);
+
+    actualizarTexto('alias-panel', alias || '---');
+    actualizarTexto('correctas-panel', correctas);
+    actualizarTexto('respondidas-panel', respondidas + ' / ' + TOTAL_PREGUNTAS_RETO);
+
+    actualizarCronometroVisible();
+
+    guardarRankingLocal(correctas, respondidas);
+}
+
+function actualizarTexto(id, valor) {
+    const elemento = document.getElementById(id);
+
+    if (elemento) {
+        elemento.innerText = valor;
+    }
+}
+
+function guardarRankingLocal(correctas, respondidas) {
+    if (!alias) {
+        return;
+    }
+
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
+    const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
+
+    ranking[alias] = {
+        alias: alias,
+        correctas: correctas,
+        respondidas: respondidas,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
+        retoCompletado: respondidas >= TOTAL_PREGUNTAS_RETO,
+        totalPreguntasReto: TOTAL_PREGUNTAS_RETO,
+        fecha: new Date().toISOString()
+    };
+
+    localStorage.setItem('fp_ranking_local', JSON.stringify(ranking));
+
+    enviarRankingFirebaseDirecto(alias, correctas, respondidas);
+}
+
+function mostrarRankingLocal() {
+    const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
+    const lista = Object.values(ranking);
+
+    lista.sort(function (a, b) {
+        if (b.correctas !== a.correctas) {
+            return b.correctas - a.correctas;
+        }
+
+        const tiempoA = Number(a.tiempoSegundos || 999999);
+        const tiempoB = Number(b.tiempoSegundos || 999999);
+
+        if (tiempoA !== tiempoB) {
+            return tiempoA - tiempoB;
+        }
+
+        return Number(b.respondidas || 0) - Number(a.respondidas || 0);
+    });
+
+    const contenedor = document.getElementById('ranking-contenido');
+
+    if (!contenedor) {
+        return;
+    }
+
+    if (lista.length === 0) {
+        contenedor.innerHTML = '<p>Todavía no hay participantes guardados en este dispositivo.</p>';
+        return;
+    }
+
+    let html = '';
+
+    lista.forEach(function (item, indice) {
+        const completado = item.retoCompletado ? ' · completo' : ' · en curso';
+
+        html += `
+            <div class="fila-ranking">
+                <span>${indice + 1}. ${item.alias}</span>
+                <strong>${item.correctas} aciertos · ${item.tiempoTexto || '--:--'}${completado}</strong>
+            </div>
+        `;
+    });
+
+    contenedor.innerHTML = html;
+}
+
+/* ============================================================
+   PANELES
+   ============================================================ */
 
 function mostrarPanel(tipo) {
     cerrarPaneles();
@@ -768,397 +1208,4 @@ function marcarBotonTemporal(idBoton) {
     setTimeout(function () {
         boton.classList.remove('boton-pulsado');
     }, 180);
-}
-
-function idPregunta(indice) {
-    return COMPONENTE_ID + '-pregunta-' + indice;
-}
-
-function buscarPrimeraPreguntaPendiente() {
-    for (let i = 0; i < PREGUNTAS.length; i++) {
-        if (progreso[idPregunta(i)] === undefined) {
-            return i;
-        }
-    }
-
-    return PREGUNTAS.length;
-}
-
-function mezclarArray(arrayOriginal) {
-    const array = arrayOriginal.slice();
-
-    for (let i = array.length - 1; i > 0; i--) {
-        const indiceAleatorio = Math.floor(Math.random() * (i + 1));
-        const temporal = array[i];
-
-        array[i] = array[indiceAleatorio];
-        array[indiceAleatorio] = temporal;
-    }
-
-    return array;
-}
-
-function obtenerOrdenOpciones(indicePregunta) {
-    if (!ordenOpcionesPorPregunta[indicePregunta]) {
-        const indices = PREGUNTAS[indicePregunta].opciones.map(function (_, indice) {
-            return indice;
-        });
-
-        ordenOpcionesPorPregunta[indicePregunta] = mezclarArray(indices);
-    }
-
-    return ordenOpcionesPorPregunta[indicePregunta];
-}
-
-function cargarPregunta() {
-    const contenedor = document.getElementById('contenedor-pregunta');
-
-    if (!contenedor) {
-        return;
-    }
-
-    if (preguntaActual >= PREGUNTAS.length) {
-        finalizarCronometroSiTerminado();
-
-        contenedor.innerHTML = `
-            <p><strong>Has terminado las preguntas de refrigeración.</strong></p>
-            <p>Ahora puedes continuar con la memoria RAM.</p>
-            <p><strong>Aciertos totales:</strong> ${calcularCorrectas()}</p>
-            <p><strong>Preguntas respondidas en total:</strong> ${calcularRespondidas()}</p>
-            <p><strong>Tiempo empleado:</strong> ${formatearTiempo(obtenerTiempoRetoSegundos())}</p>
-        `;
-
-        actualizarPuntuacion();
-
-        return;
-    }
-
-    const pregunta = PREGUNTAS[preguntaActual];
-    const clave = idPregunta(preguntaActual);
-    const respuestaGuardada = progreso[clave];
-    const yaRespondida = respuestaGuardada !== undefined;
-    const ordenOpciones = obtenerOrdenOpciones(preguntaActual);
-
-    let html = `
-        <p><strong>Pregunta ${preguntaActual + 1} de ${PREGUNTAS.length}:</strong></p>
-        <p>${pregunta.texto}</p>
-    `;
-
-    ordenOpciones.forEach(function (indiceOriginal) {
-        const opcion = pregunta.opciones[indiceOriginal];
-
-        let clases = 'opcion';
-
-        if (yaRespondida && opcion.correcta) {
-            clases += ' correcta';
-        }
-
-        if (
-            yaRespondida &&
-            respuestaGuardada.elegida === indiceOriginal &&
-            !opcion.correcta
-        ) {
-            clases += ' incorrecta';
-        }
-
-        html += `
-            <button
-                class="${clases}"
-                onclick="responder(${indiceOriginal})"
-                ${yaRespondida ? 'disabled' : ''}>
-                ${opcion.texto}
-            </button>
-        `;
-    });
-
-    if (yaRespondida) {
-        html += generarFeedback(pregunta, respuestaGuardada);
-    }
-
-    contenedor.innerHTML = html;
-}
-
-function responder(indiceElegido) {
-    if (!alias) {
-        alert('Primero escribe un alias para participar en el reto.');
-        return;
-    }
-
-    const pregunta = PREGUNTAS[preguntaActual];
-    const clave = idPregunta(preguntaActual);
-
-    if (progreso[clave] !== undefined) {
-        return;
-    }
-
-    const opcionElegida = pregunta.opciones[indiceElegido];
-    const esCorrecta = opcionElegida.correcta === true;
-
-    progreso[clave] = {
-        elegida: indiceElegido,
-        correcta: esCorrecta
-    };
-
-    guardarProgreso();
-
-    cargarPregunta();
-    actualizarPuntuacion();
-}
-
-function generarFeedback(pregunta, respuestaGuardada) {
-    const opcionElegida = pregunta.opciones[respuestaGuardada.elegida];
-    const opcionCorrecta = pregunta.opciones.find(function (opcion) {
-        return opcion.correcta === true;
-    });
-
-    if (respuestaGuardada.correcta) {
-        return `
-            <div class="feedback correcto">
-                ✅ <strong>¡Respuesta correcta!</strong><br><br>
-                ${opcionElegida.feedbackCorrecto}
-                <br>
-                <span class="puntos-extra">+1 acierto</span>
-            </div>
-        `;
-    }
-
-    return `
-        <div class="feedback incorrecto">
-            ❌ <strong>Respuesta incorrecta.</strong><br><br>
-            ${opcionElegida.feedbackIncorrecto}
-            <br><br>
-            ✅ <strong>La respuesta correcta era:</strong> ${opcionCorrecta.texto}
-            <br><br>
-            <strong>Explicación:</strong> ${opcionCorrecta.feedbackCorrecto}
-        </div>
-    `;
-}
-
-function siguientePregunta() {
-    if (preguntaActual < PREGUNTAS.length) {
-        preguntaActual++;
-    }
-
-    if (preguntaActual >= PREGUNTAS.length) {
-        finalizarCronometroSiTerminado();
-    }
-
-    cargarPregunta();
-    actualizarPuntuacion();
-}
-
-function reiniciarRetoActual() {
-    if (!alias) {
-        return;
-    }
-
-    const confirmar = confirm('¿Seguro que quieres reiniciar las respuestas de esta página para este alias?');
-
-    if (!confirmar) {
-        return;
-    }
-
-    Object.keys(progreso).forEach(function (clave) {
-        if (clave.startsWith(COMPONENTE_ID + '-')) {
-            delete progreso[clave];
-        }
-    });
-
-    guardarProgreso();
-
-    localStorage.removeItem(claveTiempoInicioAlias());
-    localStorage.removeItem(claveTiempoFinalAlias());
-
-    tiempoInicioReto = Date.now();
-    tiempoFinalReto = 0;
-
-    localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
-
-    preguntaActual = 0;
-    ordenOpcionesPorPregunta = {};
-
-    iniciarCronometroReto();
-
-    cargarPregunta();
-    actualizarPuntuacion();
-}
-
-function calcularCorrectas() {
-    return Object.values(progreso).filter(function (respuesta) {
-        return respuesta && respuesta.correcta === true;
-    }).length;
-}
-
-function calcularRespondidas() {
-    return Object.keys(progreso).length;
-}
-
-function actualizarPuntuacion() {
-    const correctas = calcularCorrectas();
-    const respondidas = calcularRespondidas();
-
-    actualizarTexto('alias-visible', alias || '---');
-    actualizarTexto('puntos-visible', correctas);
-
-    actualizarTexto('alias-panel', alias || '---');
-    actualizarTexto('correctas-panel', correctas);
-    actualizarTexto('respondidas-panel', respondidas);
-
-    actualizarCronometroVisible();
-
-    guardarRankingLocal(correctas, respondidas);
-}
-
-function actualizarTexto(id, valor) {
-    const elemento = document.getElementById(id);
-
-    if (elemento) {
-        elemento.innerText = valor;
-    }
-}
-
-function guardarRankingLocal(correctas, respondidas) {
-    if (!alias) {
-        console.warn('No se guarda ranking porque no hay alias.');
-        return;
-    }
-
-    const tiempoSegundos = obtenerTiempoRetoSegundos();
-
-    const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
-
-    ranking[alias] = {
-        alias: alias,
-        correctas: correctas,
-        respondidas: respondidas,
-        tiempoSegundos: tiempoSegundos,
-        tiempoTexto: formatearTiempo(tiempoSegundos),
-        fecha: new Date().toISOString()
-    };
-
-    localStorage.setItem('fp_ranking_local', JSON.stringify(ranking));
-
-    enviarRankingFirebaseDirecto(alias, correctas, respondidas);
-}
-
-function enviarRankingFirebaseDirecto(aliasEnviar, correctas, respondidas) {
-    if (typeof firebase === 'undefined') {
-        console.error('Firebase SDK no está cargado. Revisa los scripts del index.html.');
-        return;
-    }
-
-    if (!window.rankingDB) {
-        try {
-            if (firebase.apps.length > 0) {
-                window.rankingDB = firebase.database();
-                console.log('window.rankingDB creado desde app.js.');
-            }
-        } catch (error) {
-            console.error('No se ha podido crear window.rankingDB:', error);
-            return;
-        }
-    }
-
-    if (!window.rankingDB) {
-        console.error('Firebase Database no está disponible. Revisa ../../firebase-config.js.');
-        return;
-    }
-
-    if (!aliasEnviar || aliasEnviar.trim().length < 2) {
-        console.error('Alias no válido.');
-        return;
-    }
-
-    const aliasLimpio = aliasEnviar.trim().substring(0, 18);
-    const aliasId = normalizarAliasParaFirebase(aliasLimpio);
-
-    const aciertos = Number(correctas || 0);
-    const contestadas = Number(respondidas || 0);
-    const errores = Math.max(0, contestadas - aciertos);
-    const porcentaje = contestadas > 0
-        ? Math.round((aciertos / contestadas) * 100)
-        : 0;
-
-    const tiempoSegundos = obtenerTiempoRetoSegundos();
-
-    const datos = {
-        alias: aliasLimpio,
-        correctas: aciertos,
-        respondidas: contestadas,
-        errores: errores,
-        porcentaje: porcentaje,
-        tiempoSegundos: tiempoSegundos,
-        tiempoTexto: formatearTiempo(tiempoSegundos),
-        fecha: new Date().toISOString()
-    };
-
-    window.rankingDB
-        .ref(RUTA_RANKING_FIREBASE_DIRECTO + '/' + aliasId)
-        .set(datos)
-        .then(function () {
-            console.log('✅ Ranking guardado correctamente en Firebase.');
-        })
-        .catch(function (error) {
-            console.error('❌ Error guardando ranking en Firebase:', error);
-        });
-}
-
-function normalizarAliasParaFirebase(texto) {
-    return encodeURIComponent(
-        texto
-            .trim()
-            .toLowerCase()
-            .replace(/\s+/g, '-')
-    );
-}
-
-function mostrarRankingLocal() {
-    const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
-    const lista = Object.values(ranking);
-
-    lista.sort(function (a, b) {
-        if (b.correctas !== a.correctas) {
-            return b.correctas - a.correctas;
-        }
-
-        const erroresA = Math.max(0, Number(a.respondidas || 0) - Number(a.correctas || 0));
-        const erroresB = Math.max(0, Number(b.respondidas || 0) - Number(b.correctas || 0));
-
-        if (erroresA !== erroresB) {
-            return erroresA - erroresB;
-        }
-
-        const tiempoA = Number(a.tiempoSegundos || 999999);
-        const tiempoB = Number(b.tiempoSegundos || 999999);
-
-        if (tiempoA !== tiempoB) {
-            return tiempoA - tiempoB;
-        }
-
-        return Number(b.respondidas || 0) - Number(a.respondidas || 0);
-    });
-
-    const contenedor = document.getElementById('ranking-contenido');
-
-    if (!contenedor) {
-        return;
-    }
-
-    if (lista.length === 0) {
-        contenedor.innerHTML = '<p>Todavía no hay participantes guardados en este dispositivo.</p>';
-        return;
-    }
-
-    let html = '';
-
-    lista.forEach(function (item, indice) {
-        html += `
-            <div class="fila-ranking">
-                <span>${indice + 1}. ${item.alias}</span>
-                <strong>${item.correctas} aciertos · ${item.tiempoTexto || '--:--'}</strong>
-            </div>
-        `;
-    });
-
-    contenedor.innerHTML = html;
 }

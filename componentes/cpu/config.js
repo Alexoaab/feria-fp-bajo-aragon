@@ -1,7 +1,7 @@
 const CONFIG_AR = {
     componenteId: 'cpu-procesador',
 
-    escalaInicial: 1.00,
+    escalaInicial: 0.250,
     escalaMinima: 0.005,
 
     pasoEscala: 0.05,

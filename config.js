@@ -1,7 +1,7 @@
 const CONFIG_AR = {
     componenteId: 'inicio-equipo-sobremesa',
 
-    escalaInicial: 5.00,
+    escalaInicial: 3.00,
     escalaMinima: 0.005,
 
     // Cada pulsación en + o - cambia este valor.

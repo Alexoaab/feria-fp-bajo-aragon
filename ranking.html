@@ -106,12 +106,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.35);
             line-height: 1.1;
             touch-action: manipulation;
-            word-break: normal;
-        }
-
-        .nav-btn:active {
-            transform: scale(0.94);
-            filter: brightness(1.25);
         }
 
         .logo-btn {
@@ -248,21 +242,10 @@
             box-shadow: 0 5px 16px rgba(0,0,0,0.35);
         }
 
-        #btn-actualizar {
-            background: #2563eb;
-        }
-
-        #btn-exportar {
-            background: #16a34a;
-        }
-
-        #btn-borrar {
-            background: #dc2626;
-        }
-
-        #btn-inicio {
-            background: #374151;
-        }
+        #btn-actualizar { background: #2563eb; }
+        #btn-exportar { background: #16a34a; }
+        #btn-borrar { background: #dc2626; }
+        #btn-inicio { background: #374151; }
 
         #ranking-contenedor {
             background: white;
@@ -306,11 +289,6 @@
 
         .aciertos {
             color: #16a34a;
-            font-weight: bold;
-        }
-
-        .errores {
-            color: #dc2626;
             font-weight: bold;
         }
 
@@ -417,7 +395,7 @@
             }
 
             tr:nth-child(even) {
-                background: #ffffff;
+                background: white;
             }
 
             td {
@@ -521,12 +499,8 @@
     <div id="bloqueo-admin">
         <div class="caja">
             <h1>Acceso restringido</h1>
-            <p>
-                Esta página solo está disponible para el administrador del reto.
-            </p>
-            <p>
-                Para ver el ranking, entra primero con el alias autorizado.
-            </p>
+            <p>Esta página solo está disponible para el administrador del reto.</p>
+            <p>Para ver el ranking, entra primero con el alias autorizado.</p>
             <a href="index.html">Volver al inicio</a>
         </div>
     </div>
@@ -562,8 +536,7 @@
             </p>
 
             <p>
-                El orden se calcula por más aciertos. En caso de empate, gana quien tenga menos errores.
-                Si sigue el empate, gana quien haya terminado en menos tiempo.
+                Gana quien tenga más preguntas acertadas. En caso de empate, gana quien haya terminado en menos tiempo.
             </p>
 
             <div id="estado-conexion" class="aviso-online">
@@ -602,9 +575,7 @@
 
         <section id="ranking-contenedor">
             <div id="tabla-ranking">
-                <div class="sin-datos">
-                    Cargando ranking...
-                </div>
+                <div class="sin-datos">Cargando ranking...</div>
             </div>
         </section>
     </main>
@@ -612,10 +583,10 @@
     <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-database-compat.js"></script>
 
-    <script src="firebase-config.js?v=600"></script>
+    <script src="firebase-config.js?v=700"></script>
 
     <script>
-        const ALIAS_ADMIN = 'aalbaladejob';
+        const ALIAS_ADMIN = 'feriadelafp';
 
         const RUTA_RANKING_FIREBASE = 'rankingFeriaFPBajoAragon';
         const RUTA_CONTROL_REINICIO = 'controlFeriaFPBajoAragon/reinicio';
@@ -702,7 +673,6 @@
 
         function formatearTiempo(segundosTotales) {
             const segundosValidos = Number(segundosTotales || 0);
-
             const minutos = Math.floor(segundosValidos / 60);
             const segundos = segundosValidos % 60;
 
@@ -715,10 +685,6 @@
                     return b.correctas - a.correctas;
                 }
 
-                if (a.errores !== b.errores) {
-                    return a.errores - b.errores;
-                }
-
                 const tiempoA = Number(a.tiempoSegundos || 999999);
                 const tiempoB = Number(b.tiempoSegundos || 999999);
 
@@ -726,7 +692,7 @@
                     return tiempoA - tiempoB;
                 }
 
-                return b.respondidas - a.respondidas;
+                return Number(b.respondidas || 0) - Number(a.respondidas || 0);
             });
 
             return lista;
@@ -748,12 +714,7 @@
                     const lista = Object.values(datos).map(function (item) {
                         const correctas = Number(item.correctas || 0);
                         const respondidas = Number(item.respondidas || 0);
-                        const errores = Number(
-                            item.errores !== undefined
-                                ? item.errores
-                                : Math.max(0, respondidas - correctas)
-                        );
-
+                        const errores = Math.max(0, respondidas - correctas);
                         const tiempoSegundos = Number(item.tiempoSegundos || 0);
 
                         return {
@@ -796,7 +757,6 @@
                     <div class="sin-datos">
                         <strong>Todavía no hay participantes.</strong><br><br>
                         Entra en una página de componente, escribe un alias y responde algunas preguntas.
-                        Después vuelve aquí para ver la clasificación común.
                     </div>
                 `;
                 return;
@@ -812,7 +772,6 @@
                             <th>Puesto</th>
                             <th>Alias</th>
                             <th>Aciertos</th>
-                            <th>Errores</th>
                             <th>Respondidas</th>
                             <th>Porcentaje</th>
                             <th>Tiempo</th>
@@ -840,7 +799,6 @@
                         <td class="puesto" data-label="Puesto">${medalla}</td>
                         <td class="alias" data-label="Alias">${escaparHTML(item.alias)}</td>
                         <td class="aciertos" data-label="Aciertos">${item.correctas}</td>
-                        <td class="errores" data-label="Errores">${item.errores}</td>
                         <td class="respondidas" data-label="Respondidas">${item.respondidas}</td>
                         <td class="porcentaje" data-label="Porcentaje">${item.porcentaje}%</td>
                         <td class="tiempo" data-label="Tiempo">${item.tiempoTexto || '--:--'}</td>
@@ -925,14 +883,13 @@
                 return;
             }
 
-            let csv = 'Puesto,Alias,Aciertos,Errores,Respondidas,Porcentaje,Tiempo\n';
+            let csv = 'Puesto,Alias,Aciertos,Respondidas,Porcentaje,Tiempo\n';
 
             listaRankingActual.forEach(function (item, indice) {
                 csv += [
                     indice + 1,
                     limpiarCSV(item.alias),
                     item.correctas,
-                    item.errores,
                     item.respondidas,
                     item.porcentaje + '%',
                     item.tiempoTexto || '--:--'

@@ -1,7 +1,7 @@
 const CONFIG_AR = {
     componenteId: 'carcasa',
 
-    escalaInicial: 1.00,
+    escalaInicial: 0.055,
     escalaMinima: 0.005,
 
     // Cada pulsación en + o - cambia este valor.

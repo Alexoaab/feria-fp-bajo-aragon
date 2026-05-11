@@ -1,7 +1,7 @@
 const CONFIG_AR = {
     componenteId: 'almacenamiento-ssd',
 
-    escalaInicial: 1.00,
+    escalaInicial: 0.500,
     escalaMinima: 0.005,
 
     pasoEscala: 0.05,

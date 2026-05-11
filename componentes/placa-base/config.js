@@ -1,7 +1,7 @@
 const CONFIG_AR = {
     componenteId: 'placa-base',
 
-    escalaInicial: 1.00,
+    escalaInicial: 0.350,
     escalaMinima: 0.005,
 
     pasoEscala: 0.05,

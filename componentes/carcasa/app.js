@@ -1,7 +1,14 @@
 /* ============================================================
    APP.JS - COMPONENTE CARCASA
-   Feria FP Bajo Aragón - Hardware RA + Ranking Firebase
-   Administrador + reinicio remoto + cronómetro
+   Feria FP Bajo Aragón - Hardware RA
+
+   - Preguntas exclusivas de la carcasa.
+   - Admin: feriadelafp.
+   - Total reto completo: 50 preguntas.
+   - El tiempo empieza al escribir alias.
+   - El tiempo NO se detiene al terminar este bloque.
+   - El tiempo solo se detiene cuando se han respondido 50 preguntas.
+   - Ranking: más aciertos -> menor tiempo.
    ============================================================ */
 
 const CONFIG_LOCAL = typeof CONFIG_AR !== 'undefined'
@@ -20,110 +27,126 @@ const COMPONENTE_ID = CONFIG_LOCAL.componenteId || 'carcasa';
 const RUTA_RANKING_FIREBASE_DIRECTO = 'rankingFeriaFPBajoAragon';
 const RUTA_CONTROL_REINICIO = 'controlFeriaFPBajoAragon/reinicio';
 
-const ALIAS_ADMIN = 'aalbaladejob';
+const ALIAS_ADMIN = 'feriadelafp';
+const TOTAL_PREGUNTAS_RETO = 50;
+
+/* ============================================================
+   PREGUNTAS EXCLUSIVAS DE CARCASA
+   ============================================================ */
+
+const NOMBRE_COMPONENTE = 'Carcasa';
+
+const MENSAJE_MARCADOR_DETECTADO = '✅ Marcador detectado. Explora la carcasa del ordenador.';
+const MENSAJE_MARCADOR_PERDIDO = 'Enfoca de nuevo el marcador de la carcasa.';
+const MENSAJE_FINAL = 'Has terminado las preguntas de la carcasa.';
+const SIGUIENTE_COMPONENTE = 'Ahora puedes continuar con la fuente de alimentación.';
 
 const PREGUNTAS = [
     {
-        texto: '¿Cuál es la función principal de la carcasa del ordenador?',
+        texto: '¿Cuál es la función principal de la carcasa de un ordenador?',
         opciones: [
             {
-                texto: 'Proteger y organizar los componentes internos',
+                texto: 'Proteger, sujetar y organizar los componentes internos',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. La carcasa protege los componentes y permite montarlos de forma ordenada.'
+                feedbackCorrecto: 'Correcto. La carcasa proporciona estructura, protección y espacio para instalar placa base, fuente, discos, ventiladores y cables.'
             },
             {
-                texto: 'Procesar instrucciones como la CPU',
+                texto: 'Ejecutar las instrucciones de los programas',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La CPU es la encargada de procesar instrucciones.'
+                feedbackIncorrecto: 'No es correcto. Esa función corresponde a la CPU o procesador.'
             },
             {
                 texto: 'Guardar archivos de forma permanente',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Los archivos se guardan en discos duros o SSD.'
+                feedbackIncorrecto: 'No es correcto. Esa función corresponde a las unidades de almacenamiento, como HDD o SSD.'
             }
         ]
     },
     {
-        texto: '¿Por qué es importante el flujo de aire dentro de la carcasa?',
+        texto: '¿Por qué son importantes los separadores de la placa base dentro de la carcasa?',
         opciones: [
             {
-                texto: 'Porque ayuda a refrigerar los componentes',
+                texto: 'Porque evitan que la placa base toque directamente la chapa de la carcasa',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. Un buen flujo de aire ayuda a reducir la temperatura interna del equipo.'
+                feedbackCorrecto: 'Muy bien. Los separadores elevan la placa base y ayudan a evitar cortocircuitos con la parte metálica de la caja.'
             },
             {
-                texto: 'Porque aumenta el tamaño de la memoria RAM',
+                texto: 'Porque aumentan la capacidad de memoria RAM',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El flujo de aire no cambia la capacidad de la RAM.'
+                feedbackIncorrecto: 'No es correcto. Los separadores no tienen relación con la capacidad de la RAM.'
             },
             {
-                texto: 'Porque sustituye a la fuente de alimentación',
+                texto: 'Porque sustituyen a la fuente de alimentación',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La fuente sigue siendo necesaria para alimentar el equipo.'
+                feedbackIncorrecto: 'No es correcto. La fuente de alimentación sigue siendo necesaria para alimentar el equipo.'
             }
         ]
     },
     {
-        texto: '¿Qué formato de placa base debe ser compatible con la carcasa?',
+        texto: '¿Qué mejora un buen flujo de aire dentro de la carcasa?',
         opciones: [
             {
-                texto: 'ATX, microATX o mini-ITX, según el tamaño de la caja',
+                texto: 'La refrigeración de los componentes internos',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. La carcasa debe admitir el formato de la placa base que se va a instalar.'
+                feedbackCorrecto: 'Correcto. Un buen flujo de aire ayuda a mantener temperaturas adecuadas en CPU, GPU, fuente, placa base y unidades de almacenamiento.'
             },
             {
-                texto: 'JPEG o PNG',
+                texto: 'La capacidad del SSD',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. JPEG y PNG son formatos de imagen, no formatos de placa base.'
+                feedbackIncorrecto: 'No es correcto. La capacidad de un SSD no depende del aire de la carcasa.'
             },
             {
-                texto: 'MP3 o WAV',
+                texto: 'La velocidad del cable HDMI',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. MP3 y WAV son formatos de audio.'
+                feedbackIncorrecto: 'No es correcto. HDMI es una conexión de vídeo y audio, y no depende del flujo de aire interno.'
             }
         ]
     },
     {
-        texto: '¿Para qué sirven los separadores de la placa base?',
+        texto: '¿Qué conectores suelen encontrarse en el panel frontal de una carcasa?',
         opciones: [
             {
-                texto: 'Para fijar la placa base y evitar contacto directo con la chapa',
+                texto: 'Power SW, Reset SW, USB frontal y audio frontal',
                 correcta: true,
-                feedbackCorrecto: 'Muy bien. Los separadores evitan cortocircuitos y permiten atornillar la placa correctamente.'
+                feedbackCorrecto: 'Correcto. Estos conectores permiten usar botones, puertos USB, audio frontal e indicadores de la carcasa.'
             },
             {
-                texto: 'Para aumentar la velocidad del procesador',
+                texto: 'Socket de CPU y ranuras DIMM',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. Los separadores no modifican el rendimiento de la CPU.'
+                feedbackIncorrecto: 'No es correcto. El socket de CPU y las ranuras DIMM están en la placa base.'
             },
             {
-                texto: 'Para conectar el monitor',
+                texto: 'Ranura PCI Express x16 y chipset',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El monitor se conecta mediante salidas de vídeo como HDMI o DisplayPort.'
+                feedbackIncorrecto: 'No es correcto. Esos elementos pertenecen a la placa base, no al panel frontal de la carcasa.'
             }
         ]
     },
     {
-        texto: '¿Qué suele incluir el panel frontal de una carcasa?',
+        texto: '¿Por qué conviene ordenar los cables dentro de la carcasa?',
         opciones: [
             {
-                texto: 'Botón de encendido, USB, audio y LEDs',
+                texto: 'Para mejorar el flujo de aire y facilitar el mantenimiento',
                 correcta: true,
-                feedbackCorrecto: 'Correcto. El panel frontal permite encender el equipo y acceder a conexiones externas.'
+                feedbackCorrecto: 'Muy bien. Un cableado ordenado ayuda a refrigerar mejor, facilita limpiar el equipo y permite localizar fallos con más rapidez.'
             },
             {
-                texto: 'El procesador soldado a la caja',
+                texto: 'Para que la CPU tenga más núcleos',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. El procesador se instala en la placa base.'
+                feedbackIncorrecto: 'No es correcto. El número de núcleos depende del procesador, no del orden de los cables.'
             },
             {
-                texto: 'La memoria RAM integrada en el monitor',
+                texto: 'Para convertir un disco duro HDD en un SSD',
                 correcta: false,
-                feedbackIncorrecto: 'No es correcto. La RAM se instala en ranuras de la placa base.'
+                feedbackIncorrecto: 'No es correcto. HDD y SSD son tecnologías diferentes y no cambian por ordenar los cables.'
             }
         ]
     }
 ];
+
+/* ============================================================
+   VARIABLES
+   ============================================================ */
 
 let escalaActual = CONFIG_LOCAL.escalaInicial;
 let rotacionX = CONFIG_LOCAL.rotacionInicial.x;
@@ -137,6 +160,10 @@ let ordenOpcionesPorPregunta = {};
 let intervaloCronometro = null;
 let tiempoInicioReto = 0;
 let tiempoFinalReto = 0;
+
+/* ============================================================
+   INICIO
+   ============================================================ */
 
 window.addEventListener('load', function () {
     cargarEscalaGuardada();
@@ -180,38 +207,101 @@ function actualizarBotonRankingAdmin() {
         return;
     }
 
-    if (esAdministrador()) {
-        botonRanking.style.display = '';
-    } else {
-        botonRanking.style.display = 'none';
-    }
+    botonRanking.style.display = esAdministrador() ? '' : 'none';
 }
 
 /* ============================================================
-   FIREBASE Y REINICIO REMOTO
+   FIREBASE Y RANKING
    ============================================================ */
 
 function comprobarFirebaseComponente() {
     if (typeof firebase === 'undefined') {
-        console.warn('Firebase SDK no está cargado en la página de carcasa.');
+        console.warn('Firebase SDK no está cargado.');
         return;
     }
 
     if (!window.rankingDB) {
-        console.warn('window.rankingDB no existe. Revisa ../../firebase-config.js.');
+        console.warn('window.rankingDB no existe. Revisa firebase-config.js.');
         return;
     }
 
-    console.log('Firebase disponible en página carcasa.');
-
     window.rankingDB.ref('.info/connected').on('value', function (snapshot) {
-        console.log('Firebase conectado desde carcasa:', snapshot.val());
+        console.log('Firebase conectado:', snapshot.val());
     });
 }
 
+function enviarRankingFirebaseDirecto(aliasEnviar, correctas, respondidas) {
+    if (typeof firebase === 'undefined') {
+        return;
+    }
+
+    if (!window.rankingDB) {
+        try {
+            if (firebase.apps.length > 0) {
+                window.rankingDB = firebase.database();
+            }
+        } catch (error) {
+            console.error('No se ha podido crear window.rankingDB:', error);
+            return;
+        }
+    }
+
+    if (!window.rankingDB) {
+        return;
+    }
+
+    if (!aliasEnviar || aliasEnviar.trim().length < 2) {
+        return;
+    }
+
+    const aliasLimpio = aliasEnviar.trim().substring(0, 18);
+    const aliasId = normalizarAliasParaFirebase(aliasLimpio);
+
+    const aciertos = Number(correctas || 0);
+    const contestadas = Number(respondidas || 0);
+    const errores = Math.max(0, contestadas - aciertos);
+    const porcentaje = contestadas > 0
+        ? Math.round((aciertos / contestadas) * 100)
+        : 0;
+
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
+    const datos = {
+        alias: aliasLimpio,
+        correctas: aciertos,
+        respondidas: contestadas,
+        errores: errores,
+        porcentaje: porcentaje,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
+        retoCompletado: contestadas >= TOTAL_PREGUNTAS_RETO,
+        totalPreguntasReto: TOTAL_PREGUNTAS_RETO,
+        fecha: new Date().toISOString()
+    };
+
+    window.rankingDB
+        .ref(RUTA_RANKING_FIREBASE_DIRECTO + '/' + aliasId)
+        .set(datos)
+        .catch(function (error) {
+            console.error('Error guardando ranking en Firebase:', error);
+        });
+}
+
+function normalizarAliasParaFirebase(texto) {
+    return encodeURIComponent(
+        texto
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, '-')
+    );
+}
+
+/* ============================================================
+   REINICIO REMOTO
+   ============================================================ */
+
 function escucharReinicioRemoto() {
     if (!window.rankingDB) {
-        console.warn('No se puede escuchar reinicio remoto porque Firebase no está disponible.');
         return;
     }
 
@@ -264,7 +354,7 @@ function limpiarDatosLocalesPorReinicio() {
 }
 
 /* ============================================================
-   CRONÓMETRO
+   CRONÓMETRO GLOBAL DEL RETO
    ============================================================ */
 
 function claveTiempoInicioAlias() {
@@ -301,19 +391,17 @@ function iniciarCronometroReto() {
         clearInterval(intervaloCronometro);
     }
 
-    intervaloCronometro = setInterval(function () {
-        actualizarCronometroVisible();
-    }, 1000);
+    if (tiempoFinalReto === 0) {
+        intervaloCronometro = setInterval(function () {
+            actualizarCronometroVisible();
+        }, 1000);
+    }
 
     actualizarCronometroVisible();
 }
 
-function finalizarCronometroSiTerminado() {
+function finalizarCronometroReto() {
     if (!alias) {
-        return;
-    }
-
-    if (preguntaActual < PREGUNTAS.length) {
         return;
     }
 
@@ -324,7 +412,24 @@ function finalizarCronometroSiTerminado() {
     tiempoFinalReto = Date.now();
     localStorage.setItem(claveTiempoFinalAlias(), String(tiempoFinalReto));
 
+    if (intervaloCronometro) {
+        clearInterval(intervaloCronometro);
+        intervaloCronometro = null;
+    }
+
     actualizarCronometroVisible();
+}
+
+function finalizarCronometroSiTerminado() {
+    if (!alias) {
+        return;
+    }
+
+    if (calcularRespondidas() < TOTAL_PREGUNTAS_RETO) {
+        return;
+    }
+
+    finalizarCronometroReto();
 }
 
 function obtenerTiempoRetoSegundos() {
@@ -338,18 +443,19 @@ function obtenerTiempoRetoSegundos() {
 }
 
 function formatearTiempo(segundosTotales) {
-    const minutos = Math.floor(segundosTotales / 60);
-    const segundos = segundosTotales % 60;
+    const segundosValidos = Number(segundosTotales || 0);
+    const minutos = Math.floor(segundosValidos / 60);
+    const segundos = segundosValidos % 60;
 
     return String(minutos).padStart(2, '0') + ':' + String(segundos).padStart(2, '0');
 }
 
 function actualizarCronometroVisible() {
     const segundos = obtenerTiempoRetoSegundos();
-    const tiempoTexto = formatearTiempo(segundos);
+    const texto = formatearTiempo(segundos);
 
-    actualizarTexto('tiempo-visible', tiempoTexto);
-    actualizarTexto('tiempo-panel', tiempoTexto);
+    actualizarTexto('tiempo-visible', texto);
+    actualizarTexto('tiempo-panel', texto);
 }
 
 /* ============================================================
@@ -361,47 +467,31 @@ function leerConfiguracionDesdeURL() {
 
     const escalaURL = parametros.get('escala');
     const pasoURL = parametros.get('paso');
-    const posXURL = parametros.get('posX');
-    const posYURL = parametros.get('posY');
-    const posZURL = parametros.get('posZ');
-    const rotXURL = parametros.get('rotX');
-    const rotYURL = parametros.get('rotY');
-    const rotZURL = parametros.get('rotZ');
 
     if (escalaURL !== null && !isNaN(parseFloat(escalaURL))) {
         CONFIG_LOCAL.escalaInicial = parseFloat(escalaURL);
-        escalaActual = CONFIG_LOCAL.escalaInicial;
     }
 
     if (pasoURL !== null && !isNaN(parseFloat(pasoURL))) {
         CONFIG_LOCAL.pasoEscala = parseFloat(pasoURL);
     }
 
-    if (posXURL !== null && !isNaN(parseFloat(posXURL))) {
-        CONFIG_LOCAL.posicionInicial.x = parseFloat(posXURL);
-    }
+    ['x', 'y', 'z'].forEach(function (eje) {
+        const pos = parametros.get('pos' + eje.toUpperCase());
+        const rot = parametros.get('rot' + eje.toUpperCase());
 
-    if (posYURL !== null && !isNaN(parseFloat(posYURL))) {
-        CONFIG_LOCAL.posicionInicial.y = parseFloat(posYURL);
-    }
+        if (pos !== null && !isNaN(parseFloat(pos))) {
+            CONFIG_LOCAL.posicionInicial[eje] = parseFloat(pos);
+        }
 
-    if (posZURL !== null && !isNaN(parseFloat(posZURL))) {
-        CONFIG_LOCAL.posicionInicial.z = parseFloat(posZURL);
-    }
+        if (rot !== null && !isNaN(parseFloat(rot))) {
+            CONFIG_LOCAL.rotacionInicial[eje] = parseFloat(rot);
+        }
+    });
 
-    if (rotXURL !== null && !isNaN(parseFloat(rotXURL))) {
-        CONFIG_LOCAL.rotacionInicial.x = parseFloat(rotXURL);
-        rotacionX = CONFIG_LOCAL.rotacionInicial.x;
-    }
-
-    if (rotYURL !== null && !isNaN(parseFloat(rotYURL))) {
-        CONFIG_LOCAL.rotacionInicial.y = parseFloat(rotYURL);
-        rotacionY = CONFIG_LOCAL.rotacionInicial.y;
-    }
-
-    if (rotZURL !== null && !isNaN(parseFloat(rotZURL))) {
-        CONFIG_LOCAL.rotacionInicial.z = parseFloat(rotZURL);
-    }
+    escalaActual = CONFIG_LOCAL.escalaInicial;
+    rotacionX = CONFIG_LOCAL.rotacionInicial.x;
+    rotacionY = CONFIG_LOCAL.rotacionInicial.y;
 }
 
 function claveEscalaGuardada() {
@@ -437,7 +527,6 @@ function aplicarEscala(mostrarMensaje) {
     const modelo = obtenerModelo();
 
     if (!modelo) {
-        console.log('No se encuentra el modelo 3D.');
         return;
     }
 
@@ -482,39 +571,30 @@ function aplicarRotacionActual() {
 
 function girarModelo() {
     marcarBotonTemporal('btn-girar');
-
     rotacionY += 30;
-
     aplicarRotacionActual();
 }
 
 function inclinarArriba() {
     marcarBotonTemporal('btn-arriba');
-
     rotacionX -= 15;
-
     aplicarRotacionActual();
 }
 
 function inclinarAbajo() {
     marcarBotonTemporal('btn-abajo');
-
     rotacionX += 15;
-
     aplicarRotacionActual();
 }
 
 function aumentarModelo() {
     marcarBotonTemporal('btn-mas');
-
     escalaActual += CONFIG_LOCAL.pasoEscala;
-
     aplicarEscala(true);
 }
 
 function reducirModelo() {
     marcarBotonTemporal('btn-menos');
-
     escalaActual -= CONFIG_LOCAL.pasoEscala;
 
     if (escalaActual < CONFIG_LOCAL.escalaMinima) {
@@ -558,18 +638,18 @@ function configurarEventosMarcador() {
     }
 
     marcador.addEventListener('markerFound', function () {
-        aviso.innerHTML = '✅ Marcador detectado. Explora la carcasa.';
+        aviso.innerHTML = MENSAJE_MARCADOR_DETECTADO;
         aviso.style.display = 'block';
     });
 
     marcador.addEventListener('markerLost', function () {
-        aviso.innerHTML = 'Enfoca de nuevo el marcador de la carcasa.';
+        aviso.innerHTML = MENSAJE_MARCADOR_PERDIDO;
         aviso.style.display = 'block';
     });
 }
 
 /* ============================================================
-   ALIAS Y PROGRESO
+   ALIAS
    ============================================================ */
 
 function normalizarAlias(texto) {
@@ -582,24 +662,19 @@ function claveProgresoAlias() {
 
 function iniciarAlias() {
     const modal = document.getElementById('modal-alias');
-    const aliasVisible = document.getElementById('alias-visible');
 
     if (alias.trim() !== '') {
         if (modal) {
             modal.style.display = 'none';
         }
 
-        if (aliasVisible) {
-            aliasVisible.innerText = alias;
-        }
+        actualizarTexto('alias-visible', alias);
     } else {
         if (modal) {
             modal.style.display = 'flex';
         }
 
-        if (aliasVisible) {
-            aliasVisible.innerText = '---';
-        }
+        actualizarTexto('alias-visible', '---');
     }
 }
 
@@ -644,11 +719,9 @@ function guardarAlias() {
     }
 
     cargarProgreso();
-
     preguntaActual = buscarPrimeraPreguntaPendiente();
 
     iniciarCronometroReto();
-
     cargarPregunta();
     actualizarPuntuacion();
 }
@@ -668,6 +741,10 @@ function cambiarAlias() {
     }
 }
 
+/* ============================================================
+   PREGUNTAS
+   ============================================================ */
+
 function cargarProgreso() {
     if (!alias) {
         progreso = {};
@@ -683,6 +760,345 @@ function guardarProgreso() {
     }
 
     localStorage.setItem(claveProgresoAlias(), JSON.stringify(progreso));
+}
+
+function idPregunta(indice) {
+    return COMPONENTE_ID + '-pregunta-' + indice;
+}
+
+function buscarPrimeraPreguntaPendiente() {
+    for (let i = 0; i < PREGUNTAS.length; i++) {
+        if (progreso[idPregunta(i)] === undefined) {
+            return i;
+        }
+    }
+
+    return PREGUNTAS.length;
+}
+
+function mezclarArray(arrayOriginal) {
+    const array = arrayOriginal.slice();
+
+    for (let i = array.length - 1; i > 0; i--) {
+        const indiceAleatorio = Math.floor(Math.random() * (i + 1));
+        const temporal = array[i];
+
+        array[i] = array[indiceAleatorio];
+        array[indiceAleatorio] = temporal;
+    }
+
+    return array;
+}
+
+function obtenerOrdenOpciones(indicePregunta) {
+    if (!ordenOpcionesPorPregunta[indicePregunta]) {
+        const indices = PREGUNTAS[indicePregunta].opciones.map(function (_, indice) {
+            return indice;
+        });
+
+        ordenOpcionesPorPregunta[indicePregunta] = mezclarArray(indices);
+    }
+
+    return ordenOpcionesPorPregunta[indicePregunta];
+}
+
+function cargarPregunta() {
+    const contenedor = document.getElementById('contenedor-pregunta');
+
+    if (!contenedor) {
+        return;
+    }
+
+    if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+
+        const respondidasTotales = calcularRespondidas();
+        const quedan = Math.max(0, TOTAL_PREGUNTAS_RETO - respondidasTotales);
+
+        let bloqueTiempo = '';
+
+        if (respondidasTotales >= TOTAL_PREGUNTAS_RETO) {
+            bloqueTiempo = `
+                <p><strong>✅ Reto completo finalizado.</strong></p>
+                <p><strong>Tiempo final:</strong> ${formatearTiempo(obtenerTiempoRetoSegundos())}</p>
+            `;
+        } else {
+            bloqueTiempo = `
+                <p><strong>Tiempo actual:</strong> ${formatearTiempo(obtenerTiempoRetoSegundos())}</p>
+                <p><strong>Preguntas restantes:</strong> ${quedan}</p>
+                <p>Continúa con el siguiente componente. El cronómetro seguirá contando.</p>
+            `;
+        }
+
+        contenedor.innerHTML = `
+            <p><strong>${MENSAJE_FINAL}</strong></p>
+            <p>${SIGUIENTE_COMPONENTE}</p>
+            <p><strong>Aciertos totales:</strong> ${calcularCorrectas()}</p>
+            <p><strong>Preguntas respondidas en total:</strong> ${respondidasTotales} / ${TOTAL_PREGUNTAS_RETO}</p>
+            ${bloqueTiempo}
+        `;
+
+        actualizarPuntuacion();
+        return;
+    }
+
+    const pregunta = PREGUNTAS[preguntaActual];
+    const clave = idPregunta(preguntaActual);
+    const respuestaGuardada = progreso[clave];
+    const yaRespondida = respuestaGuardada !== undefined;
+    const ordenOpciones = obtenerOrdenOpciones(preguntaActual);
+
+    let html = `
+        <p><strong>Pregunta ${preguntaActual + 1} de ${PREGUNTAS.length}:</strong></p>
+        <p>${pregunta.texto}</p>
+    `;
+
+    ordenOpciones.forEach(function (indiceOriginal) {
+        const opcion = pregunta.opciones[indiceOriginal];
+
+        let clases = 'opcion';
+
+        if (yaRespondida && opcion.correcta) {
+            clases += ' correcta';
+        }
+
+        if (yaRespondida && respuestaGuardada.elegida === indiceOriginal && !opcion.correcta) {
+            clases += ' incorrecta';
+        }
+
+        html += `
+            <button
+                class="${clases}"
+                onclick="responder(${indiceOriginal})"
+                ${yaRespondida ? 'disabled' : ''}>
+                ${opcion.texto}
+            </button>
+        `;
+    });
+
+    if (yaRespondida) {
+        html += generarFeedback(pregunta, respuestaGuardada);
+    }
+
+    contenedor.innerHTML = html;
+}
+
+function responder(indiceElegido) {
+    if (!alias) {
+        alert('Primero escribe un alias para participar en el reto.');
+        return;
+    }
+
+    const pregunta = PREGUNTAS[preguntaActual];
+    const clave = idPregunta(preguntaActual);
+
+    if (progreso[clave] !== undefined) {
+        return;
+    }
+
+    const opcionElegida = pregunta.opciones[indiceElegido];
+    const esCorrecta = opcionElegida.correcta === true;
+
+    progreso[clave] = {
+        elegida: indiceElegido,
+        correcta: esCorrecta
+    };
+
+    guardarProgreso();
+
+    if (calcularRespondidas() >= TOTAL_PREGUNTAS_RETO) {
+        finalizarCronometroReto();
+    }
+
+    cargarPregunta();
+    actualizarPuntuacion();
+}
+
+function generarFeedback(pregunta, respuestaGuardada) {
+    const opcionElegida = pregunta.opciones[respuestaGuardada.elegida];
+
+    const opcionCorrecta = pregunta.opciones.find(function (opcion) {
+        return opcion.correcta === true;
+    });
+
+    if (respuestaGuardada.correcta) {
+        return `
+            <div class="feedback correcto">
+                ✅ <strong>¡Respuesta correcta!</strong><br><br>
+                ${opcionElegida.feedbackCorrecto}
+                <br>
+                <span class="puntos-extra">+1 acierto</span>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="feedback incorrecto">
+            ❌ <strong>Respuesta incorrecta.</strong><br><br>
+            ${opcionElegida.feedbackIncorrecto}
+            <br><br>
+            ✅ <strong>La respuesta correcta era:</strong> ${opcionCorrecta.texto}
+            <br><br>
+            <strong>Explicación:</strong> ${opcionCorrecta.feedbackCorrecto}
+        </div>
+    `;
+}
+
+function siguientePregunta() {
+    if (preguntaActual < PREGUNTAS.length) {
+        preguntaActual++;
+    }
+
+    if (preguntaActual >= PREGUNTAS.length) {
+        finalizarCronometroSiTerminado();
+    }
+
+    cargarPregunta();
+    actualizarPuntuacion();
+}
+
+function reiniciarRetoActual() {
+    if (!alias) {
+        return;
+    }
+
+    const confirmar = confirm('¿Seguro que quieres reiniciar las respuestas de esta página para este alias?');
+
+    if (!confirmar) {
+        return;
+    }
+
+    Object.keys(progreso).forEach(function (clave) {
+        if (clave.startsWith(COMPONENTE_ID + '-')) {
+            delete progreso[clave];
+        }
+    });
+
+    guardarProgreso();
+
+    localStorage.removeItem(claveTiempoInicioAlias());
+    localStorage.removeItem(claveTiempoFinalAlias());
+
+    tiempoInicioReto = Date.now();
+    tiempoFinalReto = 0;
+
+    localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+
+    preguntaActual = 0;
+    ordenOpcionesPorPregunta = {};
+
+    iniciarCronometroReto();
+    cargarPregunta();
+    actualizarPuntuacion();
+}
+
+/* ============================================================
+   PUNTUACIÓN
+   ============================================================ */
+
+function calcularCorrectas() {
+    return Object.values(progreso).filter(function (respuesta) {
+        return respuesta && respuesta.correcta === true;
+    }).length;
+}
+
+function calcularRespondidas() {
+    return Object.keys(progreso).length;
+}
+
+function actualizarPuntuacion() {
+    const correctas = calcularCorrectas();
+    const respondidas = calcularRespondidas();
+
+    actualizarTexto('alias-visible', alias || '---');
+    actualizarTexto('puntos-visible', correctas);
+
+    actualizarTexto('alias-panel', alias || '---');
+    actualizarTexto('correctas-panel', correctas);
+    actualizarTexto('respondidas-panel', respondidas + ' / ' + TOTAL_PREGUNTAS_RETO);
+
+    actualizarCronometroVisible();
+
+    guardarRankingLocal(correctas, respondidas);
+}
+
+function actualizarTexto(id, valor) {
+    const elemento = document.getElementById(id);
+
+    if (elemento) {
+        elemento.innerText = valor;
+    }
+}
+
+function guardarRankingLocal(correctas, respondidas) {
+    if (!alias) {
+        return;
+    }
+
+    const tiempoSegundos = obtenerTiempoRetoSegundos();
+
+    const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
+
+    ranking[alias] = {
+        alias: alias,
+        correctas: correctas,
+        respondidas: respondidas,
+        tiempoSegundos: tiempoSegundos,
+        tiempoTexto: formatearTiempo(tiempoSegundos),
+        retoCompletado: respondidas >= TOTAL_PREGUNTAS_RETO,
+        totalPreguntasReto: TOTAL_PREGUNTAS_RETO,
+        fecha: new Date().toISOString()
+    };
+
+    localStorage.setItem('fp_ranking_local', JSON.stringify(ranking));
+
+    enviarRankingFirebaseDirecto(alias, correctas, respondidas);
+}
+
+function mostrarRankingLocal() {
+    const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
+    const lista = Object.values(ranking);
+
+    lista.sort(function (a, b) {
+        if (b.correctas !== a.correctas) {
+            return b.correctas - a.correctas;
+        }
+
+        const tiempoA = Number(a.tiempoSegundos || 999999);
+        const tiempoB = Number(b.tiempoSegundos || 999999);
+
+        if (tiempoA !== tiempoB) {
+            return tiempoA - tiempoB;
+        }
+
+        return Number(b.respondidas || 0) - Number(a.respondidas || 0);
+    });
+
+    const contenedor = document.getElementById('ranking-contenido');
+
+    if (!contenedor) {
+        return;
+    }
+
+    if (lista.length === 0) {
+        contenedor.innerHTML = '<p>Todavía no hay participantes guardados en este dispositivo.</p>';
+        return;
+    }
+
+    let html = '';
+
+    lista.forEach(function (item, indice) {
+        const completado = item.retoCompletado ? ' · completo' : ' · en curso';
+
+        html += `
+            <div class="fila-ranking">
+                <span>${indice + 1}. ${item.alias}</span>
+                <strong>${item.correctas} aciertos · ${item.tiempoTexto || '--:--'}${completado}</strong>
+            </div>
+        `;
+    });
+
+    contenedor.innerHTML = html;
 }
 
 /* ============================================================
@@ -792,405 +1208,4 @@ function marcarBotonTemporal(idBoton) {
     setTimeout(function () {
         boton.classList.remove('boton-pulsado');
     }, 180);
-}
-
-/* ============================================================
-   PREGUNTAS
-   ============================================================ */
-
-function idPregunta(indice) {
-    return COMPONENTE_ID + '-pregunta-' + indice;
-}
-
-function buscarPrimeraPreguntaPendiente() {
-    for (let i = 0; i < PREGUNTAS.length; i++) {
-        if (progreso[idPregunta(i)] === undefined) {
-            return i;
-        }
-    }
-
-    return PREGUNTAS.length;
-}
-
-function mezclarArray(arrayOriginal) {
-    const array = arrayOriginal.slice();
-
-    for (let i = array.length - 1; i > 0; i--) {
-        const indiceAleatorio = Math.floor(Math.random() * (i + 1));
-        const temporal = array[i];
-
-        array[i] = array[indiceAleatorio];
-        array[indiceAleatorio] = temporal;
-    }
-
-    return array;
-}
-
-function obtenerOrdenOpciones(indicePregunta) {
-    if (!ordenOpcionesPorPregunta[indicePregunta]) {
-        const indices = PREGUNTAS[indicePregunta].opciones.map(function (_, indice) {
-            return indice;
-        });
-
-        ordenOpcionesPorPregunta[indicePregunta] = mezclarArray(indices);
-    }
-
-    return ordenOpcionesPorPregunta[indicePregunta];
-}
-
-function cargarPregunta() {
-    const contenedor = document.getElementById('contenedor-pregunta');
-
-    if (!contenedor) {
-        return;
-    }
-
-    if (preguntaActual >= PREGUNTAS.length) {
-        finalizarCronometroSiTerminado();
-
-        contenedor.innerHTML = `
-            <p><strong>Has terminado las preguntas de la carcasa.</strong></p>
-            <p>Ahora puedes continuar con la fuente de alimentación.</p>
-            <p><strong>Aciertos totales:</strong> ${calcularCorrectas()}</p>
-            <p><strong>Preguntas respondidas en total:</strong> ${calcularRespondidas()}</p>
-            <p><strong>Tiempo empleado:</strong> ${formatearTiempo(obtenerTiempoRetoSegundos())}</p>
-        `;
-
-        actualizarPuntuacion();
-
-        return;
-    }
-
-    const pregunta = PREGUNTAS[preguntaActual];
-    const clave = idPregunta(preguntaActual);
-    const respuestaGuardada = progreso[clave];
-    const yaRespondida = respuestaGuardada !== undefined;
-    const ordenOpciones = obtenerOrdenOpciones(preguntaActual);
-
-    let html = `
-        <p><strong>Pregunta ${preguntaActual + 1} de ${PREGUNTAS.length}:</strong></p>
-        <p>${pregunta.texto}</p>
-    `;
-
-    ordenOpciones.forEach(function (indiceOriginal) {
-        const opcion = pregunta.opciones[indiceOriginal];
-
-        let clases = 'opcion';
-
-        if (yaRespondida && opcion.correcta) {
-            clases += ' correcta';
-        }
-
-        if (
-            yaRespondida &&
-            respuestaGuardada.elegida === indiceOriginal &&
-            !opcion.correcta
-        ) {
-            clases += ' incorrecta';
-        }
-
-        html += `
-            <button
-                class="${clases}"
-                onclick="responder(${indiceOriginal})"
-                ${yaRespondida ? 'disabled' : ''}>
-                ${opcion.texto}
-            </button>
-        `;
-    });
-
-    if (yaRespondida) {
-        html += generarFeedback(pregunta, respuestaGuardada);
-    }
-
-    contenedor.innerHTML = html;
-}
-
-function responder(indiceElegido) {
-    if (!alias) {
-        alert('Primero escribe un alias para participar en el reto.');
-        return;
-    }
-
-    const pregunta = PREGUNTAS[preguntaActual];
-    const clave = idPregunta(preguntaActual);
-
-    if (progreso[clave] !== undefined) {
-        return;
-    }
-
-    const opcionElegida = pregunta.opciones[indiceElegido];
-    const esCorrecta = opcionElegida.correcta === true;
-
-    progreso[clave] = {
-        elegida: indiceElegido,
-        correcta: esCorrecta
-    };
-
-    guardarProgreso();
-
-    cargarPregunta();
-    actualizarPuntuacion();
-}
-
-function generarFeedback(pregunta, respuestaGuardada) {
-    const opcionElegida = pregunta.opciones[respuestaGuardada.elegida];
-    const opcionCorrecta = pregunta.opciones.find(function (opcion) {
-        return opcion.correcta === true;
-    });
-
-    if (respuestaGuardada.correcta) {
-        return `
-            <div class="feedback correcto">
-                ✅ <strong>¡Respuesta correcta!</strong><br><br>
-                ${opcionElegida.feedbackCorrecto}
-                <br>
-                <span class="puntos-extra">+1 acierto</span>
-            </div>
-        `;
-    }
-
-    return `
-        <div class="feedback incorrecto">
-            ❌ <strong>Respuesta incorrecta.</strong><br><br>
-            ${opcionElegida.feedbackIncorrecto}
-            <br><br>
-            ✅ <strong>La respuesta correcta era:</strong> ${opcionCorrecta.texto}
-            <br><br>
-            <strong>Explicación:</strong> ${opcionCorrecta.feedbackCorrecto}
-        </div>
-    `;
-}
-
-function siguientePregunta() {
-    if (preguntaActual < PREGUNTAS.length) {
-        preguntaActual++;
-    }
-
-    if (preguntaActual >= PREGUNTAS.length) {
-        finalizarCronometroSiTerminado();
-    }
-
-    cargarPregunta();
-    actualizarPuntuacion();
-}
-
-function reiniciarRetoActual() {
-    if (!alias) {
-        return;
-    }
-
-    const confirmar = confirm('¿Seguro que quieres reiniciar las respuestas de esta página para este alias?');
-
-    if (!confirmar) {
-        return;
-    }
-
-    Object.keys(progreso).forEach(function (clave) {
-        if (clave.startsWith(COMPONENTE_ID + '-')) {
-            delete progreso[clave];
-        }
-    });
-
-    guardarProgreso();
-
-    localStorage.removeItem(claveTiempoInicioAlias());
-    localStorage.removeItem(claveTiempoFinalAlias());
-
-    tiempoInicioReto = Date.now();
-    tiempoFinalReto = 0;
-
-    localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
-
-    preguntaActual = 0;
-    ordenOpcionesPorPregunta = {};
-
-    iniciarCronometroReto();
-
-    cargarPregunta();
-    actualizarPuntuacion();
-}
-
-function calcularCorrectas() {
-    return Object.values(progreso).filter(function (respuesta) {
-        return respuesta && respuesta.correcta === true;
-    }).length;
-}
-
-function calcularRespondidas() {
-    return Object.keys(progreso).length;
-}
-
-/* ============================================================
-   PUNTUACIÓN Y RANKING
-   ============================================================ */
-
-function actualizarPuntuacion() {
-    const correctas = calcularCorrectas();
-    const respondidas = calcularRespondidas();
-
-    actualizarTexto('alias-visible', alias || '---');
-    actualizarTexto('puntos-visible', correctas);
-
-    actualizarTexto('alias-panel', alias || '---');
-    actualizarTexto('correctas-panel', correctas);
-    actualizarTexto('respondidas-panel', respondidas);
-
-    actualizarCronometroVisible();
-
-    guardarRankingLocal(correctas, respondidas);
-}
-
-function actualizarTexto(id, valor) {
-    const elemento = document.getElementById(id);
-
-    if (elemento) {
-        elemento.innerText = valor;
-    }
-}
-
-function guardarRankingLocal(correctas, respondidas) {
-    if (!alias) {
-        console.warn('No se guarda ranking porque no hay alias.');
-        return;
-    }
-
-    const tiempoSegundos = obtenerTiempoRetoSegundos();
-
-    const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
-
-    ranking[alias] = {
-        alias: alias,
-        correctas: correctas,
-        respondidas: respondidas,
-        tiempoSegundos: tiempoSegundos,
-        tiempoTexto: formatearTiempo(tiempoSegundos),
-        fecha: new Date().toISOString()
-    };
-
-    localStorage.setItem('fp_ranking_local', JSON.stringify(ranking));
-
-    enviarRankingFirebaseDirecto(alias, correctas, respondidas);
-}
-
-function enviarRankingFirebaseDirecto(aliasEnviar, correctas, respondidas) {
-    if (typeof firebase === 'undefined') {
-        console.error('Firebase SDK no está cargado. Revisa los scripts del index.html.');
-        return;
-    }
-
-    if (!window.rankingDB) {
-        try {
-            if (firebase.apps.length > 0) {
-                window.rankingDB = firebase.database();
-                console.log('window.rankingDB creado desde app.js.');
-            }
-        } catch (error) {
-            console.error('No se ha podido crear window.rankingDB:', error);
-            return;
-        }
-    }
-
-    if (!window.rankingDB) {
-        console.error('Firebase Database no está disponible. Revisa ../../firebase-config.js.');
-        return;
-    }
-
-    if (!aliasEnviar || aliasEnviar.trim().length < 2) {
-        console.error('Alias no válido.');
-        return;
-    }
-
-    const aliasLimpio = aliasEnviar.trim().substring(0, 18);
-    const aliasId = normalizarAliasParaFirebase(aliasLimpio);
-
-    const aciertos = Number(correctas || 0);
-    const contestadas = Number(respondidas || 0);
-    const errores = Math.max(0, contestadas - aciertos);
-    const porcentaje = contestadas > 0
-        ? Math.round((aciertos / contestadas) * 100)
-        : 0;
-
-    const tiempoSegundos = obtenerTiempoRetoSegundos();
-
-    const datos = {
-        alias: aliasLimpio,
-        correctas: aciertos,
-        respondidas: contestadas,
-        errores: errores,
-        porcentaje: porcentaje,
-        tiempoSegundos: tiempoSegundos,
-        tiempoTexto: formatearTiempo(tiempoSegundos),
-        fecha: new Date().toISOString()
-    };
-
-    window.rankingDB
-        .ref(RUTA_RANKING_FIREBASE_DIRECTO + '/' + aliasId)
-        .set(datos)
-        .then(function () {
-            console.log('✅ Ranking guardado correctamente en Firebase.');
-        })
-        .catch(function (error) {
-            console.error('❌ Error guardando ranking en Firebase:', error);
-        });
-}
-
-function normalizarAliasParaFirebase(texto) {
-    return encodeURIComponent(
-        texto
-            .trim()
-            .toLowerCase()
-            .replace(/\s+/g, '-')
-    );
-}
-
-function mostrarRankingLocal() {
-    const ranking = JSON.parse(localStorage.getItem('fp_ranking_local') || '{}');
-    const lista = Object.values(ranking);
-
-    lista.sort(function (a, b) {
-        if (b.correctas !== a.correctas) {
-            return b.correctas - a.correctas;
-        }
-
-        const erroresA = Math.max(0, Number(a.respondidas || 0) - Number(a.correctas || 0));
-        const erroresB = Math.max(0, Number(b.respondidas || 0) - Number(b.correctas || 0));
-
-        if (erroresA !== erroresB) {
-            return erroresA - erroresB;
-        }
-
-        const tiempoA = Number(a.tiempoSegundos || 999999);
-        const tiempoB = Number(b.tiempoSegundos || 999999);
-
-        if (tiempoA !== tiempoB) {
-            return tiempoA - tiempoB;
-        }
-
-        return Number(b.respondidas || 0) - Number(a.respondidas || 0);
-    });
-
-    const contenedor = document.getElementById('ranking-contenido');
-
-    if (!contenedor) {
-        return;
-    }
-
-    if (lista.length === 0) {
-        contenedor.innerHTML = '<p>Todavía no hay participantes guardados en este dispositivo.</p>';
-        return;
-    }
-
-    let html = '';
-
-    lista.forEach(function (item, indice) {
-        html += `
-            <div class="fila-ranking">
-                <span>${indice + 1}. ${item.alias}</span>
-                <strong>${item.correctas} aciertos · ${item.tiempoTexto || '--:--'}</strong>
-            </div>
-        `;
-    });
-
-    contenedor.innerHTML = html;
 }
