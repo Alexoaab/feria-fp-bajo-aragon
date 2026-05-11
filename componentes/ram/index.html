@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Memoria RAM - Feria FP Hardware en Realidad Aumentada</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <!-- Librerías AR -->
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/studio-backend/master/src/modules/marker/tools/gesture-detector.js"></script>
+
+    <!-- Configuración del modelo -->
+    <script src="config.js"></script>
+
+    <style>
+        :root {
+            --menu-h: 74px;
+            --estado-h: 42px;
+            --botonera-h: 68px;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100dvh;
+            max-height: 100dvh;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #020617;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        #menu-superior {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--menu-h);
+            min-height: var(--menu-h);
+            z-index: 1000000;
+            background: rgba(15, 23, 42, 0.98);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.45);
+            padding: 8px;
+        }
+
+        #menu-botones {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(12, minmax(64px, 1fr));
+            gap: 6px;
+        }
+
+        .nav-btn {
+            min-width: 0;
+            height: 100%;
+            padding: 6px;
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+            line-height: 1.1;
+            touch-action: manipulation;
+            word-break: normal;
+            position: relative;
+            transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease, border 0.12s ease, background 0.12s ease;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.94);
+            filter: brightness(1.25);
+        }
+
+        .logo-btn {
+            background: white !important;
+            padding: 5px;
+        }
+
+        #logo-centro {
+            width: 100%;
+            height: 100%;
+            max-height: 32px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nav-btn.inicio { background: #16a34a; }
+        .nav-btn.carcasa { background: #9333ea; }
+        .nav-btn.fuente { background: #ca8a04; }
+        .nav-btn.placa { background: #2563eb; }
+        .nav-btn.cpu { background: #dc2626; }
+        .nav-btn.refrigeracion { background: #0284c7; }
+        .nav-btn.ram { background: #0891b2; }
+        .nav-btn.almacenamiento { background: #ea580c; }
+        .nav-btn.gpu { background: #be123c; }
+        .nav-btn.conexiones { background: #4b5563; }
+
+        .nav-btn.ranking-link {
+            background: #f59e0b;
+            color: #111827;
+        }
+
+        .nav-btn.activo {
+            background: #7f1d1d !important;
+            border: 3px solid #ffffff;
+            outline: 3px solid #ef4444;
+            transform: translateY(-3px);
+            filter: brightness(1.18);
+            box-shadow:
+                0 0 0 4px rgba(239, 68, 68, 0.45),
+                0 8px 22px rgba(0,0,0,0.65);
+        }
+
+        #barra-estado {
+            position: fixed;
+            top: var(--menu-h);
+            left: 0;
+            right: 0;
+            height: var(--estado-h);
+            min-height: var(--estado-h);
+            z-index: 1000000;
+            background: rgba(255, 255, 255, 0.97);
+            color: #111827;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+        }
+
+        #marcador-puntos {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        #marcador-puntos strong {
+            color: #16a34a;
+        }
+
+        #visor-ar {
+            position: fixed;
+            top: calc(var(--menu-h) + var(--estado-h) + 10px);
+            left: 12px;
+            right: 12px;
+            bottom: calc(var(--botonera-h) + 18px + env(safe-area-inset-bottom));
+            z-index: 1;
+            background: #f8fafc;
+            border: 3px solid #0891b2;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.55);
+        }
+
+        #visor-ar a-scene,
+        #visor-ar .a-canvas {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 1 !important;
+        }
+
+        #aviso {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            width: min(90%, 430px);
+            background: rgba(255, 255, 255, 0.95);
+            color: #111827;
+            border-radius: 14px;
+            padding: 12px;
+            text-align: center;
+            font-size: 14px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+            pointer-events: auto;
+        }
+
+        #botonera {
+            position: fixed;
+            bottom: calc(14px + env(safe-area-inset-bottom));
+            left: 0;
+            right: 0;
+            min-height: var(--botonera-h);
+            z-index: 1000000;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0 12px;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #botonera button {
+            border: none;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 15px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            touch-action: manipulation;
+            transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease, border 0.12s ease;
+        }
+
+        #botonera button:active {
+            transform: scale(0.94);
+            filter: brightness(1.25);
+        }
+
+        #botonera button.boton-activo {
+            border: 3px solid white;
+            outline: 3px solid #ef4444;
+            transform: translateY(-3px);
+            filter: brightness(1.18);
+            box-shadow:
+                0 0 0 4px rgba(239, 68, 68, 0.40),
+                0 8px 22px rgba(0,0,0,0.65);
+        }
+
+        #botonera button.boton-pulsado {
+            transform: scale(0.92);
+            filter: brightness(1.35);
+            box-shadow:
+                0 0 0 4px rgba(255,255,255,0.45),
+                0 6px 18px rgba(0,0,0,0.55);
+        }
+
+        #btn-info { background: #2563eb; }
+        #btn-reto { background: #16a34a; }
+
+        #btn-puntos {
+            background: #f59e0b;
+            color: #111827 !important;
+        }
+
+        .btn-control { background: #374151; }
+        .btn-guardar { background: #7c3aed; }
+
+        .panel {
+            position: fixed;
+            left: 50%;
+            bottom: calc(var(--botonera-h) + 22px + env(safe-area-inset-bottom));
+            transform: translateX(-50%);
+            width: min(92%, 520px);
+            max-height: 64vh;
+            overflow-y: auto;
+            z-index: 1000001;
+            background: rgba(255, 255, 255, 0.97);
+            color: #111827;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.55);
+            display: none;
+            pointer-events: auto;
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #111827;
+            font-size: 22px;
+        }
+
+        .panel h3 {
+            margin-bottom: 6px;
+            color: #0891b2;
+            font-size: 17px;
+        }
+
+        .panel p,
+        .panel li {
+            font-size: 15px;
+            line-height: 1.45;
+        }
+
+        .panel ul {
+            padding-left: 22px;
+        }
+
+        .cerrar,
+        .boton-secundario {
+            width: 100%;
+            margin-top: 12px;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 11px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .cerrar { background: #111827; }
+        .boton-secundario { background: #6b7280; }
+
+        .opcion {
+            display: block;
+            width: 100%;
+            margin: 9px 0;
+            padding: 11px;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            background: white;
+            font-size: 15px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .opcion:hover {
+            background: #eff6ff;
+            border-color: #2563eb;
+        }
+
+        .opcion:disabled {
+            cursor: not-allowed;
+        }
+
+        .opcion.correcta {
+            background: #dcfce7 !important;
+            border-color: #16a34a !important;
+            color: #14532d !important;
+            font-weight: bold;
+        }
+
+        .opcion.incorrecta {
+            background: #fee2e2 !important;
+            border-color: #dc2626 !important;
+            color: #7f1d1d !important;
+            font-weight: bold;
+        }
+
+        .feedback {
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .feedback.correcto {
+            background: #dcfce7;
+            color: #14532d;
+            border: 2px solid #16a34a;
+        }
+
+        .feedback.incorrecto {
+            background: #fee2e2;
+            color: #7f1d1d;
+            border: 2px solid #dc2626;
+        }
+
+        .puntos-extra {
+            display: inline-block;
+            margin-top: 8px;
+            background: #16a34a;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        #panel-reto {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        #modal-alias {
+            position: fixed;
+            inset: 0;
+            z-index: 2000000;
+            background: rgba(0,0,0,0.78);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #caja-alias {
+            width: min(92%, 420px);
+            background: white;
+            color: #111827;
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        #caja-alias h2 {
+            margin-top: 0;
+        }
+
+        #alias-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 17px;
+            margin: 12px 0;
+        }
+
+        #caja-alias button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .fila-ranking {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 8px 0;
+            font-size: 15px;
+        }
+
+        .fila-ranking strong {
+            color: #16a34a;
+        }
+
+        @media (max-width: 900px) {
+            :root {
+                --menu-h: 142px;
+                --estado-h: 42px;
+                --botonera-h: 108px;
+            }
+
+            #menu-superior {
+                padding: 7px;
+            }
+
+            #menu-botones {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+                gap: 7px;
+            }
+
+            .nav-btn {
+                width: 100%;
+                height: 100%;
+                min-width: 0;
+                font-size: 12px;
+                padding: 6px 4px;
+                border-radius: 11px;
+            }
+
+            .logo-btn {
+                padding: 4px;
+            }
+
+            #logo-centro {
+                max-height: 28px;
+            }
+
+            #marcador-puntos {
+                font-size: 13px;
+                gap: 12px;
+            }
+
+            #visor-ar {
+                left: 8px;
+                right: 8px;
+                border-radius: 14px;
+                border-width: 2px;
+            }
+
+            #botonera {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 7px;
+                padding: 0 8px;
+                align-items: stretch;
+                justify-content: stretch;
+                overflow: visible;
+            }
+
+            #botonera button {
+                width: 100%;
+                min-width: 0;
+                font-size: 13px;
+                padding: 10px 6px;
+                border-radius: 12px;
+                text-align: center;
+            }
+
+            .panel {
+                width: min(94%, 440px);
+                max-height: 50vh;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --menu-h: 138px;
+                --estado-h: 44px;
+                --botonera-h: 118px;
+            }
+
+            #menu-superior {
+                padding: 6px;
+            }
+
+            #menu-botones {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+                gap: 6px;
+            }
+
+            .nav-btn {
+                font-size: 11px;
+                padding: 5px 3px;
+                border-radius: 10px;
+            }
+
+            .logo-btn {
+                padding: 4px;
+            }
+
+            #logo-centro {
+                max-height: 24px;
+            }
+
+            #barra-estado {
+                padding: 4px 6px;
+            }
+
+            #marcador-puntos {
+                font-size: 12px;
+                gap: 8px;
+                flex-wrap: wrap;
+                line-height: 1.2;
+            }
+
+            #visor-ar {
+                left: 6px;
+                right: 6px;
+                border-radius: 14px;
+            }
+
+            #aviso {
+                width: min(94%, 340px);
+                font-size: 12px;
+                padding: 8px;
+            }
+
+            #botonera {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+                padding: 0 6px;
+            }
+
+            #botonera button {
+                font-size: 12px;
+                padding: 9px 5px;
+                border-radius: 10px;
+            }
+
+            .panel {
+                max-height: 46vh;
+            }
+
+            .panel h2 {
+                font-size: 19px;
+            }
+
+            .panel p,
+            .panel li,
+            .opcion {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            :root {
+                --menu-h: 174px;
+                --botonera-h: 126px;
+            }
+
+            #menu-botones {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+                gap: 5px;
+            }
+
+            .nav-btn {
+                font-size: 10.5px;
+                padding: 4px 3px;
+            }
+
+            #logo-centro {
+                max-height: 23px;
+            }
+
+            #botonera button {
+                font-size: 11px;
+                padding: 8px 4px;
+            }
+
+            #marcador-puntos {
+                font-size: 11px;
+            }
+
+            .panel {
+                max-height: 42vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="modal-alias">
+        <div id="caja-alias">
+            <h2>Participa en el reto</h2>
+            <p>Escribe un alias para guardar tu puntuación.</p>
+            <input id="alias-input" type="text" maxlength="18" placeholder="Ejemplo: EquipoAzul">
+            <button onclick="guardarAlias()">Empezar</button>
+        </div>
+    </div>
+
+    <nav id="menu-superior">
+        <div id="menu-botones">
+
+            <a class="nav-btn logo-btn" href="../../index.html" aria-label="Inicio CPIFP Bajo Aragón">
+                <img id="logo-centro" src="../../assets/CPIFPBajoAragon.png" alt="Logotipo CPIFP Bajo Aragón">
+            </a>
+
+            <a class="nav-btn inicio" href="../../index.html">Inicio</a>
+            <a class="nav-btn carcasa" href="../carcasa/index.html">Carcasa</a>
+            <a class="nav-btn fuente" href="../fuente/index.html">Fuente</a>
+            <a class="nav-btn placa" href="../placa-base/index.html">Placa</a>
+            <a class="nav-btn cpu" href="../cpu/index.html">CPU</a>
+            <a class="nav-btn refrigeracion" href="../refrigeracion/index.html">Refrig.</a>
+            <a class="nav-btn ram activo" href="index.html">RAM</a>
+            <a class="nav-btn almacenamiento" href="../ssd/index.html">Disco</a>
+            <a class="nav-btn gpu" href="../grafica/index.html">GPU</a>
+            <a class="nav-btn conexiones" href="../conexiones-internas/index.html">Cables</a>
+            <a class="nav-btn ranking-link" href="../../ranking.html">Ranking</a>
+
+        </div>
+    </nav>
+
+    <div id="barra-estado">
+        <div id="marcador-puntos">
+            <span>👤 Alias: <strong id="alias-visible">---</strong></span>
+            <span>🏆 Aciertos: <strong id="puntos-visible">0</strong></span>
+        </div>
+    </div>
+
+    <div id="visor-ar">
+
+        <div id="aviso">
+            Enfoca el marcador de memoria RAM para ver su maqueta 3D.
+        </div>
+
+        <a-scene
+            vr-mode-ui="enabled: false;"
+            loading-screen="enabled: false;"
+            renderer="logarithmicDepthBuffer: true; colorManagement: true; antialias: true;"
+            arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
+            id="scene"
+            embedded
+            gesture-detector
+        >
+            <a-assets>
+                <a-asset-item
+                    id="ram-asset"
+                    src="assets/asset.glb">
+                </a-asset-item>
+            </a-assets>
+
+            <a-entity light="type: ambient; color: #ffffff; intensity: 5"></a-entity>
+
+            <a-entity
+                light="type: directional; color: #ffffff; intensity: 4"
+                position="1 4 2">
+            </a-entity>
+
+            <a-entity
+                light="type: directional; color: #ffffff; intensity: 3"
+                position="-2 3 -2">
+            </a-entity>
+
+            <a-entity
+                light="type: hemisphere; color: #ffffff; groundColor: #bbbbbb; intensity: 2">
+            </a-entity>
+
+            <a-marker
+                id="markerA"
+                type="pattern"
+                preset="custom"
+                url="assets/marker.patt"
+                raycaster="objects: .clickable"
+                emitevents="true"
+                cursor="fuse: false; rayOrigin: mouse;"
+            >
+                <a-entity
+                    id="modelo-ordenador"
+                    gltf-model="url(assets/asset.glb)"
+                    class="clickable">
+                </a-entity>
+            </a-marker>
+
+            <a-entity camera></a-entity>
+        </a-scene>
+
+    </div>
+
+    <div id="botonera">
+        <button id="btn-info" onclick="mostrarPanel('info')">ℹ Info</button>
+        <button id="btn-reto" onclick="mostrarPanel('reto')">❓ Reto</button>
+        <button id="btn-puntos" onclick="mostrarPanel('puntuacion')">🏆 Puntos</button>
+
+        <button id="btn-girar" class="btn-control" onclick="girarModelo()">↻ Girar</button>
+        <button id="btn-mas" class="btn-control" onclick="aumentarModelo()">＋</button>
+        <button id="btn-menos" class="btn-control" onclick="reducirModelo()">－</button>
+        <button id="btn-reset" class="btn-control" onclick="reiniciarModelo()">⟳</button>
+        <button id="btn-guardar" class="btn-guardar" onclick="guardarEscalaActual()">💾 Guardar</button>
+    </div>
+
+    <div id="panel-info" class="panel">
+        <h2>Memoria RAM</h2>
+
+        <p>
+            La memoria RAM es una memoria rápida y temporal. El ordenador la utiliza para trabajar
+            con los programas y datos que están abiertos en ese momento.
+        </p>
+
+        <h3>Funciones principales</h3>
+        <ul>
+            <li><strong>Memoria temporal:</strong> guarda datos mientras el equipo está encendido.</li>
+            <li><strong>Ayuda al rendimiento:</strong> permite trabajar con programas abiertos con más fluidez.</li>
+            <li><strong>Acceso rápido:</strong> es mucho más rápida que un disco duro tradicional.</li>
+            <li><strong>Trabajo multitarea:</strong> ayuda cuando usamos varias aplicaciones a la vez.</li>
+        </ul>
+
+        <h3>Aspectos importantes</h3>
+        <ul>
+            <li><strong>Capacidad:</strong> se mide en GB, por ejemplo 8 GB, 16 GB o 32 GB.</li>
+            <li><strong>Tipo:</strong> DDR3, DDR4 o DDR5, según compatibilidad de la placa base.</li>
+            <li><strong>Frecuencia:</strong> indica parte de la velocidad de trabajo de la memoria.</li>
+            <li><strong>Ranuras DIMM:</strong> lugar donde se instala la RAM en la placa base.</li>
+            <li><strong>Dual channel:</strong> usar módulos en ranuras correctas puede mejorar el rendimiento.</li>
+        </ul>
+
+        <h3>Buenas prácticas</h3>
+        <ul>
+            <li>Comprobar que la RAM es compatible con la placa base.</li>
+            <li>Instalar los módulos en las ranuras recomendadas por el manual.</li>
+            <li>No forzar la memoria si no encaja correctamente.</li>
+            <li>Insertar el módulo hasta que las pestañas queden cerradas.</li>
+            <li>Apagar y desconectar el equipo antes de manipular la RAM.</li>
+        </ul>
+
+        <button class="cerrar" onclick="cerrarPaneles()">Cerrar información</button>
+    </div>
+
+    <div id="panel-reto" class="panel">
+        <h2>Reto: memoria RAM</h2>
+
+        <div id="contenedor-pregunta"></div>
+
+        <button class="cerrar" onclick="siguientePregunta()">Siguiente pregunta</button>
+        <button class="boton-secundario" onclick="cerrarPaneles()">Cerrar reto</button>
+    </div>
+
+    <div id="panel-puntuacion" class="panel">
+        <h2>Tu puntuación</h2>
+
+        <p><strong>Alias:</strong> <span id="alias-panel">---</span></p>
+        <p><strong>Preguntas correctas:</strong> <span id="correctas-panel">0</span></p>
+        <p><strong>Preguntas respondidas:</strong> <span id="respondidas-panel">0</span></p>
+
+        <p>
+            Esta puntuación se guarda en este navegador y también se envía al ranking online de la feria.
+        </p>
+
+        <button class="boton-secundario" onclick="reiniciarRetoActual()">Reiniciar preguntas de esta página</button>
+        <button class="boton-secundario" onclick="cambiarAlias()">Cambiar alias</button>
+        <button class="cerrar" onclick="cerrarPaneles()">Cerrar puntuación</button>
+    </div>
+
+    <div id="panel-ranking" class="panel">
+        <h2>Clasificación local</h2>
+
+        <div id="ranking-contenido"></div>
+
+        <p>
+            Esta clasificación muestra los participantes guardados en este dispositivo.
+            La clasificación general se consulta desde el botón Ranking.
+        </p>
+
+        <button class="cerrar" onclick="cerrarPaneles()">Cerrar ranking</button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-database-compat.js"></script>
+
+    <!-- Configuración Firebase desde la raíz -->
+    <script src="../../firebase-config.js?v=300"></script>
+
+    <!-- Código principal -->
+    <script src="app.js?v=300"></script>
+
+</body>
+</html>

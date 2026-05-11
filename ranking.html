@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Ranking - Feria FP Bajo Aragón Hardware RA</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <style>
+        :root {
+            --menu-h: 74px;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100dvh;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #111827;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        #menu-superior {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--menu-h);
+            min-height: var(--menu-h);
+            z-index: 1000000;
+            background: rgba(15, 23, 42, 0.98);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.45);
+            padding: 8px;
+        }
+
+        #menu-botones {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(12, minmax(64px, 1fr));
+            gap: 6px;
+        }
+
+        .nav-btn {
+            min-width: 0;
+            height: 100%;
+            padding: 6px;
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+            line-height: 1.1;
+            touch-action: manipulation;
+            word-break: normal;
+            position: relative;
+            transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease, border 0.12s ease, background 0.12s ease;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.94);
+            filter: brightness(1.25);
+        }
+
+        .logo-btn {
+            background: white !important;
+            padding: 5px;
+        }
+
+        #logo-centro {
+            width: 100%;
+            height: 100%;
+            max-height: 32px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .nav-btn.inicio {
+            background: #16a34a;
+        }
+
+        .nav-btn.carcasa {
+            background: #9333ea;
+        }
+
+        .nav-btn.fuente {
+            background: #ca8a04;
+        }
+
+        .nav-btn.placa {
+            background: #2563eb;
+        }
+
+        .nav-btn.cpu {
+            background: #dc2626;
+        }
+
+        .nav-btn.refrigeracion {
+            background: #0284c7;
+        }
+
+        .nav-btn.ram {
+            background: #0891b2;
+        }
+
+        .nav-btn.almacenamiento {
+            background: #ea580c;
+        }
+
+        .nav-btn.gpu {
+            background: #be123c;
+        }
+
+        .nav-btn.conexiones {
+            background: #4b5563;
+        }
+
+        .nav-btn.ranking-link {
+            background: #f59e0b;
+            color: #111827;
+        }
+
+        .nav-btn.activo {
+            background: #7f1d1d !important;
+            color: white !important;
+            border: 3px solid #ffffff;
+            outline: 3px solid #ef4444;
+            transform: translateY(-3px);
+            filter: brightness(1.18);
+            box-shadow:
+                0 0 0 4px rgba(239, 68, 68, 0.45),
+                0 8px 22px rgba(0,0,0,0.65);
+        }
+
+        main {
+            padding: calc(var(--menu-h) + 24px) 16px 32px 16px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        #cabecera-ranking {
+            background: white;
+            border-radius: 22px;
+            padding: 24px;
+            box-shadow: 0 8px 26px rgba(0,0,0,0.45);
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        #cabecera-ranking h1 {
+            margin: 0 0 10px 0;
+            font-size: 30px;
+            color: #111827;
+        }
+
+        #cabecera-ranking p {
+            margin: 8px 0;
+            font-size: 16px;
+            line-height: 1.45;
+        }
+
+        .aviso-online {
+            margin-top: 14px;
+            background: #dcfce7;
+            color: #14532d;
+            border: 2px solid #16a34a;
+            border-radius: 14px;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .aviso-error {
+            background: #fee2e2 !important;
+            color: #7f1d1d !important;
+            border-color: #dc2626 !important;
+        }
+
+        #resumen {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .tarjeta-resumen {
+            background: white;
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+            text-align: center;
+        }
+
+        .tarjeta-resumen strong {
+            display: block;
+            font-size: 30px;
+            color: #16a34a;
+            margin-bottom: 6px;
+        }
+
+        .tarjeta-resumen span {
+            font-size: 14px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        #controles {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        #controles button,
+        #controles a {
+            border: none;
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            box-shadow: 0 5px 16px rgba(0,0,0,0.35);
+        }
+
+        #btn-actualizar {
+            background: #2563eb;
+        }
+
+        #btn-exportar {
+            background: #16a34a;
+        }
+
+        #btn-borrar {
+            background: #dc2626;
+        }
+
+        #btn-inicio {
+            background: #374151;
+        }
+
+        #ranking-contenedor {
+            background: white;
+            border-radius: 22px;
+            padding: 18px;
+            box-shadow: 0 8px 26px rgba(0,0,0,0.45);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+        }
+
+        th {
+            background: #111827;
+            color: white;
+            padding: 12px 8px;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 15px;
+        }
+
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        .puesto {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .alias {
+            font-weight: bold;
+        }
+
+        .aciertos {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .errores {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .respondidas {
+            color: #374151;
+            font-weight: bold;
+        }
+
+        .porcentaje {
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .sin-datos {
+            text-align: center;
+            padding: 28px;
+            font-size: 17px;
+            color: #374151;
+            line-height: 1.5;
+        }
+
+        .medalla-1 {
+            color: #f59e0b;
+        }
+
+        .medalla-2 {
+            color: #6b7280;
+        }
+
+        .medalla-3 {
+            color: #b45309;
+        }
+
+        @media (max-width: 900px) {
+            :root {
+                --menu-h: 142px;
+            }
+
+            #menu-superior {
+                padding: 7px;
+            }
+
+            #menu-botones {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+                gap: 7px;
+            }
+
+            .nav-btn {
+                width: 100%;
+                height: 100%;
+                min-width: 0;
+                font-size: 12px;
+                padding: 6px 4px;
+                border-radius: 11px;
+            }
+
+            .logo-btn {
+                padding: 4px;
+            }
+
+            #logo-centro {
+                max-height: 28px;
+            }
+
+            main {
+                padding-top: calc(var(--menu-h) + 18px);
+            }
+
+            #resumen {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            #cabecera-ranking h1 {
+                font-size: 24px;
+            }
+
+            #cabecera-ranking p {
+                font-size: 14px;
+            }
+
+            #ranking-contenedor {
+                padding: 12px;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tr {
+                background: #f9fafb;
+                border: 2px solid #e5e7eb;
+                border-radius: 16px;
+                margin-bottom: 12px;
+                padding: 10px;
+            }
+
+            tr:nth-child(even) {
+                background: #ffffff;
+            }
+
+            td {
+                border-bottom: none;
+                padding: 7px 4px;
+                display: flex;
+                justify-content: space-between;
+                gap: 12px;
+                font-size: 14px;
+            }
+
+            td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: #374151;
+            }
+
+            .puesto {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --menu-h: 138px;
+            }
+
+            #menu-superior {
+                padding: 6px;
+            }
+
+            #menu-botones {
+                grid-template-columns: repeat(4, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+                gap: 6px;
+            }
+
+            .nav-btn {
+                font-size: 11px;
+                padding: 5px 3px;
+                border-radius: 10px;
+            }
+
+            #logo-centro {
+                max-height: 24px;
+            }
+
+            main {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            #cabecera-ranking,
+            #ranking-contenedor {
+                border-radius: 18px;
+            }
+
+            #resumen {
+                grid-template-columns: 1fr;
+            }
+
+            #controles {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            #controles button,
+            #controles a {
+                width: 100%;
+                text-align: center;
+                font-size: 13px;
+                padding: 11px 8px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            :root {
+                --menu-h: 174px;
+            }
+
+            #menu-botones {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(4, 1fr);
+                gap: 5px;
+            }
+
+            .nav-btn {
+                font-size: 10.5px;
+                padding: 4px 3px;
+            }
+
+            #logo-centro {
+                max-height: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav id="menu-superior">
+        <div id="menu-botones">
+
+            <a class="nav-btn logo-btn" href="index.html" aria-label="Inicio CPIFP Bajo Aragón">
+                <img id="logo-centro" src="./assets/CPIFPBajoAragon.png" alt="Logotipo CPIFP Bajo Aragón">
+            </a>
+
+            <a class="nav-btn inicio" href="index.html">Inicio</a>
+            <a class="nav-btn carcasa" href="componentes/carcasa/index.html">Carcasa</a>
+            <a class="nav-btn fuente" href="componentes/fuente/index.html">Fuente</a>
+            <a class="nav-btn placa" href="componentes/placa-base/index.html">Placa</a>
+            <a class="nav-btn cpu" href="componentes/cpu/index.html">CPU</a>
+            <a class="nav-btn refrigeracion" href="componentes/refrigeracion/index.html">Refrig.</a>
+            <a class="nav-btn ram" href="componentes/ram/index.html">RAM</a>
+            <a class="nav-btn almacenamiento" href="componentes/ssd/index.html">Disco</a>
+            <a class="nav-btn gpu" href="componentes/grafica/index.html">GPU</a>
+            <a class="nav-btn conexiones" href="componentes/conexiones-internas/index.html">Cables</a>
+            <a class="nav-btn ranking-link activo" href="ranking.html">Ranking</a>
+
+        </div>
+    </nav>
+
+    <main>
+        <section id="cabecera-ranking">
+            <h1>🏆 Ranking del reto Hardware RA</h1>
+
+            <p>
+                Esta clasificación muestra los alias con más puntuación en el reto de componentes internos
+                del ordenador.
+            </p>
+
+            <p>
+                Los alumnos pueden participar desde varios móviles. Cada respuesta se guarda en Firebase y
+                el ranking se actualiza automáticamente.
+            </p>
+
+            <div id="estado-conexion" class="aviso-online">
+                Conectando con Firebase...
+            </div>
+        </section>
+
+        <section id="resumen">
+            <div class="tarjeta-resumen">
+                <strong id="total-participantes">0</strong>
+                <span>Participantes</span>
+            </div>
+
+            <div class="tarjeta-resumen">
+                <strong id="mejor-puntuacion">0</strong>
+                <span>Mejor puntuación</span>
+            </div>
+
+            <div class="tarjeta-resumen">
+                <strong id="total-preguntas">50</strong>
+                <span>Preguntas máximas</span>
+            </div>
+
+            <div class="tarjeta-resumen">
+                <strong id="ultima-actualizacion">--:--</strong>
+                <span>Última actualización</span>
+            </div>
+        </section>
+
+        <section id="controles">
+            <button id="btn-actualizar" onclick="cargarRanking()">Actualizar</button>
+            <button id="btn-exportar" onclick="exportarCSV()">Exportar CSV</button>
+            <button id="btn-borrar" onclick="borrarRanking()">Borrar ranking</button>
+            <a id="btn-inicio" href="index.html">Volver al inicio</a>
+        </section>
+
+        <section id="ranking-contenedor">
+            <div id="tabla-ranking">
+                <div class="sin-datos">
+                    Cargando ranking...
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.13.0/firebase-database-compat.js"></script>
+
+    <!-- Configuración de Firebase -->
+    <script src="firebase-config.js?v=10"></script>
+
+    <script>
+        const RUTA_RANKING_FIREBASE = 'rankingFeriaFPBajoAragon';
+        const TOTAL_PREGUNTAS = 50;
+
+        let listaRankingActual = [];
+        let escuchaIniciada = false;
+
+        window.addEventListener('load', function () {
+            document.getElementById('total-preguntas').innerText = TOTAL_PREGUNTAS;
+            iniciarRanking();
+        });
+
+        function iniciarRanking() {
+            if (typeof firebase === 'undefined') {
+                mostrarErrorConexion('❌ Firebase SDK no se ha cargado.');
+                return;
+            }
+
+            if (!window.rankingDB) {
+                mostrarErrorConexion('❌ Firebase no está inicializado. Revisa firebase-config.js.');
+                return;
+            }
+
+            comprobarConexionFirebase();
+
+            if (!escuchaIniciada) {
+                escuchaIniciada = true;
+                escucharRankingFirebase(pintarRanking);
+            }
+        }
+
+        function mostrarErrorConexion(mensaje) {
+            const estado = document.getElementById('estado-conexion');
+
+            estado.innerText = mensaje;
+            estado.classList.add('aviso-error');
+
+            document.getElementById('tabla-ranking').innerHTML = `
+                <div class="sin-datos">
+                    <strong>No se ha podido conectar con Firebase.</strong><br><br>
+                    Revisa que el archivo <strong>firebase-config.js</strong> esté en la raíz del proyecto
+                    y que tenga bien configurado <strong>databaseURL</strong>.
+                </div>
+            `;
+        }
+
+        function comprobarConexionFirebase() {
+            window.rankingDB.ref('.info/connected').on('value', function (snapshot) {
+                const estado = document.getElementById('estado-conexion');
+
+                if (snapshot.val() === true) {
+                    estado.innerText = '✅ Firebase conectado. Ranking online activo.';
+                    estado.classList.remove('aviso-error');
+                } else {
+                    estado.innerText = '⚠️ Conectando con Firebase...';
+                }
+            });
+        }
+
+        function calcularPorcentajeRanking(correctas, respondidas) {
+            if (respondidas <= 0) {
+                return 0;
+            }
+
+            return Math.round((correctas / respondidas) * 100);
+        }
+
+        function ordenarListaRanking(lista) {
+            lista.sort(function (a, b) {
+                if (b.correctas !== a.correctas) {
+                    return b.correctas - a.correctas;
+                }
+
+                if (a.errores !== b.errores) {
+                    return a.errores - b.errores;
+                }
+
+                return b.respondidas - a.respondidas;
+            });
+
+            return lista;
+        }
+
+        function escucharRankingFirebase(callback) {
+            if (!window.rankingDB) {
+                mostrarErrorConexion('❌ Firebase no está disponible.');
+                return;
+            }
+
+            const referencia = window.rankingDB.ref(RUTA_RANKING_FIREBASE);
+
+            referencia.on(
+                'value',
+                function (snapshot) {
+                    const datos = snapshot.val() || {};
+
+                    const lista = Object.values(datos).map(function (item) {
+                        const correctas = Number(item.correctas || 0);
+                        const respondidas = Number(item.respondidas || 0);
+                        const errores = Math.max(0, respondidas - correctas);
+
+                        return {
+                            alias: item.alias || 'Sin alias',
+                            correctas: correctas,
+                            respondidas: respondidas,
+                            errores: errores,
+                            porcentaje: calcularPorcentajeRanking(correctas, respondidas),
+                            fecha: item.fecha || ''
+                        };
+                    });
+
+                    listaRankingActual = ordenarListaRanking(lista);
+                    callback(listaRankingActual);
+                },
+                function (error) {
+                    console.error('Error leyendo ranking:', error);
+                    mostrarErrorConexion('❌ Error leyendo ranking. Revisa las reglas de Firebase.');
+                }
+            );
+        }
+
+        function cargarRanking() {
+            pintarRanking(listaRankingActual);
+        }
+
+        function pintarRanking(lista) {
+            const contenedor = document.getElementById('tabla-ranking');
+
+            document.getElementById('total-participantes').innerText = lista.length;
+            document.getElementById('ultima-actualizacion').innerText = obtenerHoraActual();
+
+            if (lista.length === 0) {
+                document.getElementById('mejor-puntuacion').innerText = '0';
+
+                contenedor.innerHTML = `
+                    <div class="sin-datos">
+                        <strong>Todavía no hay participantes.</strong><br><br>
+                        Entra en una página de componente, escribe un alias y responde algunas preguntas.
+                        Después vuelve aquí para ver la clasificación común.
+                    </div>
+                `;
+                return;
+            }
+
+            document.getElementById('mejor-puntuacion').innerText = lista[0].correctas;
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Puesto</th>
+                            <th>Alias</th>
+                            <th>Aciertos</th>
+                            <th>Errores</th>
+                            <th>Respondidas</th>
+                            <th>Porcentaje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            lista.forEach(function (item, indice) {
+                const puesto = indice + 1;
+                let medalla = '';
+
+                if (puesto === 1) {
+                    medalla = '<span class="medalla-1">🥇</span>';
+                } else if (puesto === 2) {
+                    medalla = '<span class="medalla-2">🥈</span>';
+                } else if (puesto === 3) {
+                    medalla = '<span class="medalla-3">🥉</span>';
+                } else {
+                    medalla = puesto + '.';
+                }
+
+                html += `
+                    <tr>
+                        <td class="puesto" data-label="Puesto">${medalla}</td>
+                        <td class="alias" data-label="Alias">${escaparHTML(item.alias)}</td>
+                        <td class="aciertos" data-label="Aciertos">${item.correctas}</td>
+                        <td class="errores" data-label="Errores">${item.errores}</td>
+                        <td class="respondidas" data-label="Respondidas">${item.respondidas}</td>
+                        <td class="porcentaje" data-label="Porcentaje">${item.porcentaje}%</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            contenedor.innerHTML = html;
+        }
+
+        function borrarRanking() {
+            const confirmar = confirm(
+                'Esta acción borra el ranking online de todos los alumnos. ¿Quieres continuar?'
+            );
+
+            if (!confirmar) {
+                return;
+            }
+
+            const codigo = prompt('Para confirmar, escribe BORRAR en mayúsculas.');
+
+            if (codigo !== 'BORRAR') {
+                alert('Borrado cancelado.');
+                return;
+            }
+
+            if (!window.rankingDB) {
+                alert('Firebase no está disponible.');
+                return;
+            }
+
+            window.rankingDB.ref(RUTA_RANKING_FIREBASE).remove()
+                .then(function () {
+                    alert('Ranking borrado correctamente.');
+                })
+                .catch(function (error) {
+                    alert('No se ha podido borrar el ranking.');
+                    console.log(error);
+                });
+        }
+
+        function exportarCSV() {
+            if (listaRankingActual.length === 0) {
+                alert('No hay datos para exportar.');
+                return;
+            }
+
+            let csv = 'Puesto,Alias,Aciertos,Errores,Respondidas,Porcentaje\n';
+
+            listaRankingActual.forEach(function (item, indice) {
+                csv += [
+                    indice + 1,
+                    limpiarCSV(item.alias),
+                    item.correctas,
+                    item.errores,
+                    item.respondidas,
+                    item.porcentaje + '%'
+                ].join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            const enlace = document.createElement('a');
+            enlace.href = url;
+            enlace.download = 'ranking-feria-fp-bajo-aragon.csv';
+            enlace.click();
+
+            URL.revokeObjectURL(url);
+        }
+
+        function obtenerHoraActual() {
+            const ahora = new Date();
+
+            return ahora.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function escaparHTML(texto) {
+            return String(texto)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function limpiarCSV(texto) {
+            return String(texto)
+                .replaceAll(',', ' ')
+                .replaceAll('\n', ' ')
+                .replaceAll('\r', ' ');
+        }
+    </script>
+
+</body>
+</html>
