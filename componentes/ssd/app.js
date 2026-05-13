@@ -5,7 +5,8 @@
    - Preguntas exclusivas de almacenamiento SSD.
    - Admin: feriadelafp.
    - Total reto completo: 50 preguntas.
-   - El tiempo empieza al escribir alias.
+   - El alias se introduce antes de empezar.
+   - El tiempo empieza al pulsar por primera vez una respuesta del reto.
    - El tiempo NO se detiene al terminar este bloque.
    - El tiempo solo se detiene cuando se han respondido 50 preguntas.
    - Ranking: más aciertos -> menor tiempo.
@@ -176,11 +177,10 @@ window.addEventListener('load', function () {
     preguntaActual = buscarPrimeraPreguntaPendiente();
 
     if (alias) {
-        iniciarCronometroReto();
-    } else {
-        actualizarCronometroVisible();
+        cargarTiempoGuardado();
     }
 
+    actualizarCronometroVisible();
     actualizarPuntuacion();
     cargarPregunta();
 
@@ -365,37 +365,49 @@ function claveTiempoFinalAlias() {
     return 'fp_tiempo_final_' + normalizarAlias(alias);
 }
 
+function cargarTiempoGuardado() {
+    if (!alias) {
+        return;
+    }
+
+    const tiempoInicioGuardado = localStorage.getItem(claveTiempoInicioAlias());
+    const tiempoFinalGuardado = localStorage.getItem(claveTiempoFinalAlias());
+
+    tiempoInicioReto = tiempoInicioGuardado ? Number(tiempoInicioGuardado) : 0;
+    tiempoFinalReto = tiempoFinalGuardado ? Number(tiempoFinalGuardado) : 0;
+
+    if (tiempoInicioReto > 0 && tiempoFinalReto === 0) {
+        if (intervaloCronometro) {
+            clearInterval(intervaloCronometro);
+        }
+
+        intervaloCronometro = setInterval(function () {
+            actualizarCronometroVisible();
+        }, 1000);
+    }
+}
+
 function iniciarCronometroReto() {
     if (!alias) {
         return;
     }
 
-    const tiempoGuardado = localStorage.getItem(claveTiempoInicioAlias());
-
-    if (tiempoGuardado) {
-        tiempoInicioReto = Number(tiempoGuardado);
-    } else {
-        tiempoInicioReto = Date.now();
-        localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+    if (tiempoFinalReto > 0) {
+        return;
     }
 
-    const tiempoFinalGuardado = localStorage.getItem(claveTiempoFinalAlias());
-
-    if (tiempoFinalGuardado) {
-        tiempoFinalReto = Number(tiempoFinalGuardado);
-    } else {
-        tiempoFinalReto = 0;
+    if (tiempoInicioReto === 0) {
+        tiempoInicioReto = Date.now();
+        localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
     }
 
     if (intervaloCronometro) {
         clearInterval(intervaloCronometro);
     }
 
-    if (tiempoFinalReto === 0) {
-        intervaloCronometro = setInterval(function () {
-            actualizarCronometroVisible();
-        }, 1000);
-    }
+    intervaloCronometro = setInterval(function () {
+        actualizarCronometroVisible();
+    }, 1000);
 
     actualizarCronometroVisible();
 }
@@ -719,9 +731,11 @@ function guardarAlias() {
     }
 
     cargarProgreso();
+    cargarTiempoGuardado();
+
     preguntaActual = buscarPrimeraPreguntaPendiente();
 
-    iniciarCronometroReto();
+    actualizarCronometroVisible();
     cargarPregunta();
     actualizarPuntuacion();
 }
@@ -889,6 +903,8 @@ function responder(indiceElegido) {
         return;
     }
 
+    iniciarCronometroReto();
+
     const pregunta = PREGUNTAS[preguntaActual];
     const clave = idPregunta(preguntaActual);
 
@@ -979,15 +995,18 @@ function reiniciarRetoActual() {
     localStorage.removeItem(claveTiempoInicioAlias());
     localStorage.removeItem(claveTiempoFinalAlias());
 
-    tiempoInicioReto = Date.now();
+    tiempoInicioReto = 0;
     tiempoFinalReto = 0;
 
-    localStorage.setItem(claveTiempoInicioAlias(), String(tiempoInicioReto));
+    if (intervaloCronometro) {
+        clearInterval(intervaloCronometro);
+        intervaloCronometro = null;
+    }
 
     preguntaActual = 0;
     ordenOpcionesPorPregunta = {};
 
-    iniciarCronometroReto();
+    actualizarCronometroVisible();
     cargarPregunta();
     actualizarPuntuacion();
 }
